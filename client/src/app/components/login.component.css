@@ -1,0 +1,28 @@
+.login-container mat-form-field {
+    width: 80%;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 40vw;
+    margin: auto;
+    text-align: center;
+}
+
+mat-card-title {
+    padding: 10px;
+}
+
+mat-card-actions {
+    display: flex;
+    flex-direction: column;
+}
+
+mat-card-actions button {
+    width: 80%;
+}
+
+button {
+    margin: 5px;
+}
+

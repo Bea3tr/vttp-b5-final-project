@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login.component';
 import { HomeComponent } from './components/home.component';
 import { provideHttpClient } from '@angular/common/http';
+import { MaterialModule } from './material.module';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { provideHttpClient } from '@angular/common/http';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MaterialModule
   ],
   providers: [ provideHttpClient() ],
   bootstrap: [AppComponent]

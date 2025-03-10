@@ -1,1 +1,33 @@
-<button (click)="googleLogin()">Login with Google</button>
+<br>
+<mat-card class="login-card" appearance="outlined">
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content>
+        <div class="login-container">
+            <mat-form-field>
+              <mat-label>Enter your email</mat-label>
+              <input matInput>
+            </mat-form-field>
+        </div>
+        <div class="login-container">
+            <mat-form-field>
+              <mat-label>Enter your password</mat-label>
+              <input matInput [type]="hide() ? 'password' : 'text'" />
+              <button
+                mat-icon-button
+                matSuffix
+                (click)="clickEvent($event)"
+                [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide()"
+              >
+                <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+            </mat-form-field>
+        </div>
+    </mat-card-content>
+    <mat-card-actions>
+        <button mat-flat-button (click)="userLogin()">SIGN IN</button>
+        <button mat-stroked-button (click)="googleLogin()">
+            <mat-icon svgIcon="google"></mat-icon>Sign in with Google
+        </button>
+    </mat-card-actions>
+</mat-card>

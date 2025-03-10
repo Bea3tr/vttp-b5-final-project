@@ -31,6 +31,7 @@ export class AuthService {
             .requestAccessToken();
     }
 
+    // Fetch Google user data from Google API with access token
     private fetchGoogleUserInfo(accessToken: string) {
         this.http.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
             headers: { Authorization: `Bearer ${accessToken}` }
@@ -42,28 +43,35 @@ export class AuthService {
                 profilePicture: userData.picture
             }
             this.sendUserInfoToSB(userInfo)
-            localStorage.setItem('access_token', accessToken);
         })
     }
 
+    // Store authentication in session storage - true if user is authenticated
     private sendUserInfoToSB(userInfo: any) {
         this.http.post('/api/user-info', userInfo)
             .subscribe((resp: any) => {
                 console.info('User info sent to SB: ', resp)
                 this.authSubject.next(resp)
-                if(resp.message == 'access authenticated')
-                    this.router.navigate(['/home'])
+                if(resp.message == 'authenticated') {
+                    this.router.navigate(['/home', resp.id])
+                    sessionStorage.setItem('authenticated', 'true');
+                }
             })
     }
 
+    userLogin() {
+
+    }
+
+    // Authenticate login with access token attribute
     isLoggedIn(): boolean {
         // Get token from storage
-        const token = sessionStorage.getItem('access_token')
-        return !!token;
+        const token = sessionStorage.getItem('authenticated')
+        return token == 'true';
     }
 
     logout() {
-        sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('authenticated');
         this.authSubject.next(null);
     }
 }
