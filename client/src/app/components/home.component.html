@@ -1,3 +1,20 @@
-<h1>Welcome to Home</h1>
+<ul>
+    <li><a [routerLink]="['/home', id]"><img src="pawprint.png"></a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li>
+        <button mat-icon-button [routerLink]="['/post', id]">
+            <mat-icon svgIcon="add"></mat-icon>
+        </button>
+    </li>
+    <li>
+        <button mat-button [matMenuTriggerFor]="account">Account</button>
+        <mat-menu #account="matMenu">
+            <button mat-menu-item>Profile</button>
+            <button class="logout" mat-menu-item (click)="logout()">Logout</button>
+        </mat-menu>
+    </li>
+</ul>
 
-<button type="button" (click)="logout()">Logout</button>
+
+ 

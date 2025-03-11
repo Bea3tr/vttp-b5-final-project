@@ -19,11 +19,12 @@ public class UserRepository {
     @Autowired
     private JdbcTemplate template;
 
-    public boolean insertNewUser(UserInfo user, String id) {
+    public boolean insertNewUser(UserInfo user) {
         logger.info("[User Repo] Inserting user into MySQL");
         try {
             return 
-                template.update(SQL_INSERT_USER, id, user.getName(), user.getEmail(), user.getProfilePicture()) > 0;
+                template.update(SQL_INSERT_USER, user.getId(), user.getName(), 
+                    user.getEmail(), user.getPicture(), user.getPassword(), user.isGoogleLogin()) > 0;
         } catch (DataAccessException ex) {
             logger.warning(ex.getMessage());
             return false;
@@ -40,6 +41,16 @@ public class UserRepository {
         return id;
     }
 
+    public String getUserPassword(String email) {
+        logger.info("[User Repo] Retrieving password for: " + email);
+        String pw = "";
+        SqlRowSet rs = template.queryForRowSet(SQL_GET_USER_PASSWORD, email);
+        while(rs.next()) {
+            pw = rs.getString("password");
+        }
+        return pw;
+    }
+
     public boolean userExists(String email) {
         logger.info("[User Repo] Checking existing user: " + email);
         int count = 0;
@@ -50,4 +61,13 @@ public class UserRepository {
         return count > 0;
     }
     
+    public boolean isGoogleLogin(String email) {
+        logger.info("[User Repo] Checking Google user: " + email);
+        boolean isGoogle = false;
+        SqlRowSet rs = template.queryForRowSet(SQL_IS_GOOGLE_USER, email);
+        while(rs.next()) {
+            isGoogle = rs.getBoolean("google_login");
+        }
+        return isGoogle;
+    }
 }

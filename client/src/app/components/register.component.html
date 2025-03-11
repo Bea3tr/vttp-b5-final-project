@@ -1,12 +1,24 @@
 <br>
-<form [formGroup]="form" (submit)="userLogin()">
+<form [formGroup]="form" (submit)="register()">
   <mat-card class="login-card" appearance="outlined">
-    <mat-card-title>Login</mat-card-title>
+    <mat-card-title>Register</mat-card-title>
     <mat-card-content>
+        <div class="login-container">
+            <mat-form-field>
+              <mat-label>Enter your username</mat-label>
+              <input matInput formControlName="name">
+              @if (isCtrlInvalid("name")) {
+                <mat-error>Username should be between 3 - 32 characters</mat-error>
+              }
+            </mat-form-field>
+        </div>
         <div class="login-container">
             <mat-form-field>
               <mat-label>Enter your email</mat-label>
               <input matInput formControlName="email">
+              @if (isCtrlInvalid("email")) {
+                <mat-error>Please enter a valid email address</mat-error>
+              }
             </mat-form-field>
         </div>
         <div class="login-container">
@@ -22,12 +34,14 @@
               >
                 <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
               </button>
+              @if (isCtrlInvalid("password")) {
+                <mat-error>Password should be between 8 - 64 characters</mat-error>
+              }
             </mat-form-field>
         </div>
     </mat-card-content>
     <mat-card-actions>
-        <button mat-flat-button type="submit">SIGN IN</button>
-        <span>Don't have an account? <a [routerLink]="['/register']">Create your account</a></span>
+        <button mat-flat-button type="submit" [disabled]="form.invalid">REGISTER</button>
         <hr>
         <button mat-stroked-button (click)="googleLogin()">
             <mat-icon svgIcon="google"></mat-icon>Sign in with Google

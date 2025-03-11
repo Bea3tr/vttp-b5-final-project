@@ -1,0 +1,46 @@
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0 15px 0 0;
+    overflow: hidden;
+    background-color: #6890e152;
+    display: flex;
+    align-items: center; /* Align items vertically */
+}
+
+li {
+    display: flex;
+    align-items: center; /* Ensure all items align properly */
+}
+
+li a, li button {
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+li a {
+    display: block;
+    padding: 14px 16px;
+}
+
+li a:hover:not(.active) {
+    background-color: #111;
+    color: white;
+}
+
+li:last-child {
+    margin-left: auto; /* Push the button to the right */
+}
+
+.logout {
+    color: darkred;
+}
+
+li a img {
+    height: 7vh;
+}
+

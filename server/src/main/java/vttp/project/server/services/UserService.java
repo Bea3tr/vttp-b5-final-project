@@ -12,8 +12,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
-    public boolean insertNewUser(UserInfo user, String id) {
-        return userRepo.insertNewUser(user, id);
+    public boolean insertNewUser(UserInfo user) {
+        return userRepo.insertNewUser(user);
     }
 
     public boolean userExists(String email) {
@@ -22,6 +22,14 @@ public class UserService {
 
     public String getUserId(String email) {
         return userRepo.getUserId(email);
+    }
+
+    public String getUserPassword(String email) {
+        return userRepo.getUserPassword(email);
+    }
+
+    public boolean isGoogleLogin(String email) {
+        return userRepo.isGoogleLogin(email);
     }
     
 }

@@ -31,36 +31,12 @@ export class AuthService {
             .requestAccessToken();
     }
 
-    // Fetch Google user data from Google API with access token
-    private fetchGoogleUserInfo(accessToken: string) {
-        this.http.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        })
-        .subscribe((userData: any) => {
-            const userInfo = {
-                email: userData.email,
-                name: userData.name,
-                profilePicture: userData.picture
-            }
-            this.sendUserInfoToSB(userInfo)
-        })
+    userLogin(userInfo: any) { 
+        this.sendUserInfoToSB(userInfo, '/api/user-login')
     }
 
-    // Store authentication in session storage - true if user is authenticated
-    private sendUserInfoToSB(userInfo: any) {
-        this.http.post('/api/user-info', userInfo)
-            .subscribe((resp: any) => {
-                console.info('User info sent to SB: ', resp)
-                this.authSubject.next(resp)
-                if(resp.message == 'authenticated') {
-                    this.router.navigate(['/home', resp.id])
-                    sessionStorage.setItem('authenticated', 'true');
-                }
-            })
-    }
-
-    userLogin() {
-
+    register(userInfo: any) {
+        this.sendUserInfoToSB(userInfo, '/api/register')
     }
 
     // Authenticate login with access token attribute
@@ -73,6 +49,34 @@ export class AuthService {
     logout() {
         sessionStorage.removeItem('authenticated');
         this.authSubject.next(null);
+    }
+
+    // Fetch Google user data from Google API with access token
+    private fetchGoogleUserInfo(accessToken: string) {
+        this.http.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        })
+        .subscribe((userData: any) => {
+            const userInfo = {
+                email: userData.email,
+                name: userData.name,
+                picture: userData.picture
+            }
+            this.sendUserInfoToSB(userInfo, '/api/google-user')
+        })
+    }
+
+    // Store authentication in session storage - true if user is authenticated
+    private sendUserInfoToSB(userInfo: any, endpoint: string) {
+        this.http.post(endpoint, userInfo)
+            .subscribe((resp: any) => {
+                console.info('User info sent to SB:', resp)
+                this.authSubject.next(resp)
+                if(resp.message == 'authenticated') {
+                    this.router.navigate(['/home', resp.id])
+                    sessionStorage.setItem('authenticated', 'true');
+                }
+            })
     }
 }
 

@@ -7,17 +7,24 @@ import { LoginComponent } from './components/login.component';
 import { HomeComponent } from './components/home.component';
 import { provideHttpClient } from '@angular/common/http';
 import { MaterialModule } from './material.module';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RegisterComponent } from './components/register.component';
+import { Subscription } from 'rxjs';
+import { PostComponent } from './components/post.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent
+    HomeComponent,
+    RegisterComponent,
+    PostComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MaterialModule
+    MaterialModule,
+    ReactiveFormsModule
   ],
   providers: [ provideHttpClient() ],
   bootstrap: [AppComponent]
