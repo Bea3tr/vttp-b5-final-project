@@ -1,17 +1,22 @@
 package vttp.project.server.controllers;
 
+import java.util.Base64;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.json.Json;
+import jakarta.json.JsonObject;
 import vttp.project.server.models.UserInfo;
 import vttp.project.server.services.UserService;
 
@@ -20,6 +25,7 @@ import vttp.project.server.services.UserService;
 public class UserController {
 
     private static final Logger logger = Logger.getLogger(UserController.class.getName());
+    private static final String BASE64_PREFIX = "data:image/png;base64,";
 
     @Autowired
     private UserService userSvc;
@@ -109,7 +115,6 @@ public class UserController {
         }
         String id = UUID.randomUUID().toString().substring(0, 8);
         ui.setId(id);
-        ui.setPicture(ui.getPicture());
         ui.setPassword(ui.getPassword());
         ui.setGoogleLogin(false);
         logger.info("[User Controller] User info with id: " + ui);
@@ -125,5 +130,19 @@ public class UserController {
                 .add("message", "authenticated")
                 .add("id", userSvc.getUserId(email))
                 .build().toString());
+    }
+
+    @GetMapping(path="/get-user/{id}")
+    public ResponseEntity<String> getUserInfo(@PathVariable String id) {
+        Optional<UserInfo> result = userSvc.getUserInfo(id);
+        UserInfo ui = result.get();
+        String encodingString = Base64.getEncoder().encodeToString(ui.getPicture());
+        JsonObject payload = Json.createObjectBuilder()
+            .add("name", ui.getName())
+            .add("email", ui.getEmail())
+            .add("picture", BASE64_PREFIX + encodingString)
+            .build();
+
+        return ResponseEntity.ok(payload.toString());
     }
 }

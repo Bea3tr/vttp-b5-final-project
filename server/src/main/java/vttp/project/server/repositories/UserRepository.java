@@ -9,6 +9,11 @@ import org.springframework.stereotype.Repository;
 import vttp.project.server.models.UserInfo;
 import static vttp.project.server.models.Utils.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 @Repository
@@ -20,12 +25,17 @@ public class UserRepository {
     private JdbcTemplate template;
 
     public boolean insertNewUser(UserInfo user) {
-        logger.info("[User Repo] Inserting user into MySQL");
         try {
+            // Path name for local development - change to "user.png" during build
+            byte[] defaultImg = Files.readAllBytes(Paths.get("src/main/resources/static/user.png"));
+            logger.info("[User Repo] Inserting user into MySQL");
             return 
                 template.update(SQL_INSERT_USER, user.getId(), user.getName(), 
-                    user.getEmail(), user.getPicture(), user.getPassword(), user.isGoogleLogin()) > 0;
+                    user.getEmail(), defaultImg, user.getPassword(), user.isGoogleLogin()) > 0;
         } catch (DataAccessException ex) {
+            logger.warning(ex.getMessage());
+            return false;
+        } catch (IOException ex) {
             logger.warning(ex.getMessage());
             return false;
         }
@@ -69,5 +79,17 @@ public class UserRepository {
             isGoogle = rs.getBoolean("google_login");
         }
         return isGoogle;
+    }
+
+    public Optional<UserInfo> getUserInfo(String id) {
+        return template.query(
+            SQL_GET_USER,
+            (ResultSet rs) -> {
+                if(rs.next()) {
+                    return Optional.of(UserInfo.populate(rs));
+                } else {
+                    return Optional.empty();
+                }
+            }, id);
     }
 }

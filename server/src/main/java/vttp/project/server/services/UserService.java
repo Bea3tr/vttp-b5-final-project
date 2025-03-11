@@ -1,5 +1,7 @@
 package vttp.project.server.services;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,10 @@ public class UserService {
 
     public boolean isGoogleLogin(String email) {
         return userRepo.isGoogleLogin(email);
+    }
+
+    public Optional<UserInfo> getUserInfo(String id) {
+        return userRepo.getUserInfo(id);
     }
     
 }

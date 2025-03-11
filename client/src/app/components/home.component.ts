@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
+import { UserInfo } from '../models/models';
 
 @Component({
   selector: 'app-home',
@@ -23,10 +24,15 @@ export class HomeComponent implements OnInit {
   }
 
   protected id: string = ''
+  protected user !: UserInfo
 
   ngOnInit(): void {
-      this.actRoute.params
-        .subscribe(params => this.id = params['userId'])
+        this.actRoute.params.subscribe(
+          async(params) => {
+            this.id = params['userId'];
+            let r = await this.authSvc.getUserInfo(this.id);
+            this.user = r;
+        });
   }
 
   logout() {

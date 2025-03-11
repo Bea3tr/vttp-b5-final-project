@@ -8,13 +8,12 @@
         </button>
     </li>
     <li>
-        <button mat-button [matMenuTriggerFor]="account">Account</button>
+        <img [src]="user.picture">
+        <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
         <mat-menu #account="matMenu">
-            <button mat-menu-item>Profile</button>
+            <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
+            <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
             <button class="logout" mat-menu-item (click)="logout()">Logout</button>
         </mat-menu>
     </li>
 </ul>
-
-
- 

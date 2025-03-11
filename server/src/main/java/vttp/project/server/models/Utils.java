@@ -22,4 +22,14 @@ public class Utils {
         public static final String SQL_IS_GOOGLE_USER = """
                         SELECT google_login FROM users WHERE email = ?
                         """;
+        
+        public static final String SQL_GET_USER = """
+                        SELECT * FROM users WHERE id = ?
+                        """;
+
+        public static final String SQL_UPLOAD_POST = """
+                        INSERT INTO posts (id, user_id, post, picture, timestamp)
+                        VALUES (?, ?, ?, ?, SYSDATE())
+                        """;
 }
+

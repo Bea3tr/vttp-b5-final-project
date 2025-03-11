@@ -1,16 +1,19 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { UserInfo } from '../models/models';
 
 declare const google: any;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private authSubject = new BehaviorSubject<any>(null);
-    private http = inject(HttpClient);
+    private authSubject = new BehaviorSubject<any>(null)
+    private http = inject(HttpClient)
     private router = inject(Router)
+
+    userInfo = new Subject<any>()
 
     googleLogin() {
         if (typeof google === 'undefined') {
@@ -51,6 +54,10 @@ export class AuthService {
         this.authSubject.next(null);
     }
 
+    getUserInfo(id: string) {
+        return lastValueFrom(this.http.get<UserInfo>(`/api/get-user/${id}`))
+    }
+
     // Fetch Google user data from Google API with access token
     private fetchGoogleUserInfo(accessToken: string) {
         this.http.get(`https://www.googleapis.com/oauth2/v3/userinfo`, {
@@ -59,8 +66,7 @@ export class AuthService {
         .subscribe((userData: any) => {
             const userInfo = {
                 email: userData.email,
-                name: userData.name,
-                picture: userData.picture
+                name: userData.name
             }
             this.sendUserInfoToSB(userInfo, '/api/google-user')
         })

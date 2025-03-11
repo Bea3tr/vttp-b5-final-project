@@ -1,5 +1,8 @@
 package vttp.project.server.models;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
@@ -8,7 +11,7 @@ public class UserInfo {
     private String id;
     private String email;
     private String name;
-    private String picture;
+    private byte[] picture;
     private String password;
     private boolean googleLogin;
     
@@ -24,8 +27,8 @@ public class UserInfo {
     public String getName() {return name;}
     public void setName(String name) {this.name = name;}
     
-    public String getPicture() {return picture;}
-    public void setPicture(String picture) {this.picture = picture;}
+    public byte[] getPicture() {return picture;}
+    public void setPicture(byte[] picture) {this.picture = picture;}
 
     public boolean isGoogleLogin() {return googleLogin;}
     public void setGoogleLogin(boolean googleLogin) {this.googleLogin = googleLogin;}
@@ -35,10 +38,21 @@ public class UserInfo {
             .add("id", ui.getId())
             .add("name", ui.getName())
             .add("email", ui.getEmail())
-            .add("picture", ui.getPicture())
+            .add("picture", ui.getPicture().toString())
             .add("password", ui.getPassword())
             .add("googleLogin", ui.isGoogleLogin())
             .build();
+    }
+
+    public static UserInfo populate(ResultSet rs) throws SQLException {
+        UserInfo ui = new UserInfo();
+        ui.setId(rs.getString("id"));
+        ui.setName(rs.getString("name"));
+        ui.setEmail(rs.getString("email"));
+        ui.setPicture(rs.getBytes("picture"));
+        ui.setPassword(rs.getString("password"));
+        ui.setGoogleLogin(rs.getBoolean("google_login"));
+        return ui;
     }
 
     @Override
