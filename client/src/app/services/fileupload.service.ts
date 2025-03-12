@@ -1,6 +1,8 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
+import { lastValueFrom } from "rxjs";
+import { Post, UploadResponse } from "../models/models";
 
 @Injectable({ providedIn: 'root' })
 export class FileUploadService {
@@ -9,13 +11,13 @@ export class FileUploadService {
     private router = inject(Router)
 
     uploadPost(formData: FormData, userId: string) {
-        this.http.post(`/api/post/${userId}`, formData)
-            .subscribe((resp: any) => {
-                console.info('Post sent to SB:', resp)
-                if(resp.message == 'posted') {
-                    this.router.navigate(['/home', userId])
-                }
-            })
+        return lastValueFrom(this.http.post<UploadResponse>(`/api/post/${userId}`, formData))
+    }
+
+    getPosts(userId: string) {
+        const params = new HttpParams()
+            .set("userId", userId);
+        return lastValueFrom(this.http.get<Post[]>('/api/get-posts', { params }))
     }
 
 }

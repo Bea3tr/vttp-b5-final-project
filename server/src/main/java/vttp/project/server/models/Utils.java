@@ -2,6 +2,17 @@ package vttp.project.server.models;
 
 public class Utils {
 
+        public static final String ID = "id";
+        public static final String NAME = "name";
+        public static final String EMAIL = "email";
+        public static final String PICTURE = "picture";
+        public static final String PASSWORD = "password";
+        public static final String GLOGIN = "google_login";
+        public static final String USERID = "user_id";
+        public static final String USERIMG = "user_img";
+        public static final String POST = "post";
+        public static final String TIMESTAMP = "timestamp";
+
         public static final String SQL_INSERT_USER = """
                         INSERT INTO users (id, name, email, picture, password, google_login)
                         VALUES (?, ?, ?, ?, ?, ?)
@@ -27,9 +38,13 @@ public class Utils {
                         SELECT * FROM users WHERE id = ?
                         """;
 
-        public static final String SQL_UPLOAD_POST = """
-                        INSERT INTO posts (id, user_id, post, picture, timestamp)
-                        VALUES (?, ?, ?, ?, SYSDATE())
+        public static final String SQL_INSERT_POST = """
+                        INSERT INTO posts (id, user_id, name, user_img, post, picture, timestamp)
+                        VALUES (?, ?, ?, ?, ?, ?, SYSDATE())
+                        """;
+
+        public static final String SQL_GET_POST_BY_USERID = """
+                        SELECT * FROM posts WHERE user_id = ?
                         """;
 }
 

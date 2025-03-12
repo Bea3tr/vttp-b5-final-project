@@ -1,5 +1,7 @@
 package vttp.project.server.models;
 
+import static vttp.project.server.models.Utils.*;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -35,23 +37,23 @@ public class UserInfo {
     
     public static JsonObject toJson(UserInfo ui) {
         return Json.createObjectBuilder()
-            .add("id", ui.getId())
-            .add("name", ui.getName())
-            .add("email", ui.getEmail())
-            .add("picture", ui.getPicture().toString())
-            .add("password", ui.getPassword())
+            .add(ID, ui.getId())
+            .add(NAME, ui.getName())
+            .add(EMAIL, ui.getEmail())
+            .add(PICTURE, ui.getPicture().toString())
+            .add(PASSWORD, ui.getPassword())
             .add("googleLogin", ui.isGoogleLogin())
             .build();
     }
 
     public static UserInfo populate(ResultSet rs) throws SQLException {
         UserInfo ui = new UserInfo();
-        ui.setId(rs.getString("id"));
-        ui.setName(rs.getString("name"));
-        ui.setEmail(rs.getString("email"));
-        ui.setPicture(rs.getBytes("picture"));
-        ui.setPassword(rs.getString("password"));
-        ui.setGoogleLogin(rs.getBoolean("google_login"));
+        ui.setId(rs.getString(ID));
+        ui.setName(rs.getString(NAME));
+        ui.setEmail(rs.getString(EMAIL));
+        ui.setPicture(rs.getBytes(PICTURE));
+        ui.setPassword(rs.getString(PASSWORD));
+        ui.setGoogleLogin(rs.getBoolean(GLOGIN));
         return ui;
     }
 

@@ -1,7 +1,7 @@
-import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject, OnInit} from '@angular/core';
 import { FileUploadService } from '../services/fileupload.service';
+import { ActivatedRoute } from '@angular/router';
+import { Post } from '../models/models';
 
 @Component({
   selector: 'app-post',
@@ -13,34 +13,23 @@ export class PostComponent implements OnInit {
 
   private actRoute = inject(ActivatedRoute)
   private fileUploadSvc = inject(FileUploadService)
-  private fb = inject(FormBuilder)
-
-  @ViewChild('file')
-  imageFile !: ElementRef
-  form !: FormGroup
 
   protected id = ''
+  protected posts: Post[] = []
 
   ngOnInit(): void {
     this.actRoute.params.subscribe(
-      params => this.id = params['userId']
-    )
-    this.form = this.createForm()
+      async (params) => {
+        this.id = params['userId'];
+    });
+    this.loadPosts();
   }
 
-  post() {
-    console.info('Uploading post...')
-    const formData = new FormData()
-    formData.set("post", this.form.value['post'])
-    formData.set('file', this.imageFile.nativeElement.files[0])
-    this.fileUploadSvc.uploadPost(formData, this.id)
-  }
-
-  private createForm() {
-    return this.fb.group({
-      post: this.fb.control<string>('')
-    })
-
+  private loadPosts() {
+    this.fileUploadSvc.getPosts(this.id)
+      .then((resp) => {
+        this.posts = resp
+    });
   }
 
 }

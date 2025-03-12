@@ -14,6 +14,8 @@ CREATE TABLE users (
 CREATE TABLE posts (
 	id VARCHAR(8) NOT NULL,
     user_id VARCHAR(8) NOT NULL,
+    name VARCHAR(32) NOT NULL,
+    user_img MEDIUMBLOB NULL,
 	post MEDIUMTEXT NULL,
 	picture MEDIUMBLOB NULL,
     timestamp DATE NOT NULL,

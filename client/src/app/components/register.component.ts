@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit {
     constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer){
       this.matIconRegistry.addSvgIcon(
         "google",
-        this.domSanitizer.bypassSecurityTrustResourceUrl("google_icon.svg")
+        this.domSanitizer.bypassSecurityTrustResourceUrl("icons/google-icon.svg")
       )
     }
 

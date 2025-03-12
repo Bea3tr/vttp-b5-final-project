@@ -1,0 +1,13 @@
+.example-card {
+    max-width: 30vw;
+    margin: auto;
+}
+
+.example-header-image {
+    background-size: cover;
+}
+
+img {
+    height: auto;
+    width: auto;
+}
