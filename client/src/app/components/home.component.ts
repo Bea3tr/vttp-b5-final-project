@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
     private authSvc: AuthService, private router: Router, private actRoute: ActivatedRoute,
     private fileUploadSvc: FileUploadService, private fb: FormBuilder) {
-      const icons = ["plus", "cross", "shelter", "shop"];
+      const icons = ["plus", "cross", "shelter", "shop", "color-shelter", "color-shop"];
       icons.forEach((icon) => {
         this.matIconRegistry.addSvgIcon(
           icon,

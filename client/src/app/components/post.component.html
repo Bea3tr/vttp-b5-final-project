@@ -1,20 +1,23 @@
-@for (p of posts; track p.id) {
-  <mat-card class="example-card" appearance="outlined">
-    <mat-card-header>
-      <div mat-card-avatar class="example-header-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
-      <mat-card-title>{{ p.name }}</mat-card-title>
-      <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
-    </mat-card-header>
-    <img mat-card-image [src]="p.picture">
-    <mat-card-content>
-      <p>
-        {{ p.post }}
-      </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
-  </mat-card>
-}
+<div class="main-content">
+  @for (p of posts; track p.id) {
+    <mat-card class="post-card" appearance="outlined">
+      <mat-card-header>
+        <div mat-card-avatar class="example-header-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
+        <mat-card-title>{{ p.name }}</mat-card-title>
+        <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
+      </mat-card-header>
+      <img mat-card-image [src]="p.picture">
+      <mat-card-content>
+        <p>
+          {{ p.post }}
+        </p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button>LIKE</button>
+        <button mat-button>SHARE</button>
+      </mat-card-actions>
+    </mat-card>
+  }
+</div>
+
 

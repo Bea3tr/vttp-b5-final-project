@@ -1,60 +1,62 @@
-<ul>
-    <li><a [routerLink]="['/home', id]"><img src="pawprint.png"></a></li>
-    <li><a href="#news">News</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li>
-        <button mat-icon-button (click)="openPopup()">
-            <mat-icon svgIcon="plus"></mat-icon>
-        </button>
-    </li>
-    <li>
-        <img [src]="user.picture">
-        <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
-        <mat-menu #account="matMenu">
-            <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
-            <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
-            <button class="logout" mat-menu-item (click)="logout()">Logout</button>
-        </mat-menu>
-    </li>
-</ul>
-
-<div class="sidenav">
-    <a href="#about">About</a>
-    <a href="#services">Services</a>
-    <a href="#clients">Clients</a>
-    <a href="#contact">Contact</a>
-</div>
-
-<br>
-
-<app-post></app-post>
-
-<div *ngIf="showMessage" class="message-popup" [ngClass]="messageType">
-    {{ postMessage }}
-</div>
-
-<div class="popup-container" *ngIf="isPopupOpen">
-    <mat-card class="popup" appearance="outlined">
-        <div class="post-header">
-            <span>Create post</span>
-            <button mat-icon-button (click)="closePopup()">
-                <mat-icon svgIcon="cross"></mat-icon>
+<div class="main">
+    <ul class="navbar">
+        <li><a [routerLink]="['/home', id]"><img src="pawprint.png"></a></li>
+        <li class="right-btns">
+            <button mat-icon-button [routerLink]="['/marketplace']">
+                <mat-icon svgIcon="shop"></mat-icon>
             </button>
-        </div>
-        <hr>
-        <mat-card-content>
-            <form id="upload" class="post-form" [formGroup]="form" (submit)="post()">
-                <mat-form-field class="desc">
-                    <mat-label>Leave a comment</mat-label>
-                    <textarea matInput formControlName="post" placeholder="Description"></textarea>
-                </mat-form-field>
-                <div class="file-input" onclick="document.getElementById('fileInput').click()">
-                    <input id="fileInput" type="file" accept="image/*" #file>
-                </div>
-            </form>
-        </mat-card-content>
-        <mat-card-actions>
-            <button type="submit" form="upload" class="post-btn">POST</button>
-        </mat-card-actions>
-    </mat-card>
+            <button mat-icon-button [routerLink]="['/shelter']">
+                <mat-icon svgIcon="shelter"></mat-icon>
+            </button>
+            <button [ngStyle]="{'margin-left': '5px', 'margin-right': '10px'}" mat-icon-button (click)="openPopup()">
+                <mat-icon svgIcon="plus"></mat-icon>
+            </button>
+            <img [src]="user.picture">
+            <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
+            <mat-menu #account="matMenu">
+                <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
+                <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
+                <button class="logout" mat-menu-item (click)="logout()">Logout</button>
+            </mat-menu>
+        </li>
+    </ul>
+    
+    <div class="sidenav">
+        <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
+        <a href="#services"><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a>
+    </div>
+    
+    <br>
+    
+    <app-post></app-post>
+    
+    <div *ngIf="showMessage" class="message-popup" [ngClass]="messageType">
+        {{ postMessage }}
+    </div>
+    
+    <div class="popup-container" *ngIf="isPopupOpen">
+        <mat-card class="popup" appearance="outlined">
+            <div class="post-header">
+                <span>Create post</span>
+                <button mat-icon-button (click)="closePopup()">
+                    <mat-icon svgIcon="cross"></mat-icon>
+                </button>
+            </div>
+            <hr>
+            <mat-card-content>
+                <form id="upload" class="post-form" [formGroup]="form" (submit)="post()">
+                    <mat-form-field class="desc">
+                        <mat-label>Leave a comment</mat-label>
+                        <textarea matInput formControlName="post" placeholder="Description"></textarea>
+                    </mat-form-field>
+                    <div class="file-input" onclick="document.getElementById('fileInput').click()">
+                        <input id="fileInput" type="file" accept="image/*" #file>
+                    </div>
+                </form>
+            </mat-card-content>
+            <mat-card-actions>
+                <button type="submit" form="upload" class="post-btn">POST</button>
+            </mat-card-actions>
+        </mat-card>
+    </div>
 </div>
