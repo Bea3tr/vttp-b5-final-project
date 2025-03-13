@@ -6,7 +6,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { UserInfo } from '../models/models';
 import { FileUploadService } from '../services/fileupload.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -39,6 +39,11 @@ export class HomeComponent implements OnInit {
   protected showMessage = false;
   protected postMessage = '';
   protected messageType = '';
+  protected activeTab = 'post';
+
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+  }
   
   ngOnInit(): void {
     this.form = this.createForm();
@@ -53,12 +58,14 @@ export class HomeComponent implements OnInit {
   post() {
     console.info('Uploading post...');
     const formData = new FormData();
-    formData.set("post", this.form.value['post']);
+    formData.set('post', this.form.value['post']);
+    formData.set('status', this.form.value['status']);
     if(this.imageFile.nativeElement.files[0]){
       formData.set('file', this.imageFile.nativeElement.files[0]);
     } else {
       formData.set('file', new Blob(), '');
     }
+    console.info('Post info:', formData);
     this.fileUploadSvc.uploadPost(formData, this.id)
       .then((resp) => {
         if(resp.success == true) {
@@ -79,7 +86,8 @@ export class HomeComponent implements OnInit {
 
   private createForm() {
     return this.fb.group({
-      post: this.fb.control<string>('')
+      post: this.fb.control<string>(''),
+      status: this.fb.control<string>('', [ Validators.required ])
     });
   }
 

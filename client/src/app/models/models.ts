@@ -17,5 +17,6 @@ export interface Post {
     user_img: string,
     post: string,
     picture: string,
-    timestamp: string
+    timestamp: string,
+    status: string
 }

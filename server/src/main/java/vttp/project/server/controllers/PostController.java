@@ -43,12 +43,13 @@ public class PostController {
     public ResponseEntity<String> uploadPost(
         @PathVariable String id,
         @RequestPart(value="file", required=false) MultipartFile file,
-        @RequestPart(value="post", required=false) String post
+        @RequestPart(value="post", required=false) String post,
+        @RequestPart("status") String status
     ) {
         String postId = "";
         try {
             UserInfo ui = userSvc.getUserInfo(id).get();
-            postId = postSvc.upload(file, post, ui);
+            postId = postSvc.upload(file, post, status, ui);
             logger.info("[Post Controller] Post id: " + postId);
                 
         } catch (DataAccessException | IOException ex) {

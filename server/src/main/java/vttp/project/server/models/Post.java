@@ -23,7 +23,11 @@ public class Post {
     private String post;
     private byte[] picture;
     private Date timestamp;
+    private String status;
 
+    public String getStatus() {return status;}
+    public void setStatus(String status) {this.status = status;}
+    
     public String getId() {return id;}
     public void setId(String id) {this.id = id;}
     
@@ -62,6 +66,7 @@ public class Post {
             .add(POST, content)
             .add(PICTURE, picture)
             .add(TIMESTAMP, df.format(new Date(post.getTimestamp().getTime())))
+            .add(STATUS, post.getStatus())
             .build();
     }
     
@@ -74,6 +79,7 @@ public class Post {
         post.setPost(rs.getString(POST));
         post.setPicture(rs.getBytes(PICTURE));
         post.setTimestamp(rs.getDate(TIMESTAMP));
+        post.setStatus(rs.getString(STATUS));
         return post;
     }    
     

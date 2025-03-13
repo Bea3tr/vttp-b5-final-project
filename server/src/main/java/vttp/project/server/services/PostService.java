@@ -19,9 +19,9 @@ public class PostService {
     @Autowired
     private PostRepository postRepo;
 
-    public String upload(MultipartFile file, String post, UserInfo ui)
+    public String upload(MultipartFile file, String post, String status, UserInfo ui)
         throws DataAccessException, IOException {
-        return postRepo.upload(file, post, ui);
+        return postRepo.upload(file, post, status, ui);
     }
 
     public Optional<List<Post>> getPostsByUserId(String userId) throws DataAccessException {

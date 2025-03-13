@@ -9,6 +9,17 @@
     color: darkred;
 }
 
+mat-radio-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+mat-radio-button {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
 /* Styles for Popup */
 .popup-container {
     position: fixed;
@@ -100,7 +111,7 @@ body {
     font-size: 14px;
     color: #555;
     cursor: pointer;
-    background-color: #8c92ac3c;
+    background-color: #f4f4f4;
 }
 
 .post-btn {

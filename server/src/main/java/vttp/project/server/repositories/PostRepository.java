@@ -24,13 +24,13 @@ public class PostRepository {
     @Autowired
     private JdbcTemplate template;
 
-    public String upload(MultipartFile file, String post, UserInfo ui) 
+    public String upload(MultipartFile file, String post, String status, UserInfo ui) 
         throws DataAccessException, IOException {
         String postId = UUID.randomUUID().toString().substring(0, 8);
         if(file == null || file.isEmpty()) {
-            template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, null);
+            template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, null, status);
         } else {
-            template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, file.getBytes());
+            template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, file.getBytes(), status);
         }
         return postId;
     }

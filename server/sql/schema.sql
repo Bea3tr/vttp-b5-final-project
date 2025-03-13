@@ -19,6 +19,7 @@ CREATE TABLE posts (
 	post MEDIUMTEXT NULL,
 	picture MEDIUMBLOB NULL,
     timestamp DATE NOT NULL,
+    status VARCHAR(8) NOT NULL,
 	PRIMARY KEY (id),
     FOREIGN KEY (user_id)
 		REFERENCES users(id)

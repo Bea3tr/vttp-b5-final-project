@@ -1,11 +1,11 @@
 <div class="main">
     <ul class="navbar">
-        <li><a [routerLink]="['/home', id]"><img src="pawprint.png"></a></li>
+        <li><a [routerLink]="['/home', id]" (click)="setActiveTab('post')"><img src="pawprint.png"></a></li>
         <li class="right-btns">
             <button mat-icon-button [routerLink]="['/marketplace']">
                 <mat-icon svgIcon="shop"></mat-icon>
             </button>
-            <button mat-icon-button [routerLink]="['/shelter']">
+            <button mat-icon-button (click)="setActiveTab('shelter')">
                 <mat-icon svgIcon="shelter"></mat-icon>
             </button>
             <button [ngStyle]="{'margin-left': '5px', 'margin-right': '10px'}" mat-icon-button (click)="openPopup()">
@@ -20,20 +20,21 @@
             </mat-menu>
         </li>
     </ul>
-    
+
     <div class="sidenav">
         <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
-        <a href="#services"><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a>
+        <a [routerLink]="['/adoption']"><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a>
     </div>
-    
+
     <br>
-    
-    <app-post></app-post>
-    
+
+    <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
+    <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
+
     <div *ngIf="showMessage" class="message-popup" [ngClass]="messageType">
         {{ postMessage }}
     </div>
-    
+
     <div class="popup-container" *ngIf="isPopupOpen">
         <mat-card class="popup" appearance="outlined">
             <div class="post-header">
@@ -45,6 +46,11 @@
             <hr>
             <mat-card-content>
                 <form id="upload" class="post-form" [formGroup]="form" (submit)="post()">
+                    <mat-radio-group formControlName="status">
+                        <mat-radio-button value="private">Private (Friends only)</mat-radio-button>
+                        <mat-radio-button value="public">Public (Everyone)</mat-radio-button>
+                    </mat-radio-group>
+
                     <mat-form-field class="desc">
                         <mat-label>Leave a comment</mat-label>
                         <textarea matInput formControlName="post" placeholder="Description"></textarea>

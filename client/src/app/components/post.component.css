@@ -3,7 +3,7 @@
     margin: auto 10vw auto 20vw;
 }
 
-.example-header-image {
+.post-image {
     background-size: cover;
 }
 
@@ -14,13 +14,13 @@ img {
 
 .main-content {
     position: absolute;
-    top: 60px; /* Below navbar */
-    left: 160px; /* Next to sidebar */
-    width: calc(100% - 200px); /* Take remaining space */
-    height: calc(100% - 100px); /* Fill remaining height */
-    overflow: auto; /* Enables scrolling only inside main content */
+    top: 60px;
+    left: 160px; 
+    width: calc(100% - 200px);
+    height: calc(100% - 100px); 
+    overflow: auto;
     padding: 20px;
-    background-color: #f9f9f9; /* Light background for contrast */
+    background-color: #f9f9f9;
 }
 
 @media screen and (max-width: 768px) {
@@ -32,5 +32,4 @@ img {
         max-width: 75vw;
         margin: auto;
     }
-
 }

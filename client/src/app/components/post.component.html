@@ -2,7 +2,7 @@
   @for (p of posts; track p.id) {
     <mat-card class="post-card" appearance="outlined">
       <mat-card-header>
-        <div mat-card-avatar class="example-header-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
+        <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
         <mat-card-title>{{ p.name }}</mat-card-title>
         <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
       </mat-card-header>

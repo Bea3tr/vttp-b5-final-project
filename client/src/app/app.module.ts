@@ -11,6 +11,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RegisterComponent } from './components/register.component';
 import { Subscription } from 'rxjs';
 import { PostComponent } from './components/post.component';
+import { ShelterComponent } from './components/shelter.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { PostComponent } from './components/post.component';
     LoginComponent,
     HomeComponent,
     RegisterComponent,
-    PostComponent
+    PostComponent,
+    ShelterComponent
   ],
   imports: [
     BrowserModule,
