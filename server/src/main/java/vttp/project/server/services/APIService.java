@@ -46,6 +46,7 @@ public class APIService {
                 token = apiRepo.getPfToken();
 
             } else {
+                logger.info("Retrieving token from api");
                 JsonObject body = Json.createObjectBuilder()
                         .add("grant_type", "client_credentials")
                         .add("client_id", id)
@@ -97,7 +98,7 @@ public class APIService {
         } catch (Exception ex) {
             ex.printStackTrace();
             return Json.createObjectBuilder()
-                .add("message", "Error in all animals")
+                .add("message", "[ALL] Error retrieving animal data")
                 .build();
         }
     }
@@ -168,15 +169,19 @@ public class APIService {
                     if(key.contains("\\.")) {
                         String[] keys = key.split("\\.");
                         filteredObj.add(resKey, animal.getJsonObject(keys[0]).getString(keys[1]));
+                    } else if (key.equals("description")){
+                        filteredObj.add(resKey, animal.getString(key)
+                            .replaceAll("&amp;#39;", "'")
+                            .replaceAll("\n", " "));
                     } else {
                         // logger.info("Key: " + key);
                         filteredObj.add(resKey, animal.getString(key));
                     }
                 } catch (NullPointerException ex) {
-                    filteredObj.add(resKey, "");
+                    filteredObj.add(resKey, "N.A.");
                 } catch (ClassCastException ex) {
                     // logger.info("[Class Ex] Key: " + key + ", " + animal.get(key));
-                    filteredObj.add(resKey, "");
+                    filteredObj.add(resKey, "N.A.");
                 }
             }
             // Fill in JsonObject and JsonArray attributes

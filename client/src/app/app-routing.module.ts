@@ -11,7 +11,7 @@ const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'home/:userId', component: HomeComponent, canActivate: [ authGuard ] },
-  { path: 'adoption', component: ShelterComponent },
+  { path: 'shelter/:userId', component: ShelterComponent },
   { path: '**', redirectTo: '/', pathMatch: 'full' }
 ];
 

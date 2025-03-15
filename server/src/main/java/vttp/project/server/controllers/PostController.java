@@ -42,17 +42,17 @@ public class PostController {
     @PostMapping(path="/post/{id}", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadPost(
         @PathVariable String id,
-        @RequestPart(value="file", required=false) MultipartFile file,
+        @RequestParam(value="files", required=false) List<MultipartFile> files,
         @RequestPart(value="post", required=false) String post,
         @RequestPart("status") String status
     ) {
         String postId = "";
         try {
             UserInfo ui = userSvc.getUserInfo(id).get();
-            postId = postSvc.upload(file, post, status, ui);
+            postId = postSvc.upload(files, post, status, ui);
             logger.info("[Post Controller] Post id: " + postId);
                 
-        } catch (DataAccessException | IOException ex) {
+        } catch (IOException | RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Json.createObjectBuilder()
                     .add("message", ex.getMessage())
@@ -65,6 +65,25 @@ public class PostController {
             .build();
 
         return ResponseEntity.ok(payload.toString());
+    }
+
+    @GetMapping(path="/public-posts")
+    public ResponseEntity<String> getPosts() {
+        try {
+            logger.info("[Post Controller] Retrieving posts...");
+            Optional<List<Post>> result = postSvc.getPublicPosts();
+            List<Post> posts = result.get();
+            JsonArrayBuilder postArr = Json.createArrayBuilder();
+            for(Post p : posts) {
+                postArr.add(Post.toJson(p));
+            }
+            return ResponseEntity.ok(postArr.build().toString());
+        } catch (DataAccessException ex) {
+            return ResponseEntity.status(400)
+                .body(Json.createObjectBuilder()
+                    .add("message", ex.getMessage())
+                    .build().toString());
+        }
     }
 
     @GetMapping(path="/get-posts")

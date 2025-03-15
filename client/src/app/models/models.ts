@@ -16,7 +16,41 @@ export interface Post {
     name: string,
     user_img: string,
     post: string,
-    picture: string,
+    files: MediaFile[],
     timestamp: string,
-    status: string
+    status: string,
+    currentFileIndex: number
+}
+
+export interface MediaFile {
+    id: string,
+    type: string,
+    file: string
+}
+
+export interface PfResult {
+    url: string,
+    name: string,
+    species: string,
+    breed: string,
+    color: string,
+    age: string,
+    gender: string,
+    size: string,
+    coat: string,
+    description: string,
+    email: string,
+    phone: string,
+    attributes: string[],
+    environment: string[],
+    tags: string[],
+    photos: string[],
+    videos: string[],
+    address: string,
+    currentPhotoIndex: number
+}
+
+export interface PfResponse {
+    message: string,
+    results: PfResult[]
 }

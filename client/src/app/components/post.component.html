@@ -6,7 +6,22 @@
         <mat-card-title>{{ p.name }}</mat-card-title>
         <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
       </mat-card-header>
-      <img mat-card-image [src]="p.picture">
+      @if (p.files.length > 0) {
+        <div class="media-container">
+          <!-- Display Image or Video -->
+          @if (showFile(p).type.startsWith('image')) {
+            <img class="media-file" mat-card-image [src]="showFile(p).file">
+          } @else {
+            <video class="media-file" mat-card-image controls>
+              <source [src]="showFile(p).file" type="{{ showFile(p).type }}">
+            </video>
+          }
+          <!-- Left Arrow Button -->
+          <button class="nav-button left" (click)="prevFile(p)">&#10094;</button>
+          <!-- Right Arrow Button -->
+          <button class="nav-button right" (click)="nextFile(p)">&#10095;</button>
+        </div>
+      }
       <mat-card-content>
         <p>
           {{ p.post }}

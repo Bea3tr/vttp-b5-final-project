@@ -40,6 +40,12 @@ export class HomeComponent implements OnInit {
   protected postMessage = '';
   protected messageType = '';
   protected activeTab = 'post';
+  protected selectedFiles !: FileList;
+  
+  onFileChange(event: any) {
+    console.info('onFileChange:', event.target.files);
+    this.selectedFiles = event.target.files;
+  }
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
@@ -56,17 +62,7 @@ export class HomeComponent implements OnInit {
   }
 
   post() {
-    console.info('Uploading post...');
-    const formData = new FormData();
-    formData.set('post', this.form.value['post']);
-    formData.set('status', this.form.value['status']);
-    if(this.imageFile.nativeElement.files[0]){
-      formData.set('file', this.imageFile.nativeElement.files[0]);
-    } else {
-      formData.set('file', new Blob(), '');
-    }
-    console.info('Post info:', formData);
-    this.fileUploadSvc.uploadPost(formData, this.id)
+    this.fileUploadSvc.uploadPost(this.form, this.selectedFiles, this.id)
       .then((resp) => {
         if(resp.success == true) {
           this.postMessage = resp.message;

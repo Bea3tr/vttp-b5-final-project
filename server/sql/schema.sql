@@ -2,7 +2,7 @@ CREATE DATABASE myapp;
 USE myapp;
 
 CREATE TABLE users (
-    id VARCHAR(8) NOT NULL,
+    id VARCHAR(16) NOT NULL,
     name VARCHAR(32) NOT NULL,
     email VARCHAR(256) NOT NULL UNIQUE,
     picture MEDIUMBLOB NULL,
@@ -12,15 +12,24 @@ CREATE TABLE users (
 );
 
 CREATE TABLE posts (
-	id VARCHAR(8) NOT NULL,
-    user_id VARCHAR(8) NOT NULL,
+	id VARCHAR(16) NOT NULL,
+    user_id VARCHAR(16) NOT NULL,
     name VARCHAR(32) NOT NULL,
     user_img MEDIUMBLOB NULL,
 	post MEDIUMTEXT NULL,
-	picture MEDIUMBLOB NULL,
     timestamp DATE NOT NULL,
     status VARCHAR(8) NOT NULL,
 	PRIMARY KEY (id),
     FOREIGN KEY (user_id)
 		REFERENCES users(id)
-)
+);
+
+CREATE TABLE media_files (
+	id VARCHAR(16) NOT NULL,
+    post_id VARCHAR(16) NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    file MEDIUMBLOB NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY (post_id)
+		REFERENCES posts(id)
+);

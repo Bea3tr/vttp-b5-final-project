@@ -1,3 +1,17 @@
+.post-card {
+    max-width: 40vw;
+    margin: 0 auto 5vh auto;
+}
+
+.post-image {
+    background-size: cover;
+}
+
+img {
+    height: auto;
+    width: auto;
+}
+
 .main-content {
     position: absolute;
     top: 60px;
@@ -7,4 +21,15 @@
     overflow: auto;
     padding: 20px;
     background-color: #f9f9f9;
+}
+
+@media screen and (max-width: 768px) {
+    .main-content {
+        width: calc(100% - 40px);
+        left: 0;
+    }
+    .post-card {
+        max-width: 75vw;
+        margin: auto;
+    }
 }

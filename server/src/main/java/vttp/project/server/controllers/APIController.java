@@ -45,6 +45,7 @@ public class APIController {
                 .body(result.toString());
         }
         JsonObject result = apiSvc.getPfAnimalsAll(token);
+        System.out.println("Results: " + result);
         return ResponseEntity.ok(result.toString());
     }
     

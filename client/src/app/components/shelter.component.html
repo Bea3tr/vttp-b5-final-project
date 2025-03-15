@@ -1,2 +1,29 @@
 <div class="main-content">
-</div>
+    @for (pf of pfData; track $index) {
+        <mat-card class="post-card" appearance="outlined">
+            <mat-card-header>
+              <mat-card-title>{{ pf.name }}</mat-card-title>
+              <mat-card-subtitle>{{ pf.species }}, {{ pf.breed }}</mat-card-subtitle>
+            </mat-card-header>
+            <img mat-card-image [src]="showPicture(pf)" (click)="nextPicture(pf)">
+            <mat-card-content>
+                <div>Age: {{ pf.age }}</div>
+                <div>Gender: {{ pf.gender }}</div>
+                <div>Size: {{ pf.size }}</div>
+                <div>Coat: {{ pf.coat }}</div>
+                <div>
+                    <div>Description: </div>
+                    <div>{{ pf.description }}</div>
+                </div>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button>LIKE</button>
+              <button mat-button>SHARE</button>
+            </mat-card-actions>
+          </mat-card>
+    }
+    <button (click)="loadMore()">Load More</button>
+  </div>
+  
+  
+  

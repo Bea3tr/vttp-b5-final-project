@@ -14,6 +14,9 @@ public class Utils {
         public static final String NAME = "name";
         public static final String EMAIL = "email";
         public static final String PICTURE = "picture";
+        public static final String TYPE = "type";
+        public static final String FILE = "file";
+        public static final String FILES = "files";
         public static final String PASSWORD = "password";
         public static final String GLOGIN = "google_login";
         public static final String USERID = "user_id";
@@ -48,12 +51,25 @@ public class Utils {
                         """;
 
         public static final String SQL_INSERT_POST = """
-                        INSERT INTO posts (id, user_id, name, user_img, post, picture, timestamp, status)
-                        VALUES (?, ?, ?, ?, ?, ?, SYSDATE(), ?)
+                        INSERT INTO posts (id, user_id, name, user_img, post, timestamp, status)
+                        VALUES (?, ?, ?, ?, ?, SYSDATE(), ?)
+                        """;
+
+        public static final String SQL_GET_PUBLIC_POSTS = """
+                        SELECT * FROM posts WHERE status = 'public'
                         """;
 
         public static final String SQL_GET_POST_BY_USERID = """
                         SELECT * FROM posts WHERE user_id = ?
+                        """;
+
+        public static final String SQL_INSERT_MEDIA_FILE = """
+                        INSERT INTO media_files (id, post_id, type, file)
+                        VALUES (?, ?, ?, ?)
+                        """;
+        
+        public static final String SQL_GET_MEDIA_FILES_BY_POSTID = """
+                        SELECT * FROM media_files WHERE post_id = ?
                         """;
 }
 

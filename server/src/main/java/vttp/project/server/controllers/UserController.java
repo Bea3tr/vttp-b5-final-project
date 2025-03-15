@@ -44,7 +44,8 @@ public class UserController {
 
         // Save user data in MySQL if not existing user
         if (!userSvc.userExists(ui.getEmail())) {
-            id = UUID.randomUUID().toString().substring(0, 8);
+            id = UUID.randomUUID().toString().replaceAll("-", "")
+                .substring(0, 16);
             ui.setId(id);
             ui.setPassword(ui.getPassword());
             ui.setGoogleLogin(true);
@@ -113,7 +114,8 @@ public class UserController {
                             .add("message", "User exists")
                             .build().toString());
         }
-        String id = UUID.randomUUID().toString().substring(0, 8);
+        String id = UUID.randomUUID().toString().replaceAll("-", "")
+            .substring(0, 16);
         ui.setId(id);
         ui.setPassword(ui.getPassword());
         ui.setGoogleLogin(false);
