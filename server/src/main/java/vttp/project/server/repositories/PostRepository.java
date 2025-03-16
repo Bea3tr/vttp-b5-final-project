@@ -28,15 +28,17 @@ public class PostRepository {
     @Autowired
     private JdbcTemplate template;
 
-    // public String upload(MultipartFile file, String post, String status, UserInfo
-    // ui)
+    public boolean deletePost(String postId) throws DataAccessException {
+        return template.update(SQL_DELETE_POST_BY_ID, postId) > 0;
+    }
+
     public String upload(List<MultipartFile> files, String post, String status, UserInfo ui)
             throws IOException, RuntimeException {
         String postId = UUID.randomUUID().toString().replaceAll("\\-", "")
                 .substring(0, 16);
 
         template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, status);
-        if (!files.isEmpty()) {
+        if (files != null) {
             files.forEach(file -> {
                 try {
                     saveFile(file, postId);
@@ -84,6 +86,7 @@ public class PostRepository {
                 }, userId);
     }
 
+    @SuppressWarnings("unused")
     public Optional<List<Post>> getPublicPosts() throws DataAccessException {
         return template.query(
                 SQL_GET_PUBLIC_POSTS,
@@ -97,7 +100,7 @@ public class PostRepository {
                         List<MediaFile> mediaFiles = template.query(
                             SQL_GET_MEDIA_FILES_BY_POSTID,
                             (ResultSet rs_mf, int rowNum) -> {
-                                logger.info("[Post Repo] Media files for: " + post.getId());
+                                // logger.info("[Post Repo] Media files for: " + post.getId());
                                 return MediaFile.populate(rs_mf);
                             }, post.getId());
 

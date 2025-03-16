@@ -1,38 +1,49 @@
 <div class="main-content">
   @for (p of posts; track p.id) {
-    <mat-card class="post-card" appearance="outlined">
-      <mat-card-header>
-        <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
-        <mat-card-title>{{ p.name }}</mat-card-title>
-        <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
-      </mat-card-header>
-      @if (p.files.length > 0) {
-        <div class="media-container">
-          <!-- Display Image or Video -->
-          @if (showFile(p).type.startsWith('image')) {
-            <img class="media-file" mat-card-image [src]="showFile(p).file">
-          } @else {
-            <video class="media-file" mat-card-image controls>
-              <source [src]="showFile(p).file" type="{{ showFile(p).type }}">
-            </video>
-          }
-          <!-- Left Arrow Button -->
-          <button class="nav-button left" (click)="prevFile(p)">&#10094;</button>
-          <!-- Right Arrow Button -->
-          <button class="nav-button right" (click)="nextFile(p)">&#10095;</button>
-        </div>
+  <mat-card class="post-card" appearance="outlined">
+    <mat-card-header>
+      <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
+      <mat-card-title>{{ p.name }}</mat-card-title>
+      <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
+      @if (p.user_id == id) {
+      <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item>Edit</button>
+        <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deletePost(p.id)">
+          Delete
+        </button>
+      </mat-menu>
       }
-      <mat-card-content>
-        <p>
-          {{ p.post }}
-        </p>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-button>LIKE</button>
-        <button mat-button>SHARE</button>
-      </mat-card-actions>
-    </mat-card>
+    </mat-card-header>
+    @if (p.files.length > 0) {
+    <div class="media-container">
+      <!-- Display Image or Video -->
+      @if (showFile(p).type.startsWith('image')) {
+      <img class="media-file" mat-card-image [src]="showFile(p).file">
+      } @else {
+      <video class="media-file" mat-card-image controls>
+        <source [src]="showFile(p).file" type="{{ showFile(p).type }}">
+      </video>
+      }
+      @if (p.files.length > 1) {
+      <!-- Left Arrow Button -->
+      <button class="nav-button left" (click)="prevFile(p)">&#10094;</button>
+      <!-- Right Arrow Button -->
+      <button class="nav-button right" (click)="nextFile(p)">&#10095;</button>
+      }
+    </div>
+    }
+    <mat-card-content>
+      <p>
+        {{ p.post }}
+      </p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button>LIKE</button>
+      <button mat-button>SHARE</button>
+    </mat-card-actions>
+  </mat-card>
   }
 </div>
-
-

@@ -1,15 +1,26 @@
 .post-card {
-    max-width: 40vw;
+    max-width: 75vw;
     margin: 0 auto 5vh auto;
+    border: solid rgb(234, 123, 123) 2px;
 }
 
 .post-image {
     background-size: cover;
 }
 
+a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
 img {
     height: auto;
     width: auto;
+}
+
+mat-expansion-panel {
+    width: 75vw;
+    margin: auto;
 }
 
 .main-content {
@@ -21,6 +32,63 @@ img {
     overflow: auto;
     padding: 20px;
     background-color: #f9f9f9;
+}
+
+.media-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.media-file {
+    width: 100%;
+    object-fit: fill;
+}
+
+.active {
+    background-color: rgba(255, 0, 21, 0.416);
+}
+
+mat-card-actions button {
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 15px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.nav-button.left {
+    left: 10px;
+}
+
+.nav-button.right {
+    right: 10px;
+}
+
+.nav-button:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+mat-card-content div {
+    margin-bottom: 5px;
+}
+
+hr {
+    border: solid lightgray 0.5px;
+    width: 100%;
+    margin-bottom: 5px;
 }
 
 @media screen and (max-width: 768px) {

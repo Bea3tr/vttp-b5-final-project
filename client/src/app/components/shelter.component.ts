@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { PfResult, UserInfo } from '../models/models';
 import { ApiService } from '../services/api.service';
@@ -12,37 +11,70 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './shelter.component.css'
 })
 export class ShelterComponent implements OnInit {
-  
-  private http = inject(HttpClient);
+
   private apiSvc = inject(ApiService);
   private actRoute = inject(ActivatedRoute);
-  
+
   protected pfData: PfResult[] = [];
   protected id = '';
+  protected savedPfs: number[] = [];
 
   ngOnInit(): void {
-      // Load default data
-      this.getAnimals();
-      this.actRoute.params.subscribe(
-        async (params) => {
-          this.id = params['userId'];
+    // Load default data
+    this.getAnimals();
+    this.actRoute.params.subscribe(
+      async (params) => {
+        this.id = params['userId'];
       });
+    this.getSavedPf(this.id);
+    this.apiSvc.reload.subscribe(val => {
+      if(val == true) {
+        setTimeout(() => {
+          console.info('Refetching saved...');
+          this.getSavedPf(this.id);
+        }, 100);
+        this.apiSvc.reloadSavedPfs(false);
+      }
+    });
   }
 
   showPicture(result: PfResult): string {
-    console.info("Photos:", result.photos[result.currentPhotoIndex]);
     return result.photos[result.currentPhotoIndex];
   }
 
-  nextPicture(result: PfResult) {
-    result.currentPhotoIndex = (result.currentPhotoIndex + 1) % result.photos.length;
+  nextPic(result: PfResult) {
+    if (result.photos && result.photos.length > 0) {
+      result.currentPhotoIndex = (result.currentPhotoIndex + 1) % result.photos.length;
+    }
   }
 
-  loadMore() {
-    
+  prevPic(result: PfResult) {
+    if (result.photos && result.photos.length > 0) {
+      result.currentPhotoIndex = (result.currentPhotoIndex - 1 + result.photos.length) % result.photos.length;
+    }
   }
 
-  private getAnimals() { 
+  savePfToUser(pfId: number) {
+    this.apiSvc.savePfToUser(this.id, pfId);
+    if(this.savedPfs.includes(pfId)) {
+      this.removeSavedPf(pfId);
+    }
+    this.apiSvc.reloadSavedPfs(true);
+  }
+
+  removeSavedPf(pfId: number) {
+    this.apiSvc.removedSavedPf(this.id, pfId);
+  }
+
+  getSavedPf(userId: string) {
+    this.apiSvc.getSavedPf(userId)
+      .then((resp) => {
+        this.savedPfs = resp.result;
+        console.info('Saved pfs:', this.savedPfs);
+      })
+  }
+
+  private getAnimals() {
     this.apiSvc.defaultLoadPf()
       .then((resp) => {
         resp.results.forEach((pf) => {
@@ -50,8 +82,8 @@ export class ShelterComponent implements OnInit {
           console.info("Have Pic, name", pf.name, havePic);
           pf.currentPhotoIndex = 0;
         });
-        this.pfData = resp.results;    
-    })
+        this.pfData = resp.results;
+      })
   }
 
 }

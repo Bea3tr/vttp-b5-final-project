@@ -1,8 +1,10 @@
 package vttp.project.server.services;
 
 import java.io.StringReader;
+import java.util.List;
 import java.util.logging.Logger;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -62,7 +64,7 @@ public class APIService {
                 ResponseEntity<String> resp = template.exchange(req, String.class);
 
                 String payload = resp.getBody();
-                logger.info("[APISvc] Petfinder resp: " + payload);
+                // logger.info("[APISvc] Petfinder resp: " + payload);
                 JsonObject obj = Json.createReader(new StringReader(payload))
                         .readObject();
 
@@ -80,70 +82,109 @@ public class APIService {
 
     public JsonObject getPfAnimalsAll(String token) {
         try {
-            RequestEntity<Void> req = RequestEntity.get(PF_GET_ANIMALS)
+            JsonArray results = Json.createArrayBuilder().build();
+            if (apiRepo.pfLoaded()) {
+                logger.info("[API Svc] Retrieving data from DB");
+                results = apiRepo.getAllPfResults();
+            } else {
+                logger.info("[API Svc] Retrieving data from API");
+                // Set to max limit
+                String url = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS)
+                        .queryParam("limit", 100)
+                        .toUriString();
+                RequestEntity<Void> req = RequestEntity.get(url)
                         .header("Authorization", "Bearer " + token)
                         .accept(MediaType.APPLICATION_JSON)
                         .build();
 
-            RestTemplate template = new RestTemplate();
-            ResponseEntity<String> resp = template.exchange(req, String.class);
+                RestTemplate template = new RestTemplate();
+                ResponseEntity<String> resp = template.exchange(req, String.class);
 
-            String payload = resp.getBody();
+                String payload = resp.getBody();
+                results = filterResult(Json.createReader(new StringReader(payload))
+                        .readObject());
+            }
             return Json.createObjectBuilder()
                     .add("message", "success")
-                    .add("results", filterResult(Json.createReader(new StringReader(payload))
-                        .readObject()))
+                    .add("results", results)
                     .build();
 
         } catch (Exception ex) {
             ex.printStackTrace();
             return Json.createObjectBuilder()
-                .add("message", "[ALL] Error retrieving animal data")
-                .build();
+                    .add("message", "[ALL] Error retrieving animal data")
+                    .build();
         }
     }
 
     public JsonObject getPfAnimals(String token, MultiValueMap<String, String> form) {
         JsonObject params = formToJson(form);
+        JsonArray results = Json.createArrayBuilder().build();
         try {
-            String url = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS)
-                .queryParam("type", params.getString("type"))
-                .queryParam("breed", params.getString("breed"))
-                .queryParam("size", params.getString("size"))
-                .queryParam("gender", params.getString("gender"))
-                .queryParam("age", params.getString("age"))
-                .queryParam("name", params.getString("name"))
-                .queryParam("city", params.getString("city"))
-                .toUriString();
+            if (apiRepo.pfLoaded()) {
+                logger.info("[API Svc] Retrieving data from DB");
+                results = apiRepo.getPfResults(params);
+            } else {
+                String url = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS)
+                        .queryParam("type", params.getString("type"))
+                        .queryParam("breed", params.getString("breed"))
+                        .queryParam("size", params.getString("size"))
+                        .queryParam("gender", params.getString("gender"))
+                        .queryParam("age", params.getString("age"))
+                        .queryParam("name", params.getString("name"))
+                        .queryParam("location", params.getString("location"))
+                        .toUriString();
 
-            RequestEntity<Void> req = RequestEntity.get(url)
+                RequestEntity<Void> req = RequestEntity.get(url)
                         .header("Authorization", "Bearer " + token)
                         .accept(MediaType.APPLICATION_JSON)
                         .build();
 
-            RestTemplate template = new RestTemplate();
-            ResponseEntity<String> resp = template.exchange(req, String.class);
+                RestTemplate template = new RestTemplate();
+                ResponseEntity<String> resp = template.exchange(req, String.class);
 
-            String payload = resp.getBody();
-            
+                String payload = resp.getBody();
+                results = filterResult(Json.createReader(new StringReader(payload))
+                    .readObject());
+            }
             return Json.createObjectBuilder()
                     .add("message", "success")
-                    .add("results", filterResult(Json.createReader(new StringReader(payload))
-                        .readObject()))
+                    .add("results", results)
                     .build();
 
         } catch (Exception ex) {
             return Json.createObjectBuilder()
-                .add("message", ex.getMessage())
-                .build();
+                    .add("message", ex.getMessage())
+                    .build();
         }
     }
 
+    public boolean savePfToUser(String userId, int pfId) {
+        return apiRepo.savePfToUser(userId, pfId);
+    }
+
+    public boolean removeSavedPf(String userId, int pfId) {
+        return apiRepo.removeSavedPf(userId, pfId);
+    }
+
+    public JsonArray getSavedPf(String userId) {
+        Document result = apiRepo.getSavedPf(userId);
+        List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
+        JsonArrayBuilder pfArr = Json.createArrayBuilder();
+        if(!pfIds.isEmpty()) {
+            for(int id : pfIds) 
+                pfArr.add(id);
+        }
+        return pfArr.build();
+    }
+    
+    //==========PRIVATE METHODS========
+
     private JsonObject formToJson(MultiValueMap<String, String> form) {
         JsonObjectBuilder paramObj = Json.createObjectBuilder();
-        for(int i = 0; i < PF_PARAMS.length; i++) {
+        for (int i = 0; i < PF_PARAMS.length; i++) {
             String param = PF_PARAMS[i];
-            if(form.getFirst(param) == null) {
+            if (form.getFirst(param) == null) {
                 paramObj.add(param, "");
             } else {
                 paramObj.add(param, form.getFirst(param));
@@ -157,22 +198,26 @@ public class APIService {
         JsonArray results = fromApi.getJsonArray("animals");
 
         logger.info("[API Svc] Result size: " + results.size());
-        for(int i = 0; i < results.size(); i++) {
+        for (int i = 0; i < results.size(); i++) {
             JsonObjectBuilder filteredObj = Json.createObjectBuilder();
             JsonObject animal = results.getJsonObject(i);
 
             // Fill in String attributes
-            for(int j = 0; j < PF_STRING_ATTRIBUTES.length; j++) {
+            for (int j = 0; j < PF_STRING_ATTRIBUTES.length; j++) {
                 String key = PF_STRING_ATTRIBUTES[j];
                 String resKey = PF_RETURN_STRING_ATTRIBUTES[j];
                 try {
-                    if(key.contains("\\.")) {
+                    if (key.contains("\\.")) {
                         String[] keys = key.split("\\.");
                         filteredObj.add(resKey, animal.getJsonObject(keys[0]).getString(keys[1]));
-                    } else if (key.equals("description")){
+
+                    } else if (key.equals("id")) {
+                        filteredObj.add(resKey, animal.getInt(key));
+
+                    } else if (key.equals("description")) {
                         filteredObj.add(resKey, animal.getString(key)
-                            .replaceAll("&amp;#39;", "'")
-                            .replaceAll("\n", " "));
+                                .replaceAll("&amp;#39;", "'")
+                                .replaceAll("\n", " "));
                     } else {
                         // logger.info("Key: " + key);
                         filteredObj.add(resKey, animal.getString(key));
@@ -189,22 +234,22 @@ public class APIService {
             filteredObj.add("environment", getTrueValues(animal.getJsonObject("environment")));
             filteredObj.add("tags", animal.getJsonArray("tags"));
             filteredObj.add("photos", getPhotos(animal.getJsonArray("photos")));
-            filteredObj.add("videos", animal.getJsonArray("videos"));
-            filteredObj.add("address", 
-                concatAddress(animal.getJsonObject("contact").getJsonObject("address")));
-            
+            filteredObj.add("videos", getVideos(animal.getJsonArray("videos")));
+            filteredObj.add("address",
+                    concatAddress(animal.getJsonObject("contact").getJsonObject("address")));
+
             filteredArr.add(filteredObj.build());
         }
         JsonArray filteredResults = filteredArr.build();
-        apiRepo.savePfResults(filteredResults);
+        apiRepo.reloadsPfData(filteredResults);
         return filteredResults;
     }
 
     private JsonArray getTrueValues(JsonObject attr) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
-        for(String key : attr.keySet()) {
+        for (String key : attr.keySet()) {
             try {
-                if(attr.getBoolean(key) == true) {
+                if (attr.getBoolean(key) == true) {
                     builder.add(key);
                 }
             } catch (NullPointerException ex) {
@@ -220,7 +265,7 @@ public class APIService {
 
     private String concatAddress(JsonObject address) {
         String addr = "";
-        for(String key : address.keySet()) {
+        for (String key : address.keySet()) {
             try {
                 addr = addr + address.getString(key) + ", ";
             } catch (NullPointerException ex) {
@@ -230,12 +275,12 @@ public class APIService {
                 continue;
             }
         }
-        return addr.substring(0, addr.length()-2);
+        return addr.substring(0, addr.length() - 2);
     }
 
     private JsonArray getPhotos(JsonArray photos) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
-        for(int i = 0; i < photos.size() - 1; i++) {
+        for (int i = 0; i < photos.size() - 1; i++) {
             try {
                 JsonObject photo = photos.getJsonObject(i);
                 builder.add(photo.getString("full"));
@@ -244,6 +289,21 @@ public class APIService {
             } catch (ClassCastException ex) {
                 continue;
             }
+        }
+        return builder.build();
+    }
+
+     private JsonArray getVideos(JsonArray videos) {
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        for(int i = 0; i < videos.size(); i++) {
+            JsonObject vidObj = videos.getJsonObject(i);
+            String fullSrc = vidObj.getString("embed");
+            // logger.info("[API Svc] Vid (full): " + fullSrc);
+            int startIdx = fullSrc.indexOf("src=") + 5;
+            int endIdx = fullSrc.indexOf("\"", startIdx);
+            String src = fullSrc.substring(startIdx, endIdx);
+            // logger.info("[API Svc] Vid: " + src);
+            builder.add(src);
         }
         return builder.build();
     }

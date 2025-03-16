@@ -2,13 +2,18 @@ package vttp.project.server.models;
 
 public class Utils {
 
-        public static final String[] PF_PARAMS = {"type", "breed", "size", "gender", "age", "name", "city"};
+        public static final String[] PF_PARAMS = {"type", "breed", "size", "gender", "age", "name", "location"};
         public static final String[] PF_STRING_ATTRIBUTES = 
-                {"url", "name", "species", "breeds.primary", "colors.primary", "age", "gender", "size", 
+                {"id", "url", "name", "species", "breeds.primary", "colors.primary", "age", "gender", "size", 
                 "coat", "description", "contact.email", "contact.phone"};
         public static final String[] PF_RETURN_STRING_ATTRIBUTES = 
-                {"url", "name", "species", "breed", "color", "age", "gender", "size", 
+                {"id", "url", "name", "species", "breed", "color", "age", "gender", "size", 
                 "coat", "description", "email", "phone"};
+
+        public static final String C_PF = "pf_results";
+        public static final String C_USER = "user_details";
+
+        public static final String F_SAVED_PF = "saved_pf";
 
         public static final String ID = "id";
         public static final String NAME = "name";
@@ -56,7 +61,8 @@ public class Utils {
                         """;
 
         public static final String SQL_GET_PUBLIC_POSTS = """
-                        SELECT * FROM posts WHERE status = 'public'
+                        SELECT * FROM posts WHERE status = 'public' 
+                        ORDER BY timestamp DESC
                         """;
 
         public static final String SQL_GET_POST_BY_USERID = """
@@ -70,6 +76,10 @@ public class Utils {
         
         public static final String SQL_GET_MEDIA_FILES_BY_POSTID = """
                         SELECT * FROM media_files WHERE post_id = ?
+                        """;
+
+        public static final String SQL_DELETE_POST_BY_ID = """
+                        DELETE FROM posts WHERE id = ?
                         """;
 }
 

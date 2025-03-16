@@ -1,29 +1,100 @@
 <div class="main-content">
-    @for (pf of pfData; track $index) {
-        <mat-card class="post-card" appearance="outlined">
-            <mat-card-header>
-              <mat-card-title>{{ pf.name }}</mat-card-title>
-              <mat-card-subtitle>{{ pf.species }}, {{ pf.breed }}</mat-card-subtitle>
-            </mat-card-header>
-            <img mat-card-image [src]="showPicture(pf)" (click)="nextPicture(pf)">
-            <mat-card-content>
-                <div>Age: {{ pf.age }}</div>
-                <div>Gender: {{ pf.gender }}</div>
-                <div>Size: {{ pf.size }}</div>
-                <div>Coat: {{ pf.coat }}</div>
-                <div>
-                    <div>Description: </div>
-                    <div>{{ pf.description }}</div>
-                </div>
-            </mat-card-content>
-            <mat-card-actions>
-              <button mat-button>LIKE</button>
-              <button mat-button>SHARE</button>
-            </mat-card-actions>
-          </mat-card>
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title> Filter Results </mat-panel-title>
+      <mat-panel-description> By: type, breed, size, gender, age, name, location (city/state/postal code) </mat-panel-description>
+    </mat-expansion-panel-header>
+    <form>
+
+    </form>
+  </mat-expansion-panel>
+  <br>
+  @for (pf of pfData; track $index) {
+  <mat-card class="post-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title><strong>{{ pf.name }}</strong></mat-card-title>
+      <mat-card-subtitle>{{ pf.species }}, {{ pf.breed }}</mat-card-subtitle>
+    </mat-card-header>
+    @if (pf.photos.length > 0) {
+    <div class="media-container">
+      <img class="media-file" mat-card-image [src]="showPicture(pf)">
+
+      @if (pf.photos.length > 1) {
+      <!-- Left Arrow Button -->
+      <button class="nav-button left" (click)="prevPic(pf)">&#10094;</button>
+      <!-- Right Arrow Button -->
+      <button class="nav-button right" (click)="nextPic(pf)">&#10095;</button>
+      }
+    </div>
+    } @else {
+      <hr>
     }
-    <button (click)="loadMore()">Load More</button>
-  </div>
-  
-  
-  
+    <br>
+    <mat-card-content>
+      <div><strong>Age: </strong>{{ pf.age }}</div>
+      <div><strong>Gender: </strong>{{ pf.gender }}</div>
+      <div><strong>Size: </strong>{{ pf.size}}</div>
+      <div><strong>Coat: </strong>{{ pf.coat }}</div>
+      @if(pf.description) {
+        <hr>
+        <div>
+          <div><strong>Description: </strong></div>
+          <div>{{ pf.description }}</div>
+        </div>
+      }
+      @if(pf.attributes) {
+        <hr>
+        <strong>Attributes: </strong>
+        <mat-chip-set>
+          @for(attr of pf?.attributes ?? []; track $index) {
+            <mat-chip>{{ attr }}</mat-chip>
+          }
+        </mat-chip-set>
+      }
+      @if(pf.environment) {
+        <hr>
+        <strong>Gets along with: </strong>
+        <mat-chip-set>
+          @for(env of pf?.environment ?? []; track $index) {
+            <mat-chip>{{ env }}</mat-chip>
+          }
+        </mat-chip-set>
+      }
+      @if(pf.tags && pf.tags.length > 0) {
+        <hr>
+        <strong>Personality: </strong>
+        <mat-chip-set>
+          @for(tag of pf?.tags ?? []; track $index) {
+            <mat-chip>{{ tag }}</mat-chip>
+          }
+        </mat-chip-set>
+      }
+      <hr>
+      <div>
+        <div><strong>Email: </strong>{{ pf.email }}</div>
+        <div><strong>Phone: </strong>{{ pf.phone }}</div>
+        <div><strong>Address: </strong>{{ pf.address }}</div>
+      </div>
+      @if(pf.url != 'N.A.') {
+        <hr>
+        <div><strong>Links: </strong></div>
+        <div><a [href]="pf.url" target="_blank">{{ pf.url }}</a></div>
+      }
+      @if(pf.videos && pf.videos.length > 0) {
+        <hr>
+        <div><strong>Meet {{ pf.name }}: </strong></div>
+        @for(vid of pf?.videos ?? []; track $index) {
+          <div><a [href]="vid" target="_blank">{{ vid }}</a></div>
+        }
+      }
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-icon-button (click)="savePfToUser(pf.id)" 
+      [ngClass]="{'active': savedPfs.includes(pf.id)}">
+        <mat-icon>favorite</mat-icon>
+    </button>
+      <button mat-button>SHARE</button>
+    </mat-card-actions>
+  </mat-card>
+  }
+</div>

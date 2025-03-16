@@ -8,11 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+import vttp.project.server.repositories.APIRepository;
 import vttp.project.server.services.APIService;
 import vttp.project.server.services.UserService;
 
 @SpringBootApplication
+@EnableAsync
 public class ServerApplication implements CommandLineRunner {
 
 	@Autowired
@@ -20,6 +23,9 @@ public class ServerApplication implements CommandLineRunner {
 
 	@Autowired
 	private APIService apiSvc;
+
+	@Autowired
+	private APIRepository apiRepo;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(ServerApplication.class, args);
@@ -32,6 +38,7 @@ public class ServerApplication implements CommandLineRunner {
 		// } catch (IOException ex) {
 		// 	ex.printStackTrace();
 		// }
+		// apiRepo.dropPfCollection();
 	}
 
 }

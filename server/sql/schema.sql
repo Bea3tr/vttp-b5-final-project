@@ -32,4 +32,6 @@ CREATE TABLE media_files (
     PRIMARY KEY(id),
     FOREIGN KEY (post_id)
 		REFERENCES posts(id)
+			ON DELETE CASCADE
+            ON UPDATE CASCADE
 );

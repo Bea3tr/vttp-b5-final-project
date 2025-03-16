@@ -23,10 +23,20 @@ export class PostComponent implements OnInit {
         this.id = params['userId'];
       });
     this.loadPublicPosts();
+    this.fileUploadSvc.reload.subscribe(val => {
+      console.info('Post val:', val)
+      if(val == true) {
+        setTimeout(() => {
+          console.info('Refetching posts...');
+          this.loadPublicPosts();
+        }, 1500);
+        this.fileUploadSvc.reloadPosts(false);
+      }
+    });
   }
 
   showFile(post: Post): MediaFile {
-    console.info('MediaFile:', post.files[post.currentFileIndex])
+    // console.info('MediaFile:', post.files[post.currentFileIndex])
     return post.files[post.currentFileIndex];
   }
 
@@ -40,6 +50,15 @@ export class PostComponent implements OnInit {
     if (post.files && post.files.length > 0) {
       post.currentFileIndex = (post.currentFileIndex - 1 + post.files.length) % post.files.length;
     }
+  }
+
+  deletePost(postId: string) {
+    this.fileUploadSvc.deletePost(postId)
+      .then((resp) => {
+        console.info(resp.message);
+        // Reload posts
+        this.fileUploadSvc.reloadPosts(true);
+      })
   }
 
   private loadPublicPosts() {

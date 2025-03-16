@@ -29,8 +29,6 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  @ViewChild('file')
-  imageFile !: ElementRef;
   form !: FormGroup;
   
   protected id: string = '';
@@ -62,22 +60,26 @@ export class HomeComponent implements OnInit {
   }
 
   post() {
-    this.fileUploadSvc.uploadPost(this.form, this.selectedFiles, this.id)
-      .then((resp) => {
-        if(resp.success == true) {
-          this.postMessage = resp.message;
-          this.messageType = 'success';
-        } else {
-          this.postMessage = 'Upload unsuccessful';
-          this.messageType = 'failed';
-        }
-        this.showMessage = true;
-          // Hide message after 1 second
-        setTimeout(() => {
-          this.showMessage = false;
-        }, 2000);
-    });
+    this.fileUploadSvc.uploadPost(this.form, this.selectedFiles, this.id);
+    //   .then((resp) => {
+    //     if(resp.success == true) {
+    //       console.info('Post successful');
+    //       this.postMessage = resp.message;
+    //       this.messageType = 'success';
+    //     } else {
+    //       this.postMessage = 'Upload unsuccessful';
+    //       this.messageType = 'failed';
+    //     }
+    //     this.showMessage = true;
+    //     console.info('Show:', this.showMessage, this.messageType, this.postMessage);
+    //       // Hide message after 1 second
+    //     setTimeout(() => {
+    //       this.showMessage = false;
+    //     }, 2000);
+    // });
+    this.form.reset();
     this.isPopupOpen = false;
+    this.fileUploadSvc.reloadPosts(true);
   }
 
   private createForm() {

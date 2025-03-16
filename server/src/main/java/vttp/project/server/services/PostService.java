@@ -19,11 +19,13 @@ public class PostService {
     @Autowired
     private PostRepository postRepo;
 
-    // public String upload(MultipartFile file, String post, String status, UserInfo ui)
+    public boolean deletePost(String postId) throws DataAccessException {
+        return postRepo.deletePost(postId);
+    }
+
     public String upload(List<MultipartFile> files, String post, String status, UserInfo ui)
         throws DataAccessException, IOException {
         return postRepo.upload(files, post, status, ui);
-        // return postRepo.upload(file, post, status, ui);
     }
 
     public Optional<List<Post>> getPostsByUserId(String userId) throws DataAccessException {

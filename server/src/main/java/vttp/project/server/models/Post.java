@@ -64,10 +64,10 @@ public class Post {
             post.getFiles().forEach(file -> {
                 String encodedString = "";
                 if(file.getType().startsWith("image")) {
-                    logger.info("[Post] File type: image");
+                    // logger.info("[Post] File type: image");
                     encodedString = BASE64_IMG_PREFIX + Base64.getEncoder().encodeToString(file.getFile());
                 } else if (file.getType().startsWith("video")) {
-                    logger.info("[Post] File type: image");
+                    // logger.info("[Post] File type: image");
                     encodedString = BASE64_VID_PREFIX + Base64.getEncoder().encodeToString(file.getFile());
                 }
                 JsonObject fileObj = Json.createObjectBuilder()

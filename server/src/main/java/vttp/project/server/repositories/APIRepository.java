@@ -1,21 +1,36 @@
 package vttp.project.server.repositories;
 
+import static vttp.project.server.models.Utils.*;
+
 import java.time.Duration;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
+import com.mongodb.client.result.UpdateResult;
+
+import jakarta.json.Json;
 import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
+import jakarta.json.JsonObjectBuilder;
 
 @Repository
 public class APIRepository {
+
+    private static final Logger logger = Logger.getLogger(APIRepository.class.getName());
 
     @Autowired @Qualifier("myredis")
     private RedisTemplate<String, String> redisTemplate;
@@ -38,10 +53,12 @@ public class APIRepository {
     }
 
     public void savePfResults(JsonArray results) {
+        logger.info("[API Repo] Saving pf data to DB");
         List<Document> docsToSave = new LinkedList<>();
         for(int i = 0; i < results.size() - 1; i++) {
             JsonObject obj = results.getJsonObject(i);
-            Document toSave = new Document("url", obj.getString("url"))
+            Document toSave = new Document("pf_id", obj.getInt("id"))
+                .append("url", obj.getString("url"))
                 .append("name", obj.getString("name"))
                 .append("species", obj.getString("species"))
                 .append("breed", obj.getString("breed"))
@@ -62,15 +79,137 @@ public class APIRepository {
 
             docsToSave.add(toSave);
         }
-        mgTemplate.insert(docsToSave, "pf_results");
+        mgTemplate.insert(docsToSave, C_PF);
+        logger.info("[API Repo] Inserted pf data in DB");
+        // Refresh API results from endpoint every hour
+        redisTemplate.opsForValue().set("load_pf", "true", Duration.ofHours(1));
     }
+
+    public void reloadsPfData(JsonArray results) {
+        for(int i = 0; i < results.size() - 1; i++) {
+            JsonObject obj = results.getJsonObject(i);
+            Update updateOps = new Update()
+                .set("url", obj.getString("url"))
+                .set("name", obj.getString("name"))
+                .set("species", obj.getString("species"))
+                .set("breed", obj.getString("breed"))
+                .set("color", obj.getString("color"))
+                .set("age", obj.getString("age"))
+                .set("gender", obj.getString("gender"))
+                .set("size", obj.getString("size"))
+                .set("coat", obj.getString("coat"))
+                .set("description", obj.getString("description"))
+                .set("email", obj.getString("email"))
+                .set("phone", obj.getString("phone"))
+                .set("address", obj.getString("address"))
+                .set("attributes", jsonArrToList(obj.getJsonArray("attributes")))
+                .set("environment", jsonArrToList(obj.getJsonArray("environment")))
+                .set("tags", jsonArrToList(obj.getJsonArray("tags")))
+                .set("photos", jsonArrToList(obj.getJsonArray("photos")))
+                .set("videos", jsonArrToList(obj.getJsonArray("videos")));
+            
+            Query query = Query.query(Criteria.where("pf_id").is(obj.getInt("id")));
+            mgTemplate.upsert(query, updateOps, C_PF);
+        }
+        logger.info("[API Repo] Loaded / Reloaded pf data in DB");
+        redisTemplate.opsForValue().set("load_pf", "true", Duration.ofHours(1));
+    }
+
+    public JsonArray getAllPfResults() {
+        List<Document> results = mgTemplate.find(new Query(), Document.class, C_PF);
+        return docsToJsonArr(results);
+    }
+
+    public JsonArray getPfResults(JsonObject params) {
+        Collection<Criteria> criterias = new LinkedList<>();
+        for(int i = 0; i < PF_PARAMS.length - 1; i++) {
+            String p = PF_PARAMS[i];
+            if (!params.getString(p).equals("")) {
+                Criteria criteria = Criteria.where(p).regex(params.getString(p), "i");
+                criterias.add(criteria);
+            }
+        }
+        Criteria overallCriteria = Criteria.where("address")
+            .regex(params.getString("location"), "i")
+            .orOperator(criterias);
+        Query query = Query.query(overallCriteria);
+        List<Document> results = mgTemplate.find(query, Document.class, C_PF);
+        
+        return docsToJsonArr(results);
+    }
+
+    public boolean pfLoaded() {
+        return mgTemplate.collectionExists(C_PF) && redisTemplate.hasKey("load_pf");
+    }
+
+    public boolean savePfToUser(String userId, int pfId) {
+        Update updateOps = new Update()
+            .push(F_SAVED_PF, pfId);
+        Query query = Query.query(Criteria.where("user_id").is(userId));
+        UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
+        return result.getModifiedCount() > 0;
+    }
+
+    public Document getSavedPf(String userId) {
+        Criteria criteria = Criteria.where("user_id").is(userId);
+        Query query = Query.query(criteria);
+        return mgTemplate.findOne(query, Document.class, C_USER);
+    }
+
+    public boolean removeSavedPf(String userId, int pfId) {
+        Query query = new Query(Criteria.where("user_id").is(userId));
+        Update updateOps = new Update()
+            .pull(F_SAVED_PF, pfId);
+    
+        UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
+        return result.getModifiedCount() > 0;
+    }
+
+    // @Async
+    // public void dropPfCollection() {
+    //     if(!redisTemplate.hasKey("load_pf") && mgTemplate.collectionExists(C_PF)) {
+    //         mgTemplate.dropCollection(C_PF);
+    //     }
+    // }
+
+    //==========PRIVATE METHODS========
 
     private List<String> jsonArrToList(JsonArray array) {
         List<String> values = new LinkedList<>();
         for(int i = 0; i < array.size(); i++) {
-            values.add(array.getString(i));
+            values.add(array.getString(i));            
         }
         return values;
     }
+
+    private JsonArray listTojsonArr(List<String> values) {
+        JsonArrayBuilder arrBuild = Json.createArrayBuilder();
+        for(String v : values) {
+            arrBuild.add(v);
+        }
+        return arrBuild.build();
+    }
+
+    private JsonArray docsToJsonArr(List<Document> docs) {
+        JsonArrayBuilder pfArr = Json.createArrayBuilder();
+        for(Document doc : docs) {
+            JsonObjectBuilder pfBuild = Json.createObjectBuilder();
+            pfBuild.add(ID, doc.getInteger("pf_id"));
+            for(int i = 1; i < PF_RETURN_STRING_ATTRIBUTES.length ; i++) {
+                String key = PF_RETURN_STRING_ATTRIBUTES[i];
+                pfBuild.add(key, doc.getString(key));
+            }
+            pfBuild.add("address", doc.getString("address"))
+                .add("attributes", listTojsonArr(doc.getList("attributes", String.class)))
+                .add("environment", listTojsonArr(doc.getList("environment", String.class)))
+                .add("tags", listTojsonArr(doc.getList("tags", String.class)))
+                .add("photos", listTojsonArr(doc.getList("photos", String.class)))
+                .add("videos", listTojsonArr(doc.getList("videos", String.class)));
+            
+            pfArr.add(pfBuild.build());
+        }
+        return pfArr.build();
+    }
+   
     
 }

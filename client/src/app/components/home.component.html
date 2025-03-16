@@ -33,10 +33,6 @@
     <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
     <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
 
-    <div *ngIf="showMessage" class="message-popup" [ngClass]="messageType">
-        {{ postMessage }}
-    </div>
-
     <div class="popup-container" *ngIf="isPopupOpen">
         <mat-card class="popup" appearance="outlined">
             <div class="post-header">

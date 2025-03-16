@@ -29,6 +29,7 @@ export interface MediaFile {
 }
 
 export interface PfResult {
+    id: number,
     url: string,
     name: string,
     species: string,
