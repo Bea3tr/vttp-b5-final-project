@@ -1,14 +1,20 @@
 package vttp.project.server.services;
 
+import static vttp.project.server.models.Utils.F_SAVED_POSTS;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import vttp.project.server.models.Post;
 import vttp.project.server.models.UserInfo;
 import vttp.project.server.repositories.PostRepository;
@@ -24,10 +30,13 @@ public class PostService {
     }
 
     public String upload(List<MultipartFile> files, String post, String status, UserInfo ui)
-        throws DataAccessException, IOException {
+            throws DataAccessException, IOException {
         return postRepo.upload(files, post, status, ui);
     }
 
+    public boolean editPost(String postId, String edited) {
+        return postRepo.editPost(postId, edited);
+    }
     public Optional<List<Post>> getPostsByUserId(String userId) throws DataAccessException {
         return postRepo.getPostsByUserId(userId);
     }
@@ -35,5 +44,24 @@ public class PostService {
     public Optional<List<Post>> getPublicPosts() {
         return postRepo.getPublicPosts();
     }
-    
+
+    public boolean savePostToUser(String userId, String postId) {
+        return postRepo.savePostToUser(userId, postId);
+    }
+
+    public boolean removeSavedPost(String userId, String postId) {
+        return postRepo.removeSavedPost(userId, postId);
+    }
+
+    public JsonArray getSavedPosts(String userId) {
+        Document result = postRepo.getSavedPosts(userId);
+        List<String> postIds = result.getList(F_SAVED_POSTS, String.class);
+        JsonArrayBuilder pfArr = Json.createArrayBuilder();
+        if (!postIds.isEmpty()) {
+            for (String id : postIds)
+                pfArr.add(id);
+        }
+        return pfArr.build();
+    }
+
 }

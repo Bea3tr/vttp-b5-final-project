@@ -2,10 +2,16 @@
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title> Filter Results </mat-panel-title>
-      <mat-panel-description> By: type, breed, size, gender, age, name, location (city/state/postal code) </mat-panel-description>
+      <!-- <mat-panel-description> By: type, breed, size, gender, age, name, location (city/state/postal code) </mat-panel-description> -->
     </mat-expansion-panel-header>
     <form>
-
+      <mat-form-field>
+        <mat-label>Type</mat-label>
+        <mat-select>
+          <mat-option value="one">First option</mat-option>
+          <mat-option value="two">Second option</mat-option>
+        </mat-select>
+      </mat-form-field>
     </form>
   </mat-expansion-panel>
   <br>
@@ -92,8 +98,7 @@
       <button mat-icon-button (click)="savePfToUser(pf.id)" 
       [ngClass]="{'active': savedPfs.includes(pf.id)}">
         <mat-icon>favorite</mat-icon>
-    </button>
-      <button mat-button>SHARE</button>
+      </button>
     </mat-card-actions>
   </mat-card>
   }

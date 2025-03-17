@@ -12,10 +12,17 @@ public class Utils {
 
         public static final String C_PF = "pf_results";
         public static final String C_USER = "user_details";
+        public static final String C_COMMENT = "post_comments";
 
         public static final String F_SAVED_PF = "saved_pf";
+        public static final String F_SAVED_POSTS = "saved_posts";
+
+        public static final String R_PF_TYPES = "pf_types";
 
         public static final String ID = "id";
+        public static final String USERID = "user_id";
+        public static final String POSTID = "post_id";
+        public static final String COMMENTID = "c_id";
         public static final String NAME = "name";
         public static final String EMAIL = "email";
         public static final String PICTURE = "picture";
@@ -24,11 +31,13 @@ public class Utils {
         public static final String FILES = "files";
         public static final String PASSWORD = "password";
         public static final String GLOGIN = "google_login";
-        public static final String USERID = "user_id";
         public static final String USERIMG = "user_img";
         public static final String POST = "post";
         public static final String TIMESTAMP = "timestamp";
         public static final String STATUS = "status";
+        public static final String COMMENT = "comment";
+        public static final String COMMENTS = "comments";
+        public static final String EDITED = "edited";
 
         public static final String SQL_INSERT_USER = """
                         INSERT INTO users (id, name, email, picture, password, google_login)
@@ -80,6 +89,11 @@ public class Utils {
 
         public static final String SQL_DELETE_POST_BY_ID = """
                         DELETE FROM posts WHERE id = ?
+                        """;
+
+        public static final String SQL_UPDATE_POST = """
+                        UPDATE posts SET post = ?, timestamp = SYSDATE()
+                        WHERE id = ?
                         """;
 }
 

@@ -18,6 +18,7 @@ export class ShelterComponent implements OnInit {
   protected pfData: PfResult[] = [];
   protected id = '';
   protected savedPfs: number[] = [];
+  protected breeds: string[] = [];
 
   ngOnInit(): void {
     // Load default data
@@ -63,7 +64,7 @@ export class ShelterComponent implements OnInit {
   }
 
   removeSavedPf(pfId: number) {
-    this.apiSvc.removedSavedPf(this.id, pfId);
+    this.apiSvc.removeSavedPf(this.id, pfId);
   }
 
   getSavedPf(userId: string) {

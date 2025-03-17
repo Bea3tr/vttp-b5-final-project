@@ -29,6 +29,7 @@ public class APIService {
 
     private static final String PF_URL = "https://api.petfinder.com/v2/oauth2/token";
     private static final String PF_GET_ANIMALS = "https://api.petfinder.com/v2/animals";
+    private static final String PF_GET_TYPES = "https://api.petfinder.com/v2/types";
     private static final Logger logger = Logger.getLogger(APIService.class.getName());
 
     @Autowired
@@ -155,6 +156,46 @@ public class APIService {
         } catch (Exception ex) {
             return Json.createObjectBuilder()
                     .add("message", ex.getMessage())
+                    .build();
+        }
+    }
+
+    public JsonObject getTypes(String token) {
+        try {
+            JsonArray results = Json.createArrayBuilder().build();
+            if (apiRepo.typesLoaded()) {
+                logger.info("[API Svc] Retrieving types from DB");
+                results = apiRepo.getTypes();
+            } else {
+                logger.info("[API Svc] Retrieving data from API");
+                RequestEntity<Void> req = RequestEntity.get(PF_GET_TYPES)
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .build();
+
+                RestTemplate template = new RestTemplate();
+                ResponseEntity<String> resp = template.exchange(req, String.class);
+
+                String payload = resp.getBody();
+                JsonArray types = Json.createReader(new StringReader(payload))
+                    .readObject().getJsonArray("types");
+
+                JsonArrayBuilder builder = Json.createArrayBuilder();
+                for(int i = 0; i < types.size(); i++) {
+                    JsonObject details = types.getJsonObject(i);
+                    builder.add(details.getString("name"));
+                }
+                results = builder.build();
+            }
+            return Json.createObjectBuilder()
+                    .add("message", "success")
+                    .add("results", results)
+                    .build();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Json.createObjectBuilder()
+                    .add("message", "[TYPE] Error retrieving animal data")
                     .build();
         }
     }

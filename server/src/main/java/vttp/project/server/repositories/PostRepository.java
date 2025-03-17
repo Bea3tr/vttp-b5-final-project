@@ -10,11 +10,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.mongodb.client.result.UpdateResult;
 
 import vttp.project.server.models.MediaFile;
 import vttp.project.server.models.Post;
@@ -28,14 +35,16 @@ public class PostRepository {
     @Autowired
     private JdbcTemplate template;
 
+    @Autowired
+    private MongoTemplate mgTemplate;
+
     public boolean deletePost(String postId) throws DataAccessException {
         return template.update(SQL_DELETE_POST_BY_ID, postId) > 0;
     }
 
     public String upload(List<MultipartFile> files, String post, String status, UserInfo ui)
             throws IOException, RuntimeException {
-        String postId = UUID.randomUUID().toString().replaceAll("\\-", "")
-                .substring(0, 16);
+        String postId = UUID.randomUUID().toString().substring(0, 8);
 
         template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, status);
         if (files != null) {
@@ -50,12 +59,15 @@ public class PostRepository {
         return postId;
     }
 
+    public boolean editPost(String postId, String edited) {
+        return template.update(SQL_UPDATE_POST, edited, postId) > 0;
+    }
+
     private void saveFile(MultipartFile file, String postId)
             throws DataAccessException, IOException {
 
         template.update(SQL_INSERT_MEDIA_FILE,
-                UUID.randomUUID().toString().replaceAll("\\-", "")
-                        .substring(0, 16),
+                UUID.randomUUID().toString().substring(0, 8),
                 postId, file.getContentType(), file.getBytes());
 
     }
@@ -98,18 +110,40 @@ public class PostRepository {
 
                         // Fetch media files using queryForList to avoid cursor interference
                         List<MediaFile> mediaFiles = template.query(
-                            SQL_GET_MEDIA_FILES_BY_POSTID,
-                            (ResultSet rs_mf, int rowNum) -> {
-                                // logger.info("[Post Repo] Media files for: " + post.getId());
-                                return MediaFile.populate(rs_mf);
-                            }, post.getId());
+                                SQL_GET_MEDIA_FILES_BY_POSTID,
+                                (ResultSet rs_mf, int rowNum) -> {
+                                    // logger.info("[Post Repo] Media files for: " + post.getId());
+                                    return MediaFile.populate(rs_mf);
+                                }, post.getId());
 
                         post.setFiles(mediaFiles);
                         posts.add(post);
                     }
                     return posts.isEmpty() ? Optional.empty() : Optional.of(posts);
-                }
-        );
+                });
+    }
+
+    public boolean savePostToUser(String userId, String postId) {
+        Update updateOps = new Update()
+                .push(F_SAVED_POSTS, postId);
+        Query query = Query.query(Criteria.where(USERID).is(userId));
+        UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
+        return result.getModifiedCount() > 0;
+    }
+
+    public Document getSavedPosts(String userId) {
+        Criteria criteria = Criteria.where(USERID).is(userId);
+        Query query = Query.query(criteria);
+        return mgTemplate.findOne(query, Document.class, C_USER);
+    }
+
+    public boolean removeSavedPost(String userId, String postId) {
+        Query query = new Query(Criteria.where(USERID).is(userId));
+        Update updateOps = new Update()
+                .pull(F_SAVED_POSTS, postId);
+
+        UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
+        return result.getModifiedCount() > 0;
     }
 
 }

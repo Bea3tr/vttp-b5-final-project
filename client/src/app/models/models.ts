@@ -28,6 +28,16 @@ export interface MediaFile {
     file: string
 }
 
+export interface Comment {
+    id: string,
+    user_id: string,
+    post_id: string,
+    comment: string,
+    timestamp: string,
+    name: string,
+    picture: string
+}
+
 export interface PfResult {
     id: number,
     url: string,

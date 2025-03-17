@@ -22,7 +22,7 @@ export class ApiService {
         return lastValueFrom(this.http.put<any>('/api/save-pf', { body }));
     }
 
-    removedSavedPf(userId: string, pfId: number) {
+    removeSavedPf(userId: string, pfId: number) {
         console.info('UserId, PfId:', userId, pfId);
         const body = {
             userId: userId,

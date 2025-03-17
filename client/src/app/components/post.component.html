@@ -10,7 +10,7 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item>Edit</button>
+        <button mat-menu-item (click)="openEdit(p.id, p.post)">Edit</button>
         <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deletePost(p.id)">
           Delete
         </button>
@@ -41,9 +41,123 @@
       </p>
     </mat-card-content>
     <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
+      <button mat-icon-button (click)="savePostToUser(p.id)" [ngClass]="{'active': savedPosts.includes(p.id)}">
+        <mat-icon>favorite</mat-icon>
+      </button>
+      <button mat-icon-button (click)="openPopup(p.id)">
+        <mat-icon svgIcon="comment"></mat-icon>
+      </button>
     </mat-card-actions>
   </mat-card>
   }
+</div>
+
+<div class="popup-container" *ngIf="isPopupOpen">
+  <mat-card class="popup" appearance="outlined">
+    <div class="post-header">
+      <span>Comments</span>
+      <button mat-icon-button (click)="closePopup()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <!-- Display comments -->
+    <mat-card-content class="comments">
+      @if(displayedComments && displayedComments.length > 0) {
+        <mat-list>
+          @for(comment of displayedComments; track comment.id) {
+              <mat-card class="comment-card">
+                <mat-card-header>
+                  <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + comment.picture  + ')'}"></div>
+                  <mat-card-title>{{ comment.name }}</mat-card-title>
+                  <mat-card-subtitle>{{ comment.timestamp }}</mat-card-subtitle>
+                  @if (comment.user_id == id) {
+                    <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item (click)="openEditComment(comment.id, comment.comment)">Edit</button>
+                      <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deleteComment(comment.id)">
+                        Delete
+                      </button>
+                    </mat-menu>
+                    }
+                </mat-card-header>
+                <mat-card-content>
+                  <p>{{ comment.comment }}</p>
+                </mat-card-content>
+                <mat-card-actions>
+                  <button mat-icon-button>
+                    <mat-icon svgIcon="thumbsup"></mat-icon>
+                  </button>
+                  <button mat-icon-button>
+                    <mat-icon svgIcon="thumbsdown"></mat-icon>
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+          }
+        </mat-list>
+      } @else {
+        <p>No comments yet</p>
+      }
+    </mat-card-content>
+    <hr>
+    <mat-card-actions>
+      <form id="upload" class="post-form" [formGroup]="form" (submit)="postComment()">
+        <mat-form-field class="desc">
+          <mat-label>Leave a comment</mat-label>
+          <input matInput formControlName="comment">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="form.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isEditOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <span>Edit Post</span>
+      <button mat-icon-button (click)="closeEdit()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <mat-card-actions>
+      <form class="post-form" [formGroup]="editForm" (submit)="editPost()">
+        <mat-form-field class="desc">
+          <mat-label>Edit post</mat-label>
+          <input matInput formControlName="edited">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="editForm.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isEditCommentOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <span>Edit Comment</span>
+      <button mat-icon-button (click)="closeEditComment()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <mat-card-actions>
+      <form class="post-form" [formGroup]="editForm" (submit)="editComment()">
+        <mat-form-field class="desc">
+          <mat-label>Edit comment</mat-label>
+          <input matInput formControlName="edited">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="editForm.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
 </div>

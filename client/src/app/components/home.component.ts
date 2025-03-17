@@ -3,9 +3,8 @@ import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
 import { UserInfo } from '../models/models';
-import { FileUploadService } from '../services/fileupload.service';
+import { PostService } from '../services/post.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
@@ -19,7 +18,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
     private authSvc: AuthService, private router: Router, private actRoute: ActivatedRoute,
-    private fileUploadSvc: FileUploadService, private fb: FormBuilder) {
+    private postSvc: PostService, private fb: FormBuilder) {
       const icons = ["plus", "cross", "shelter", "shop", "color-shelter", "color-shop"];
       icons.forEach((icon) => {
         this.matIconRegistry.addSvgIcon(
@@ -60,7 +59,7 @@ export class HomeComponent implements OnInit {
   }
 
   post() {
-    this.fileUploadSvc.uploadPost(this.form, this.selectedFiles, this.id);
+    this.postSvc.uploadPost(this.form, this.selectedFiles, this.id);
     //   .then((resp) => {
     //     if(resp.success == true) {
     //       console.info('Post successful');
@@ -79,7 +78,7 @@ export class HomeComponent implements OnInit {
     // });
     this.form.reset();
     this.isPopupOpen = false;
-    this.fileUploadSvc.reloadPosts(true);
+    this.postSvc.reloadPosts(true);
   }
 
   private createForm() {
