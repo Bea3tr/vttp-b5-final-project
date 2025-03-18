@@ -30,6 +30,7 @@ public class APIService {
     private static final String PF_URL = "https://api.petfinder.com/v2/oauth2/token";
     private static final String PF_GET_ANIMALS = "https://api.petfinder.com/v2/animals";
     private static final String PF_GET_TYPES = "https://api.petfinder.com/v2/types";
+    private static final String PF_GET_BREEDS = "https://api.petfinder.com/v2/types/{type}/breeds";
     private static final Logger logger = Logger.getLogger(APIService.class.getName());
 
     @Autowired
@@ -119,40 +120,41 @@ public class APIService {
     }
 
     public JsonObject getPfAnimals(String token, MultiValueMap<String, String> form) {
-        JsonObject params = formToJson(form);
-        JsonArray results = Json.createArrayBuilder().build();
         try {
-            if (apiRepo.pfLoaded()) {
-                logger.info("[API Svc] Retrieving data from DB");
-                results = apiRepo.getPfResults(params);
-            } else {
-                String url = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS)
-                        .queryParam("type", params.getString("type"))
-                        .queryParam("breed", params.getString("breed"))
-                        .queryParam("size", params.getString("size"))
-                        .queryParam("gender", params.getString("gender"))
-                        .queryParam("age", params.getString("age"))
-                        .queryParam("name", params.getString("name"))
-                        .queryParam("location", params.getString("location"))
-                        .toUriString();
+            String url = formToUrlParams(form);
+            logger.info("[API Svc] Url: " + url);
 
-                RequestEntity<Void> req = RequestEntity.get(url)
-                        .header("Authorization", "Bearer " + token)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .build();
+            RequestEntity<Void> req = RequestEntity.get(url)
+                    .header("Authorization", "Bearer " + token)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .build();
 
-                RestTemplate template = new RestTemplate();
-                ResponseEntity<String> resp = template.exchange(req, String.class);
+            RestTemplate template = new RestTemplate();
+            ResponseEntity<String> resp = template.exchange(req, String.class);
 
-                String payload = resp.getBody();
-                results = filterResult(Json.createReader(new StringReader(payload))
+            String payload = resp.getBody();
+            JsonArray results = filterResult(Json.createReader(new StringReader(payload))
                     .readObject());
-            }
+
             return Json.createObjectBuilder()
                     .add("message", "success")
                     .add("results", results)
                     .build();
 
+        } catch (Exception ex) {
+            return Json.createObjectBuilder()
+                    .add("message", ex.getMessage())
+                    .build();
+        }
+    }
+
+    public JsonObject loadMorePf(int i) {
+        try {
+            JsonArray results = apiRepo.loadMorePfResults(i);
+            return Json.createObjectBuilder()
+                    .add("message", "success")
+                    .add("results", results)
+                    .build();
         } catch (Exception ex) {
             return Json.createObjectBuilder()
                     .add("message", ex.getMessage())
@@ -178,14 +180,58 @@ public class APIService {
 
                 String payload = resp.getBody();
                 JsonArray types = Json.createReader(new StringReader(payload))
-                    .readObject().getJsonArray("types");
+                        .readObject().getJsonArray("types");
 
                 JsonArrayBuilder builder = Json.createArrayBuilder();
-                for(int i = 0; i < types.size(); i++) {
+                for (int i = 0; i < types.size(); i++) {
                     JsonObject details = types.getJsonObject(i);
                     builder.add(details.getString("name"));
                 }
                 results = builder.build();
+                logger.info("[API Svc] Saving types to db");
+                apiRepo.saveTypes(results);
+            }
+            return Json.createObjectBuilder()
+                    .add("message", "success")
+                    .add("results", results)
+                    .build();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Json.createObjectBuilder()
+                    .add("message", "[TYPE] Error retrieving animal data")
+                    .build();
+        }
+    }
+
+    public JsonObject getBreeds(String token, String type) {
+        try {
+            JsonArray results = Json.createArrayBuilder().build();
+            if (apiRepo.breedsLoaded(type)) {
+                logger.info("[API Svc] Retrieving " + type + " breeds from DB");
+                results = apiRepo.getBreeds(type);
+            } else {
+                logger.info("[API Svc] Retrieving data from API");
+                RequestEntity<Void> req = RequestEntity.get(PF_GET_BREEDS.replace("{type}", type))
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .build();
+
+                RestTemplate template = new RestTemplate();
+                ResponseEntity<String> resp = template.exchange(req, String.class);
+
+                String payload = resp.getBody();
+                JsonArray breeds = Json.createReader(new StringReader(payload))
+                        .readObject().getJsonArray("breeds");
+
+                JsonArrayBuilder builder = Json.createArrayBuilder();
+                for (int i = 0; i < breeds.size(); i++) {
+                    JsonObject details = breeds.getJsonObject(i);
+                    builder.add(details.getString("name"));
+                }
+                results = builder.build();
+                logger.info("[API Svc] Saving " + type + " breeds to db");
+                apiRepo.saveBreeds(type, results);
             }
             return Json.createObjectBuilder()
                     .add("message", "success")
@@ -212,26 +258,42 @@ public class APIService {
         Document result = apiRepo.getSavedPf(userId);
         List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
         JsonArrayBuilder pfArr = Json.createArrayBuilder();
-        if(!pfIds.isEmpty()) {
-            for(int id : pfIds) 
+        if (!pfIds.isEmpty()) {
+            for (int id : pfIds)
                 pfArr.add(id);
         }
         return pfArr.build();
     }
-    
-    //==========PRIVATE METHODS========
 
-    private JsonObject formToJson(MultiValueMap<String, String> form) {
-        JsonObjectBuilder paramObj = Json.createObjectBuilder();
+    // ==========PRIVATE METHODS========
+
+    // private JsonObject formToJson(MultiValueMap<String, String> form) {
+    // JsonObjectBuilder paramObj = Json.createObjectBuilder();
+    // for (int i = 0; i < PF_PARAMS.length; i++) {
+    // String param = PF_PARAMS[i];
+    // if (form.getFirst(param) == null) {
+    // paramObj.add(param, "");
+    // } else {
+    // paramObj.add(param, form.getFirst(param));
+    // }
+    // }
+    // return paramObj.build();
+    // }
+
+    private String formToUrlParams(MultiValueMap<String, String> form) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS);
         for (int i = 0; i < PF_PARAMS.length; i++) {
             String param = PF_PARAMS[i];
-            if (form.getFirst(param) == null) {
-                paramObj.add(param, "");
-            } else {
-                paramObj.add(param, form.getFirst(param));
+            String value = form.getFirst(param);
+            if (value != null) {
+                logger.info("Form: " + form.getFirst(param));
+                builder.queryParam(param, form.getFirst(param));
             }
         }
-        return paramObj.build();
+        String url = builder.toUriString();
+        logger.info("[API Svc] Url Before: " + url);
+        return url.replaceAll("%20", " ")
+                .replaceAll("%26", "&");
     }
 
     private JsonArray filterResult(JsonObject fromApi) {
@@ -258,6 +320,7 @@ public class APIService {
                     } else if (key.equals("description")) {
                         filteredObj.add(resKey, animal.getString(key)
                                 .replaceAll("&amp;#39;", "'")
+                                .replaceAll("&#039;", "'")
                                 .replaceAll("\n", " "));
                     } else {
                         // logger.info("Key: " + key);
@@ -334,9 +397,9 @@ public class APIService {
         return builder.build();
     }
 
-     private JsonArray getVideos(JsonArray videos) {
+    private JsonArray getVideos(JsonArray videos) {
         JsonArrayBuilder builder = Json.createArrayBuilder();
-        for(int i = 0; i < videos.size(); i++) {
+        for (int i = 0; i < videos.size(); i++) {
             JsonObject vidObj = videos.getJsonObject(i);
             String fullSrc = vidObj.getString("embed");
             // logger.info("[API Svc] Vid (full): " + fullSrc);

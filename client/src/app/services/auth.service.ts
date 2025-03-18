@@ -7,7 +7,7 @@ import { UserInfo } from '../models/models';
 
 declare const google: any;
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class AuthService {
     private authSubject = new BehaviorSubject<any>(null)
     private http = inject(HttpClient)

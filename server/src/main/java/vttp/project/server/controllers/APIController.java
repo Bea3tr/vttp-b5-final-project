@@ -21,15 +21,16 @@ import jakarta.json.JsonObject;
 import vttp.project.server.services.APIService;
 
 @RestController
-@RequestMapping(path="/api", produces=MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path="/api/shelter", produces=MediaType.APPLICATION_JSON_VALUE)
 public class APIController {
 
     private static final Logger logger = Logger.getLogger(APIController.class.getName());
     @Autowired
     private APIService apiSvc;
 
-    @GetMapping(path="/shelter-filtered", consumes=MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @GetMapping(path="/filtered")
     public ResponseEntity<String> getShelterData(@RequestParam MultiValueMap<String, String> form) {
+        logger.info("Form: " + form);
         String token = apiSvc.getPfToken();
         if(token.equals("")) {
             JsonObject result = Json.createObjectBuilder()
@@ -39,10 +40,25 @@ public class APIController {
                 .body(result.toString());
         }
         JsonObject result = apiSvc.getPfAnimals(token, form);
+        if(!result.getString("message").equals("success")) {
+            return ResponseEntity.status(400)
+                .body(result.toString());
+        }
         return ResponseEntity.ok(result.toString());
     }
 
-    @GetMapping(path="/shelter")
+    @GetMapping(path="/load") 
+    public ResponseEntity<String> getMoreData(@RequestParam Integer count) {
+        logger.info("[API Ctrl] Count: " + count);
+        JsonObject result = apiSvc.loadMorePf(count);
+        if(!result.getString("message").equals("success")) {
+            return ResponseEntity.status(400)
+                .body(result.toString());
+        }
+        return ResponseEntity.ok(result.toString());
+    }
+    
+    @GetMapping()
     public ResponseEntity<String> getShelterDataDefault() {
         String token = apiSvc.getPfToken();
         if(token.equals("")) {
@@ -53,11 +69,10 @@ public class APIController {
                 .body(result.toString());
         }
         JsonObject result = apiSvc.getPfAnimalsAll(token);
-        // System.out.println("Results: " + result);
         return ResponseEntity.ok(result.toString());
     }
 
-    @PutMapping(path="/save-pf")
+    @PutMapping(path="/save")
     public ResponseEntity<String> savePf(@RequestBody String payload) {
         logger.info("[API Ctrl] Payload: " + payload);
         JsonObject inObj = Json.createReader(new StringReader(payload))
@@ -74,7 +89,7 @@ public class APIController {
                     .build().toString());
     }
 
-    @PutMapping(path="/remove-pf")
+    @PutMapping(path="/remove")
     public ResponseEntity<String> removeSavedPf(@RequestBody String payload) {
         logger.info("[API Ctrl] Payload: " + payload);
         JsonObject inObj = Json.createReader(new StringReader(payload))
@@ -91,7 +106,7 @@ public class APIController {
                     .build().toString());
     }
 
-    @GetMapping(path="/get-saved-pf/{userId}")
+    @GetMapping(path="/get-saved/{userId}")
     public ResponseEntity<String> getSavedPf(@PathVariable String userId) {
         JsonArray result = apiSvc.getSavedPf(userId);
         if(result.isEmpty()) {
@@ -105,4 +120,27 @@ public class APIController {
             .add("result", result)
             .build().toString());
     }
+
+    @GetMapping(path="/types") 
+    public ResponseEntity<String> getTypes() {
+        String token = apiSvc.getPfToken();
+        JsonObject result = apiSvc.getTypes(token);
+        if(!result.getString("message").equals("success")) {
+            return ResponseEntity.status(400)
+                .body(result.toString());
+        }
+        return ResponseEntity.ok(result.toString());
+    }
+
+    @GetMapping(path="/breeds/{type}")
+    public ResponseEntity<String> getBreeds(@PathVariable String type) {
+        String token = apiSvc.getPfToken();
+        JsonObject result = apiSvc.getBreeds(token, type);
+        if(!result.getString("message").equals("success")) {
+            return ResponseEntity.status(400)
+                .body(result.toString());
+        }
+        return ResponseEntity.ok(result.toString());
+    }
+
 }

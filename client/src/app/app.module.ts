@@ -12,6 +12,9 @@ import { RegisterComponent } from './components/register.component';
 import { Subscription } from 'rxjs';
 import { PostComponent } from './components/post.component';
 import { ShelterComponent } from './components/shelter.component';
+import { ApiService } from './services/api.service';
+import { AuthService } from './services/auth.service';
+import { PostService } from './services/post.service';
 
 @NgModule({
   declarations: [
@@ -28,7 +31,7 @@ import { ShelterComponent } from './components/shelter.component';
     MaterialModule,
     ReactiveFormsModule
   ],
-  providers: [ provideHttpClient() ],
+  providers: [ provideHttpClient(), ApiService, AuthService, PostService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

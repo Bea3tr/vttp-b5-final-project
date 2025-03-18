@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -116,19 +117,33 @@ public class APIRepository {
     }
 
     public JsonArray getAllPfResults() {
-        List<Document> results = mgTemplate.find(new Query(), Document.class, C_PF);
+        Query query = new Query()
+            .with(Sort.by(Sort.Direction.ASC, "pf_id"))
+            .limit(20);
+        List<Document> results = mgTemplate.find(query, Document.class, C_PF);
+        return docsToJsonArr(results);
+    }
+
+    public JsonArray loadMorePfResults(int i) {
+        Query query = new Query()
+            .with(Sort.by(Sort.Direction.ASC, "pf_id"))
+            .skip(20*i)
+            .limit(20);
+        List<Document> results = mgTemplate.find(query, Document.class, C_PF);
         return docsToJsonArr(results);
     }
 
     public JsonArray getPfResults(JsonObject params) {
+        logger.info("[API Repo] Params: " + params);
         Collection<Criteria> criterias = new LinkedList<>();
-        for(int i = 0; i < PF_PARAMS.length - 1; i++) {
+        for(int i = 1; i < PF_PARAMS.length - 1; i++) {
             String p = PF_PARAMS[i];
             if (!params.getString(p).equals("")) {
                 Criteria criteria = Criteria.where(p).regex(params.getString(p), "i");
                 criterias.add(criteria);
             }
         }
+        criterias.add(Criteria.where("species").regex(params.getString("type"), "i"));
         Criteria overallCriteria = Criteria.where("address")
             .regex(params.getString("location"), "i")
             .orOperator(criterias);
@@ -167,7 +182,7 @@ public class APIRepository {
 
     public void saveTypes(JsonArray types) {
         Collection<String> toInsert = jsonArrToList(types);
-        redisTemplate.opsForList().leftPushAll(R_PF_TYPES, toInsert);
+        redisTemplate.opsForList().rightPushAll(R_PF_TYPES, toInsert);
     }
 
     public JsonArray getTypes() {
@@ -177,6 +192,20 @@ public class APIRepository {
 
     public boolean typesLoaded() {
         return redisTemplate.hasKey(R_PF_TYPES);
+    }
+
+    public void saveBreeds(String type, JsonArray breeds) {
+        Collection<String> toInsert = jsonArrToList(breeds);
+        redisTemplate.opsForList().rightPushAll(keyForBreeds(type), toInsert);
+    }
+
+    public JsonArray getBreeds(String type) {
+        List<String> breeds = redisTemplate.opsForList().range(keyForBreeds(type), 0, -1);
+        return listTojsonArr(breeds);
+    }
+
+    public boolean breedsLoaded(String type) {
+        return redisTemplate.hasKey(keyForBreeds(type));
     }
 
     // @Async
@@ -223,6 +252,10 @@ public class APIRepository {
             pfArr.add(pfBuild.build());
         }
         return pfArr.build();
+    }
+
+    private String keyForBreeds(String type) {
+        return R_PF_BREEDS + "_" + type;
     }
    
     

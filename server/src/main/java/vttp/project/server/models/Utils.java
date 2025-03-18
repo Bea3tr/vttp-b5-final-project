@@ -18,6 +18,7 @@ public class Utils {
         public static final String F_SAVED_POSTS = "saved_posts";
 
         public static final String R_PF_TYPES = "pf_types";
+        public static final String R_PF_BREEDS = "pf_breeds";
 
         public static final String ID = "id";
         public static final String USERID = "user_id";

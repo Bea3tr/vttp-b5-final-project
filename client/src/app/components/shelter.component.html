@@ -1,16 +1,93 @@
-<div class="main-content">
+<div class="main-content" #scrollContainer (scroll)="onScroll($event)">
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
       <mat-panel-title> Filter Results </mat-panel-title>
-      <!-- <mat-panel-description> By: type, breed, size, gender, age, name, location (city/state/postal code) </mat-panel-description> -->
+      <mat-panel-description>
+        <button mat-icon-button class="top-right" form="filterForm" type="submit" [disabled]="form.invalid">
+          <mat-icon svgIcon="refresh"></mat-icon>
+        </button>
+      </mat-panel-description>
     </mat-expansion-panel-header>
-    <form>
+    <form [formGroup]="form" (submit)="processForm()" class="grid" id="filterForm">
+      <mat-form-field>
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name">
+      </mat-form-field>
       <mat-form-field>
         <mat-label>Type</mat-label>
-        <mat-select>
-          <mat-option value="one">First option</mat-option>
-          <mat-option value="two">Second option</mat-option>
+        <mat-select formControlName="type" (selectionChange)="onTypeChange($event)">
+          @for(t of pfTypes; track $index) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
         </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Age</mat-label>
+        <mat-select formControlName="age" multiple>
+          <mat-select-trigger>
+            {{form.value['age']?.[0] || ''}}
+            @if ((form.value['age']?.length || 0) > 1) {
+              <span>
+                (+{{(form.value['age']?.length || 0) - 1}} {{form.value['age']?.length === 2 ? 'other' : 'others'}})
+              </span>
+            }
+          </mat-select-trigger>
+          @for (age of ageList; track $index) {
+        <mat-option [value]="age">{{ age }}</mat-option>
+      }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Size</mat-label>
+        <mat-select formControlName="size" multiple>
+          <mat-select-trigger>
+            {{form.value['size']?.[0] || ''}}
+            @if ((form.value['size']?.length || 0) > 1) {
+              <span>
+                (+{{(form.value['size']?.length || 0) - 1}} {{form.value['size']?.length === 2 ? 'other' : 'others'}})
+              </span>
+            }
+          </mat-select-trigger>
+          @for (size of sizeList; track $index) {
+        <mat-option [value]="size">{{ size }}</mat-option>
+      }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Breeds [{{ selectedType }}]</mat-label>
+        <mat-select formControlName="breed" multiple>
+          <mat-select-trigger>
+            {{form.value['breed']?.[0] || ''}}
+            @if ((form.value['breed']?.length || 0) > 1) {
+              <span>
+                (+{{(form.value['breed']?.length || 0) - 1}} {{form.value['size']?.length === 2 ? 'other' : 'others'}})
+              </span>
+            }
+          </mat-select-trigger>
+          @for (breed of pfBreeds; track $index) {
+        <mat-option [value]="breed">{{ breed }}</mat-option>
+      }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Gender</mat-label>
+        <mat-select formControlName="gender" multiple>
+          <mat-select-trigger>
+            {{form.value['gender']?.[0] || ''}}
+            @if ((form.value['gender']?.length || 0) > 1) {
+              <span>
+                (+{{(form.value['gender']?.length || 0) - 1}} {{form.value['gender']?.length === 2 ? 'other' : 'others'}})
+              </span>
+            }
+          </mat-select-trigger>
+          @for (gender of genderList; track $index) {
+        <mat-option [value]="gender">{{ gender }}</mat-option>
+      }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field id="location">
+        <mat-label>Location (city/state/postal code)</mat-label>
+        <input matInput type="text" formControlName="location">
       </mat-form-field>
     </form>
   </mat-expansion-panel>
@@ -101,5 +178,14 @@
       </button>
     </mat-card-actions>
   </mat-card>
+  } @empty {
+    <div style="text-align:center;">No results available</div>
+  }
+  @if(isAtBottom) {
+    <div class="bottom-btn">
+      <button mat-raised-button (click)="loadMore(1)">Load More</button>
+    </div>
   }
 </div>
+
+

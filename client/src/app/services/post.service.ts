@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { BehaviorSubject, lastValueFrom } from "rxjs";
 import { Post, UploadResponse } from "../models/models";
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class PostService {
     
     private http = inject(HttpClient)

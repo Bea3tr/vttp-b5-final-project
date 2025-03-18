@@ -91,6 +91,24 @@ hr {
     margin-bottom: 5px;
 }
 
+.grid mat-form-field {
+    margin: 5px;
+    width: 20vw;
+}
+
+#location {
+    width: 30vw;
+}
+
+.top-right {
+    margin-left: auto;
+}
+
+.bottom-btn {
+    text-align: center;
+    margin: 10px auto;
+}
+
 @media screen and (max-width: 768px) {
     .main-content {
         width: calc(100% - 40px);
