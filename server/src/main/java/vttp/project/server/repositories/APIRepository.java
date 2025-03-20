@@ -108,7 +108,7 @@ public class APIRepository {
                 .set("photos", jsonArrToList(obj.getJsonArray("photos")))
                 .set("videos", jsonArrToList(obj.getJsonArray("videos")));
             
-            Query query = Query.query(Criteria.where("pf_id").is(obj.getInt("id")));
+            Query query = Query.query(Criteria.where(PFID).is(obj.getInt("id")));
             mgTemplate.upsert(query, updateOps, C_PF);
         }
         logger.info("[API Repo] Loaded / Reloaded pf data in DB");
@@ -118,38 +118,48 @@ public class APIRepository {
 
     public JsonArray getAllPfResults() {
         Query query = new Query()
-            .with(Sort.by(Sort.Direction.ASC, "pf_id"))
+            .with(Sort.by(Sort.Direction.ASC, PFID))
             .limit(20);
         List<Document> results = mgTemplate.find(query, Document.class, C_PF);
         return docsToJsonArr(results);
     }
 
-    public JsonArray loadMorePfResults(int i) {
-        Query query = new Query()
-            .with(Sort.by(Sort.Direction.ASC, "pf_id"))
-            .skip(20*i)
+    public JsonArray loadMorePfResults(String[] loaded_ids) {
+        Criteria criteria = Criteria.where(PFID).nin(loadedIds(loaded_ids));
+        Query query = Query.query(criteria)
+            .with(Sort.by(Sort.Direction.ASC, PFID))
             .limit(20);
         List<Document> results = mgTemplate.find(query, Document.class, C_PF);
         return docsToJsonArr(results);
     }
 
-    public JsonArray getPfResults(JsonObject params) {
+    public JsonArray loadMorePfResults(JsonObject params) {
         logger.info("[API Repo] Params: " + params);
         Collection<Criteria> criterias = new LinkedList<>();
-        for(int i = 1; i < PF_PARAMS.length - 1; i++) {
-            String p = PF_PARAMS[i];
+        for(int j = 0; j < PF_PARAMS_FILTERED.length - 1; j++) {
+            String p = PF_PARAMS_FILTERED[j];
             if (!params.getString(p).equals("")) {
-                Criteria criteria = Criteria.where(p).regex(params.getString(p), "i");
-                criterias.add(criteria);
+                if(p.equals("type")) {
+                    criterias.add(Criteria.where("species").regex(params.getString(p), "i"));
+                } else if (p.equals("name")) {
+                    criterias.add(Criteria.where(p).regex(params.getString(p), "i"));
+                } else if (p.equals("location")) {
+                    criterias.add(Criteria.where("address").regex(params.getString(p), "i"));
+                } else {
+                    logger.info("[API Repo] Multiple values: " + params.getString(p));
+                    criterias.add(Criteria.where(p).in(loadedValues(params.getString(p).split(","))));
+                }
             }
         }
-        criterias.add(Criteria.where("species").regex(params.getString("type"), "i"));
-        Criteria overallCriteria = Criteria.where("address")
-            .regex(params.getString("location"), "i")
+        Criteria overallCriteria = Criteria.where(PFID)
+            .nin(loadedIds(params.getString("pf_ids").split(",")))
             .orOperator(criterias);
-        Query query = Query.query(overallCriteria);
+
+        Query query = Query.query(overallCriteria)
+            .with(Sort.by(Sort.Direction.ASC, PFID))
+            .limit(20);
         List<Document> results = mgTemplate.find(query, Document.class, C_PF);
-        
+        logger.info("[API Repo] Results: " + results);
         return docsToJsonArr(results);
     }
 
@@ -208,6 +218,14 @@ public class APIRepository {
         return redisTemplate.hasKey(keyForBreeds(type));
     }
 
+    public JsonArray getDataByIds(List<Integer> ids) {
+        Criteria criteria = Criteria.where(PFID)
+            .in(ids);
+        Query query = Query.query(criteria);
+        List<Document> results = mgTemplate.find(query, Document.class, C_PF);
+        return docsToJsonArr(results);
+    }
+
     // @Async
     // public void dropPfCollection() {
     //     if(!redisTemplate.hasKey("load_pf") && mgTemplate.collectionExists(C_PF)) {
@@ -256,6 +274,22 @@ public class APIRepository {
 
     private String keyForBreeds(String type) {
         return R_PF_BREEDS + "_" + type;
+    }
+
+    private List<Integer> loadedIds(String[] ids) {
+        List<Integer> loaded = new LinkedList<>();
+        for(int i = 0; i < ids.length; i++) {
+            loaded.add(Integer.parseInt(ids[i]));
+        }
+        return loaded;
+    }
+
+    private List<String> loadedValues(String[] values) {
+        List<String> list = new LinkedList<>();
+        for(int i = 0; i < values.length; i++) {
+            list.add(values[i]);
+        }
+        return list;
     }
    
     

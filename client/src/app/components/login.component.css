@@ -7,6 +7,7 @@
     max-width: 40vw;
     margin: auto;
     text-align: center;
+    padding: 10px 0;
 }
 
 mat-card-title {
@@ -39,5 +40,13 @@ span {
 
 a {
     text-decoration: none;
+    color: rgb(0, 140, 255);
+}
+
+.forgot {
+    text-align: left;
+    font-size: small;
+    margin: auto;
+    width: 80%;
 }
 

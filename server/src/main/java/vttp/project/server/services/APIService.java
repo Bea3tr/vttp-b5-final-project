@@ -142,20 +142,39 @@ public class APIService {
                     .build();
 
         } catch (Exception ex) {
+            ex.printStackTrace();
             return Json.createObjectBuilder()
                     .add("message", ex.getMessage())
                     .build();
         }
     }
 
-    public JsonObject loadMorePf(int i) {
+    public JsonObject loadMorePf(String loaded) {
         try {
-            JsonArray results = apiRepo.loadMorePfResults(i);
+            String[] loaded_ids = loaded.split(",");
+            JsonArray results = apiRepo.loadMorePfResults(loaded_ids);
             return Json.createObjectBuilder()
                     .add("message", "success")
                     .add("results", results)
                     .build();
         } catch (Exception ex) {
+            ex.printStackTrace();
+            return Json.createObjectBuilder()
+                    .add("message", ex.getMessage())
+                    .build();
+        }
+    }
+
+    public JsonObject loadMorePf(MultiValueMap<String, String> form) {
+        try {
+            JsonObject params = formToJson(form);
+            JsonArray results = apiRepo.loadMorePfResults(params);
+            return Json.createObjectBuilder()
+                    .add("message", "success")
+                    .add("results", results)
+                    .build();
+        } catch (Exception ex) {
+            ex.printStackTrace();
             return Json.createObjectBuilder()
                     .add("message", ex.getMessage())
                     .build();
@@ -265,20 +284,32 @@ public class APIService {
         return pfArr.build();
     }
 
+    public JsonObject getDataByUserId(String userId) {
+        Document result = apiRepo.getSavedPf(userId);
+        List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
+        logger.info("pfIds: " + pfIds);
+        JsonArray results = apiRepo.getDataByIds(pfIds);
+        return Json.createObjectBuilder()
+                .add("message", "success")
+                .add("results", results)
+                .build();
+    }
+
     // ==========PRIVATE METHODS========
 
-    // private JsonObject formToJson(MultiValueMap<String, String> form) {
-    // JsonObjectBuilder paramObj = Json.createObjectBuilder();
-    // for (int i = 0; i < PF_PARAMS.length; i++) {
-    // String param = PF_PARAMS[i];
-    // if (form.getFirst(param) == null) {
-    // paramObj.add(param, "");
-    // } else {
-    // paramObj.add(param, form.getFirst(param));
-    // }
-    // }
-    // return paramObj.build();
-    // }
+    private JsonObject formToJson(MultiValueMap<String, String> form) {
+        JsonObjectBuilder paramObj = Json.createObjectBuilder();
+        for (int i = 0; i < PF_PARAMS_FILTERED.length; i++) {
+            String param = PF_PARAMS_FILTERED[i];
+            String value = form.getFirst(param);
+            if (value != null) {
+                paramObj.add(param, value);
+            } else {
+                paramObj.add(param, "");
+            }
+        }
+        return paramObj.build();
+    }
 
     private String formToUrlParams(MultiValueMap<String, String> form) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(PF_GET_ANIMALS);
@@ -286,8 +317,13 @@ public class APIService {
             String param = PF_PARAMS[i];
             String value = form.getFirst(param);
             if (value != null) {
-                logger.info("Form: " + form.getFirst(param));
-                builder.queryParam(param, form.getFirst(param));
+                if (value.contains("&")) {
+                    logger.info("Form: " + value);
+                    builder.queryParam(param, value.replaceAll(" & ", "-")
+                            .replaceAll(", ", "-"));
+                } else {
+                    builder.queryParam(param, value);
+                }
             }
         }
         String url = builder.toUriString();
@@ -310,7 +346,7 @@ public class APIService {
                 String key = PF_STRING_ATTRIBUTES[j];
                 String resKey = PF_RETURN_STRING_ATTRIBUTES[j];
                 try {
-                    if (key.contains("\\.")) {
+                    if (key.contains(".")) {
                         String[] keys = key.split("\\.");
                         filteredObj.add(resKey, animal.getJsonObject(keys[0]).getString(keys[1]));
 
@@ -327,9 +363,10 @@ public class APIService {
                         filteredObj.add(resKey, animal.getString(key));
                     }
                 } catch (NullPointerException ex) {
+                    logger.info("[Null] Key: " + key + ", " + animal.get(key));
                     filteredObj.add(resKey, "N.A.");
                 } catch (ClassCastException ex) {
-                    // logger.info("[Class Ex] Key: " + key + ", " + animal.get(key));
+                    logger.info("[Class Ex] Key: " + key + ", " + animal.get(key));
                     filteredObj.add(resKey, "N.A.");
                 }
             }

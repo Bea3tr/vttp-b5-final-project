@@ -1,0 +1,418 @@
+<div class="main">
+  <ul class="navbar">
+    <li><a [routerLink]="['/home', id]" (click)="switchTab('post')"><img src="pawprint.png"></a></li>
+    <li class="right-btns">
+      <button mat-icon-button [routerLink]="['/marketplace']">
+        <mat-icon svgIcon="shop"></mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="['/home', id]" (click)="switchTab('shelter')">
+        <mat-icon svgIcon="shelter"></mat-icon>
+      </button>
+      <div class="circular-container">
+        <img [src]="user.picture">
+      </div>
+      <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
+      <mat-menu #account="matMenu">
+        <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
+        <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
+        <button class="logout" mat-menu-item (click)="logout()">Logout</button>
+      </mat-menu>
+    </li>
+  </ul>
+
+  <div class="below-nav">
+    <div class="detail-box">
+      <div class="large-circular-container">
+        <img [src]="user.picture">
+      </div>
+      <div>
+        <h2>{{ user.name }}</h2>
+        <p>{{ user.email }}</p>
+        <button mat-flat-button (click)="openEditProfile()">Edit Profile</button>
+      </div>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="MY POSTS">
+        <div class="main-content">
+          @for (p of posts; track p.id) {
+          <mat-card class="post-card" appearance="outlined">
+            <mat-card-header>
+              <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}">
+              </div>
+              <mat-card-title>{{ p.name }}</mat-card-title>
+              <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
+              @if (p.user_id == id) {
+              <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openEdit(p.id, p.post)">Edit</button>
+                <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deletePost(p.id)">
+                  Delete
+                </button>
+              </mat-menu>
+              }
+            </mat-card-header>
+            @if (p.files.length > 0) {
+            <div class="media-container">
+              <!-- Display Image or Video -->
+              @if (showFile(p).type.startsWith('image')) {
+              <img class="media-file" mat-card-image [src]="showFile(p).file">
+              } @else {
+              <video class="media-file" mat-card-image controls>
+                <source [src]="showFile(p).file" type="{{ showFile(p).type }}">
+              </video>
+              }
+              @if (p.files.length > 1) {
+              <!-- Left Arrow Button -->
+              <button class="nav-button left" (click)="prevFile(p)">&#10094;</button>
+              <!-- Right Arrow Button -->
+              <button class="nav-button right" (click)="nextFile(p)">&#10095;</button>
+              }
+            </div>
+            }
+            <mat-card-content>
+              <p>
+                {{ p.post }}
+              </p>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-icon-button (click)="savePostToUser(p.id)"
+                [ngClass]="{'active': savedPostIds.includes(p.id)}">
+                <mat-icon>favorite</mat-icon>
+              </button>
+              <button mat-icon-button (click)="openPopup(p.id)">
+                <mat-icon svgIcon="comment"></mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+          }
+        </div>
+      </mat-tab>
+      <mat-tab label="SAVED POSTS">
+        @for (p of savedPosts; track p.id) {
+        <mat-card class="post-card" appearance="outlined">
+          <mat-card-header>
+            <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + p.user_img  + ')'}"></div>
+            <mat-card-title>{{ p.name }}</mat-card-title>
+            <mat-card-subtitle>{{ p.timestamp }}</mat-card-subtitle>
+            @if (p.user_id == id) {
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openEdit(p.id, p.post)">Edit</button>
+              <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deletePost(p.id)">
+                Delete
+              </button>
+            </mat-menu>
+            }
+          </mat-card-header>
+          @if (p.files.length > 0) {
+          <div class="media-container">
+            <!-- Display Image or Video -->
+            @if (showFile(p).type.startsWith('image')) {
+            <img class="media-file" mat-card-image [src]="showFile(p).file">
+            } @else {
+            <video class="media-file" mat-card-image controls>
+              <source [src]="showFile(p).file" type="{{ showFile(p).type }}">
+            </video>
+            }
+            @if (p.files.length > 1) {
+            <!-- Left Arrow Button -->
+            <button class="nav-button left" (click)="prevFile(p)">&#10094;</button>
+            <!-- Right Arrow Button -->
+            <button class="nav-button right" (click)="nextFile(p)">&#10095;</button>
+            }
+          </div>
+          }
+          <mat-card-content>
+            <p>
+              {{ p.post }}
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-icon-button (click)="removeSavedPost(p.id)" class="active">
+              <mat-icon>favorite</mat-icon>
+            </button>
+            <button mat-icon-button (click)="openPopup(p.id)">
+              <mat-icon svgIcon="comment"></mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+        }
+      </mat-tab>
+      <mat-tab label="ANIMALS">
+        @for (pf of savedPf; track $index) {
+        <mat-card class="post-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title><strong>{{ pf.name }}</strong></mat-card-title>
+            <mat-card-subtitle>{{ pf.species }}, {{ pf.breed }}</mat-card-subtitle>
+          </mat-card-header>
+          @if (pf.photos.length > 0) {
+          <div class="media-container">
+            <img class="media-file" mat-card-image [src]="showPicture(pf)">
+
+            @if (pf.photos.length > 1) {
+            <!-- Left Arrow Button -->
+            <button class="nav-button left" (click)="prevPic(pf)">&#10094;</button>
+            <!-- Right Arrow Button -->
+            <button class="nav-button right" (click)="nextPic(pf)">&#10095;</button>
+            }
+          </div>
+          } @else {
+          <hr>
+          }
+          <br>
+          <mat-card-content>
+            <div><strong>Age: </strong>{{ pf.age }}</div>
+            <div><strong>Gender: </strong>{{ pf.gender }}</div>
+            <div><strong>Size: </strong>{{ pf.size}}</div>
+            <div><strong>Color: </strong>{{ pf.color }}</div>
+            <div><strong>Coat: </strong>{{ pf.coat }}</div>
+            @if(pf.description) {
+            <hr>
+            <div>
+              <div><strong>Description: </strong></div>
+              <div>{{ pf.description }}</div>
+            </div>
+            }
+            @if(pf.attributes) {
+            <hr>
+            <strong>Attributes: </strong>
+            <mat-chip-set>
+              @for(attr of pf?.attributes ?? []; track $index) {
+              <mat-chip>{{ attr }}</mat-chip>
+              }
+            </mat-chip-set>
+            }
+            @if(pf.environment) {
+            <hr>
+            <strong>Gets along with: </strong>
+            <mat-chip-set>
+              @for(env of pf?.environment ?? []; track $index) {
+              <mat-chip>{{ env }}</mat-chip>
+              }
+            </mat-chip-set>
+            }
+            @if(pf.tags && pf.tags.length > 0) {
+            <hr>
+            <strong>Personality: </strong>
+            <mat-chip-set>
+              @for(tag of pf?.tags ?? []; track $index) {
+              <mat-chip>{{ tag }}</mat-chip>
+              }
+            </mat-chip-set>
+            }
+            <hr>
+            <div>
+              <div><strong>Email: </strong>{{ pf.email }}</div>
+              <div><strong>Phone: </strong>{{ pf.phone }}</div>
+              <div><strong>Address: </strong>{{ pf.address }}</div>
+            </div>
+            @if(pf.url != 'N.A.') {
+            <hr>
+            <div><strong>Links: </strong></div>
+            <div><a [href]="pf.url" target="_blank">{{ pf.url }}</a></div>
+            }
+            @if(pf.videos && pf.videos.length > 0) {
+            <hr>
+            <div><strong>Meet {{ pf.name }}: </strong></div>
+            @for(vid of pf?.videos ?? []; track $index) {
+            <div><a [href]="vid" target="_blank">{{ vid }}</a></div>
+            }
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-icon-button (click)="removeSavedPf(pf.id)" class="active">
+              <mat-icon>favorite</mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+        } @empty {
+        <div style="text-align:center;">No results available</div>
+        }
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>
+
+<div class="popup-container" *ngIf="isPopupOpen">
+  <mat-card class="popup" appearance="outlined">
+    <div class="post-header">
+      <span>Comments</span>
+      <button mat-icon-button (click)="closePopup()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <!-- Display comments -->
+    <mat-card-content class="comments">
+      @if(displayedComments && displayedComments.length > 0) {
+      <mat-list>
+        @for(comment of displayedComments; track comment.id) {
+        <mat-card class="comment-card">
+          <mat-card-header>
+            <div mat-card-avatar class="post-image" [ngStyle]="{'background-image': 'url(' + comment.picture  + ')'}">
+            </div>
+            <mat-card-title>{{ comment.name }}</mat-card-title>
+            <mat-card-subtitle>{{ comment.timestamp }}</mat-card-subtitle>
+            @if (comment.user_id == id) {
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openEditComment(comment.id, comment.comment)">Edit</button>
+              <button mat-menu-item [style]="{ 'color': 'darkred'}" (click)="deleteComment(comment.id)">
+                Delete
+              </button>
+            </mat-menu>
+            }
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ comment.comment }}</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-icon-button>
+              <mat-icon svgIcon="thumbsup"></mat-icon>
+            </button>
+            <button mat-icon-button>
+              <mat-icon svgIcon="thumbsdown"></mat-icon>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+        }
+      </mat-list>
+      } @else {
+      <p>No comments yet</p>
+      }
+    </mat-card-content>
+    <hr>
+    <mat-card-actions>
+      <form id="upload" class="post-form" [formGroup]="form" (submit)="postComment()">
+        <mat-form-field class="desc">
+          <mat-label>Leave a comment</mat-label>
+          <input matInput formControlName="comment">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="form.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isEditOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <span>Edit Post</span>
+      <button mat-icon-button (click)="closeEdit()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <mat-card-actions>
+      <form class="post-form" [formGroup]="editForm" (submit)="editPost()">
+        <mat-form-field class="desc">
+          <mat-label>Edit post</mat-label>
+          <input matInput formControlName="edited">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="editForm.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isEditCommentOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <span>Edit Comment</span>
+      <button mat-icon-button (click)="closeEditComment()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <mat-card-actions>
+      <form class="post-form" [formGroup]="editForm" (submit)="editComment()">
+        <mat-form-field class="desc">
+          <mat-label>Edit comment</mat-label>
+          <input matInput formControlName="edited">
+          <button class="comment-btn" mat-icon-button matSuffix [disabled]="editForm.invalid" type="submit">
+            <mat-icon svgIcon="send"></mat-icon>
+          </button>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isEditProfileOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <span>Edit Profile</span>
+      <button mat-icon-button (click)="closeEditProfile()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr>
+    <mat-card-content>
+      <mat-card>
+        <div class="edit-header">
+          <span>Edit Profile Picture</span>
+          <div class="file-input" onclick="document.getElementById('fileInput').click()">
+            <input id="fileInput" type="file" accept="image/*" (change)="onFileChange($event)">
+          </div>
+        </div>
+      </mat-card>
+      <br>
+      <div>
+        <form [formGroup]="userForm" class="post-form" (submit)="editUsername()">
+          <mat-form-field class="desc">
+            <mat-label>Edit Username</mat-label>
+            <input matInput formControlName="name">
+            <button class="comment-btn" mat-icon-button matSuffix [disabled]="userForm.invalid" type="submit">
+              <mat-icon svgIcon="send"></mat-icon>
+            </button>
+          </mat-form-field>
+        </form>
+      </div>
+      <mat-card>
+        <form [formGroup]="pwForm" class="pw-form" (submit)="editPassword()">
+          <div>Change Password</div>
+          <mat-form-field class="field">
+            <mat-label>Enter your current password</mat-label>
+            <input matInput formControlName="oldPassword" [type]="hide1() ? 'password' : 'text'" />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="clickEvent1($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide1()"
+            >
+              <mat-icon>{{hide1() ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </mat-form-field>
+          <mat-form-field class="field">
+            <mat-label>Enter your new password</mat-label>
+            <input matInput formControlName="newPassword" [type]="hide2() ? 'password' : 'text'" />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="clickEvent2($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide2()"
+            >
+              <mat-icon>{{hide2() ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </mat-form-field>
+          <button mat-button type="submit" [disabled]="pwForm.invalid">Change</button>
+        </form>
+      </mat-card>
+    </mat-card-content>
+  </mat-card>
+</div>

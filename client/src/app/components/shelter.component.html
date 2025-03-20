@@ -1,11 +1,14 @@
 <div class="main-content" #scrollContainer (scroll)="onScroll($event)">
   <mat-expansion-panel hideToggle>
     <mat-expansion-panel-header>
-      <mat-panel-title> Filter Results </mat-panel-title>
-      <mat-panel-description>
-        <button mat-icon-button class="top-right" form="filterForm" type="submit" [disabled]="form.invalid">
+      <mat-panel-title> 
+        Filter Results
+        <button mat-icon-button form="filterForm" type="submit" [disabled]="form.invalid">
           <mat-icon svgIcon="refresh"></mat-icon>
         </button>
+      </mat-panel-title>
+      <mat-panel-description>
+          <button mat-button class="top-right" (click)="getAnimals()">All</button>
       </mat-panel-description>
     </mat-expansion-panel-header>
     <form [formGroup]="form" (submit)="processForm()" class="grid" id="filterForm">
@@ -117,6 +120,7 @@
       <div><strong>Age: </strong>{{ pf.age }}</div>
       <div><strong>Gender: </strong>{{ pf.gender }}</div>
       <div><strong>Size: </strong>{{ pf.size}}</div>
+      <div><strong>Color: </strong>{{ pf.color }}</div>
       <div><strong>Coat: </strong>{{ pf.coat }}</div>
       @if(pf.description) {
         <hr>
@@ -183,7 +187,11 @@
   }
   @if(isAtBottom) {
     <div class="bottom-btn">
-      <button mat-raised-button (click)="loadMore(1)">Load More</button>
+      @if(isNoData) {
+        <button mat-raised-button disabled>Load More</button>
+      } @else {
+        <button mat-raised-button (click)="loadMore()">Load More</button>
+      }
     </div>
   }
 </div>

@@ -48,9 +48,9 @@ public class APIController {
     }
 
     @GetMapping(path="/load") 
-    public ResponseEntity<String> getMoreData(@RequestParam Integer count) {
-        logger.info("[API Ctrl] Count: " + count);
-        JsonObject result = apiSvc.loadMorePf(count);
+    public ResponseEntity<String> getMoreData(@RequestParam String loaded) {
+        logger.info("[API Ctrl] Loaded: " + loaded);
+        JsonObject result = apiSvc.loadMorePf(loaded);
         if(!result.getString("message").equals("success")) {
             return ResponseEntity.status(400)
                 .body(result.toString());
@@ -58,6 +58,19 @@ public class APIController {
         return ResponseEntity.ok(result.toString());
     }
     
+    @GetMapping(path="/load-filtered")
+    public ResponseEntity<String> getMoreDataFiltered(
+        @RequestParam MultiValueMap<String, String> form) {
+
+        logger.info("[API Ctrl] Form: %s".formatted(form));
+        JsonObject result = apiSvc.loadMorePf(form);
+        if(!result.getString("message").equals("success")) {
+            return ResponseEntity.status(400)
+                .body(result.toString());
+        }
+        return ResponseEntity.ok(result.toString());
+    }
+
     @GetMapping()
     public ResponseEntity<String> getShelterDataDefault() {
         String token = apiSvc.getPfToken();
@@ -123,6 +136,7 @@ public class APIController {
 
     @GetMapping(path="/types") 
     public ResponseEntity<String> getTypes() {
+        logger.info("[API Ctrl] Retrieving types");
         String token = apiSvc.getPfToken();
         JsonObject result = apiSvc.getTypes(token);
         if(!result.getString("message").equals("success")) {
@@ -140,6 +154,12 @@ public class APIController {
             return ResponseEntity.status(400)
                 .body(result.toString());
         }
+        return ResponseEntity.ok(result.toString());
+    }
+
+    @GetMapping("/get-data-saved/{userId}")
+    public ResponseEntity<String> getDataSaved(@PathVariable String userId) {
+        JsonObject result = apiSvc.getDataByUserId(userId);
         return ResponseEntity.ok(result.toString());
     }
 

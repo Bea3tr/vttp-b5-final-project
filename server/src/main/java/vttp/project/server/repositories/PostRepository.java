@@ -146,4 +146,39 @@ public class PostRepository {
         return result.getModifiedCount() > 0;
     }
 
+    public Optional<List<Post>> getPostsSaved(List<String> postIds) {
+        if (postIds == null || postIds.isEmpty()) {
+            return Optional.empty();
+        }
+        String placeholders = String.join(",", postIds.stream().map(id -> "?").toList());
+        String SQL_GET_SAVED_POSTS = "SELECT * FROM myapp.posts WHERE id IN (" + placeholders + ")";
+
+        logger.info("[Post Repo] ids: " + placeholders);
+
+        return template.query(
+                SQL_GET_SAVED_POSTS,
+                (ResultSet rs) -> {
+                    List<Post> posts = new LinkedList<>();
+                    while (rs.next()) {
+                        List<MediaFile> mediaFiles = new LinkedList<>();
+                        Post post = Post.populate(rs);
+                        template.query(
+                                SQL_GET_MEDIA_FILES_BY_POSTID,
+                                (ResultSet rs_mf) -> {
+                                    while (rs_mf.next()) {
+                                        mediaFiles.add(MediaFile.populate(rs_mf));
+                                    }
+                                }, post.getId());
+                        post.setFiles(mediaFiles);
+                        posts.add(post);
+                        logger.info("[Post Repo] Posts: " + posts);
+                    }
+                    if (posts.isEmpty()) {
+                        return Optional.empty();
+                    } else {
+                        return Optional.of(posts);
+                    }
+                }, postIds.toArray());
+    }
+
 }

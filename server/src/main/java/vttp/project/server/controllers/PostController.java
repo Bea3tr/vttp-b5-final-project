@@ -76,6 +76,11 @@ public class PostController {
         try {
             logger.info("[Post Controller] Retrieving posts...");
             Optional<List<Post>> result = postSvc.getPublicPosts();
+            if (result.isEmpty()) {
+                return ResponseEntity.ok(Json.createObjectBuilder()
+                        .add("message", "No data")
+                        .build().toString());
+            }
             List<Post> posts = result.get();
             JsonArrayBuilder postArr = Json.createArrayBuilder();
             for (Post p : posts) {
@@ -95,6 +100,11 @@ public class PostController {
         try {
             logger.info("[Post Controller] Retrieving posts...");
             Optional<List<Post>> result = postSvc.getPostsByUserId(userId);
+            if (result.isEmpty()) {
+                return ResponseEntity.ok(Json.createObjectBuilder()
+                        .add("message", "No data")
+                        .build().toString());
+            }
             List<Post> posts = result.get();
             JsonArrayBuilder postArr = Json.createArrayBuilder();
             for (Post p : posts) {
@@ -164,8 +174,8 @@ public class PostController {
         logger.info("[Post Ctrl] Payload: " + payload);
         JsonObject inObj = Json.createReader(new StringReader(payload))
                 .readObject().getJsonObject("body");
-        boolean removed = postSvc.removeSavedPost(inObj.getString("userId"), 
-            inObj.getString("postId"));
+        boolean removed = postSvc.removeSavedPost(inObj.getString("userId"),
+                inObj.getString("postId"));
         if (removed) {
             return ResponseEntity.ok(Json.createObjectBuilder()
                     .add("message", "Removed data from user")
@@ -190,5 +200,29 @@ public class PostController {
                 .add("message", "Data retrieved")
                 .add("result", result)
                 .build().toString());
+    }
+
+    @GetMapping("/get-posts-saved/{userId}")
+    public ResponseEntity<String> getPostsSaved(@PathVariable String userId) {
+        try {
+            logger.info("[Post Controller] Retrieving posts...");
+            Optional<List<Post>> result = postSvc.getSavedPostsData(userId);
+            if (result.isEmpty()) {
+                return ResponseEntity.ok(Json.createObjectBuilder()
+                        .add("message", "No saved data")
+                        .build().toString());
+            }
+            List<Post> posts = result.get();
+            JsonArrayBuilder postArr = Json.createArrayBuilder();
+            for (Post p : posts) {
+                postArr.add(Post.toJson(p));
+            }
+            return ResponseEntity.ok(postArr.build().toString());
+        } catch (DataAccessException ex) {
+            return ResponseEntity.status(400)
+                    .body(Json.createObjectBuilder()
+                            .add("message", ex.getMessage())
+                            .build().toString());
+        }
     }
 }

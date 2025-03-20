@@ -3,6 +3,8 @@ package vttp.project.server.models;
 public class Utils {
 
         public static final String[] PF_PARAMS = {"type", "breed", "size", "gender", "age", "name", "location"};
+        public static final String[] PF_PARAMS_FILTERED = 
+                {"type", "breed", "size", "gender", "age", "name", "location", "pf_ids"};
         public static final String[] PF_STRING_ATTRIBUTES = 
                 {"id", "url", "name", "species", "breeds.primary", "colors.primary", "age", "gender", "size", 
                 "coat", "description", "contact.email", "contact.phone"};
@@ -24,6 +26,7 @@ public class Utils {
         public static final String USERID = "user_id";
         public static final String POSTID = "post_id";
         public static final String COMMENTID = "c_id";
+        public static final String PFID = "pf_id";
         public static final String NAME = "name";
         public static final String EMAIL = "email";
         public static final String PICTURE = "picture";
@@ -95,6 +98,25 @@ public class Utils {
         public static final String SQL_UPDATE_POST = """
                         UPDATE posts SET post = ?, timestamp = SYSDATE()
                         WHERE id = ?
+                        """;
+
+        public static final String SQL_UPDATE_USERPIC = """
+                        UPDATE users SET picture = ?
+                        WHERE id = ?
+                        """;
+
+        public static final String SQL_UPDATE_USERNAME = """
+                        UPDATE users SET name = ?
+                        WHERE id = ?
+                        """;
+        
+        public static final String SQL_UPDATE_PASSWORD = """
+                        UPDATE users SET password = ?
+                        WHERE id = ?
+                        """;
+
+        public static final String SQL_GET_PASSWORD_BY_ID = """
+                        SELECT password FROM users WHERE id = ?
                         """;
 }
 

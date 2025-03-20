@@ -77,7 +77,8 @@ body {
     overflow: hidden;
 }
 
-.post-form, .post-form .desc {
+.post-form,
+.post-form .desc {
     width: 100%;
 }
 
@@ -139,6 +140,24 @@ body {
     transition: opacity 0.5s ease-in-out;
 }
 
+.circular-container {
+    /* Same length */
+    width: 7vh;
+    height: 7vh;
+    border-radius: 50%;
+    overflow: hidden;
+    /* Ensures the image stays inside */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circular-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* Top Navigation Bar */
 .navbar {
     list-style-type: none;
@@ -155,11 +174,12 @@ body {
     width: 100%;
     height: 60px;
     z-index: 1000;
-} 
+}
 
 .right-btns {
     display: flex;
-    justify-content: flex-end; /* Align items to the right */
+    justify-content: flex-end;
+    /* Align items to the right */
     align-items: center;
     margin-right: 10px;
 }
@@ -189,11 +209,6 @@ li a {
     padding: 14px 16px;
 }
 
-li a:hover:not(.active) {
-    background-color: #111;
-    color: white;
-}
-
 li:last-child {
     margin-left: auto;
 }
@@ -213,7 +228,8 @@ img {
     width: 160px;
     position: fixed;
     left: 0;
-    top: 60px; /* Start below navbar */
+    top: 60px;
+    /* Start below navbar */
     background-color: white;
     overflow: hidden;
     padding-top: 20px;
@@ -238,15 +254,17 @@ img {
 
 .sidenav a mat-icon {
     /* background-color: #ed8dc564; */
-    margin-right: 5px; 
+    margin-right: 5px;
     padding: 2px;
     border-radius: 5px;
 }
 
 @media screen and (max-width: 768px) {
     .sidenav {
-        transform: translateX(-100%); /* Hide off-screen */
+        transform: translateX(-100%);
+        /* Hide off-screen */
     }
+
     .popup {
         width: 90%;
         /* Take up more space on small screens */

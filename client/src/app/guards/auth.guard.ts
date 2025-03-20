@@ -12,5 +12,6 @@ export const authGuard: CanActivateFn =
       return true; 
     } 
     // Redirect to login if not authenticated
+    alert('Please login')
     return router.navigate(['/']); 
 }

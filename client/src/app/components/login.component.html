@@ -1,7 +1,7 @@
 <br>
 <form [formGroup]="form" (submit)="userLogin()">
   <mat-card class="login-card" appearance="outlined">
-    <mat-card-title>Login</mat-card-title>
+    <mat-card-title>Paw Diaries</mat-card-title>
     <mat-card-content>
         <div class="login-container">
             <mat-form-field>
@@ -14,6 +14,7 @@
               <mat-label>Enter your password</mat-label>
               <input matInput [type]="hide() ? 'password' : 'text'" formControlName="password">
               <button
+                type="button"
                 mat-icon-button
                 matSuffix
                 (click)="clickEvent($event)"
@@ -23,13 +24,16 @@
                 <mat-icon>{{hide() ? 'visibility_off' : 'visibility'}}</mat-icon>
               </button>
             </mat-form-field>
+            <div class="forgot">
+              <a [routerLink]="['/reset']">Forgot Your Password?</a>
+            </div>
         </div>
     </mat-card-content>
     <mat-card-actions>
         <button mat-flat-button type="submit">SIGN IN</button>
         <span>Don't have an account? <a [routerLink]="['/register']">Create your account</a></span>
         <hr>
-        <button mat-stroked-button (click)="googleLogin()">
+        <button type="button" mat-stroked-button (click)="googleLogin()">
             <mat-icon svgIcon="google"></mat-icon>Sign in with Google
         </button>
     </mat-card-actions>

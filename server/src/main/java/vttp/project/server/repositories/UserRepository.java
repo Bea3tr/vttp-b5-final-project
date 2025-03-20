@@ -5,6 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.multipart.MultipartFile;
 
 import vttp.project.server.models.UserInfo;
 import static vttp.project.server.models.Utils.*;
@@ -29,8 +30,7 @@ public class UserRepository {
             // Path name for local development - change to "user.png" during build
             byte[] defaultImg = Files.readAllBytes(Paths.get("src/main/resources/static/user.png"));
             logger.info("[User Repo] Inserting user into MySQL");
-            return 
-                template.update(SQL_INSERT_USER, user.getId(), user.getName(), 
+            return template.update(SQL_INSERT_USER, user.getId(), user.getName(),
                     user.getEmail(), defaultImg, user.getPassword(), user.isGoogleLogin()) > 0;
         } catch (DataAccessException ex) {
             logger.warning(ex.getMessage());
@@ -45,7 +45,7 @@ public class UserRepository {
         logger.info("[User Repo] Retrieving id for: " + email);
         String id = "";
         SqlRowSet rs = template.queryForRowSet(SQL_GET_USER_ID, email);
-        while(rs.next()) {
+        while (rs.next()) {
             id = rs.getString("id");
         }
         return id;
@@ -55,7 +55,17 @@ public class UserRepository {
         logger.info("[User Repo] Retrieving password for: " + email);
         String pw = "";
         SqlRowSet rs = template.queryForRowSet(SQL_GET_USER_PASSWORD, email);
-        while(rs.next()) {
+        while (rs.next()) {
+            pw = rs.getString("password");
+        }
+        return pw;
+    }
+
+    public String getUserPasswordById(String id) {
+        logger.info("[User Repo] Retrieving password for: " + id);
+        String pw = "";
+        SqlRowSet rs = template.queryForRowSet(SQL_GET_PASSWORD_BY_ID, id);
+        while (rs.next()) {
             pw = rs.getString("password");
         }
         return pw;
@@ -65,17 +75,17 @@ public class UserRepository {
         logger.info("[User Repo] Checking existing user: " + email);
         int count = 0;
         SqlRowSet rs = template.queryForRowSet(SQL_COUNT_USER, email);
-        while(rs.next()) {
+        while (rs.next()) {
             count = rs.getInt("count");
         }
         return count > 0;
     }
-    
+
     public boolean isGoogleLogin(String email) {
         logger.info("[User Repo] Checking Google user: " + email);
         boolean isGoogle = false;
         SqlRowSet rs = template.queryForRowSet(SQL_IS_GOOGLE_USER, email);
-        while(rs.next()) {
+        while (rs.next()) {
             isGoogle = rs.getBoolean("google_login");
         }
         return isGoogle;
@@ -83,13 +93,31 @@ public class UserRepository {
 
     public Optional<UserInfo> getUserInfo(String id) {
         return template.query(
-            SQL_GET_USER,
-            (ResultSet rs) -> {
-                if(rs.next()) {
-                    return Optional.of(UserInfo.populate(rs));
-                } else {
-                    return Optional.empty();
-                }
-            }, id);
+                SQL_GET_USER,
+                (ResultSet rs) -> {
+                    if (rs.next()) {
+                        return Optional.of(UserInfo.populate(rs));
+                    } else {
+                        return Optional.empty();
+                    }
+                }, id);
+    }
+
+    public String updatePic(MultipartFile file, String userId)
+            throws IOException, RuntimeException {
+        template.update(SQL_UPDATE_USERPIC, file.getBytes(), userId);
+        return userId;
+    }
+
+    public String updateName(String name, String userId)
+            throws RuntimeException {
+        template.update(SQL_UPDATE_USERNAME, name, userId);
+        return userId;
+    }
+
+    public String updatePassword(String password, String userId)
+            throws RuntimeException {
+        template.update(SQL_UPDATE_PASSWORD, password, userId);
+        return userId;
     }
 }

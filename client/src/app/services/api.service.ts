@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
-import { PfResponse } from "../models/models";
+import { Load, PfResponse } from "../models/models";
 import { BehaviorSubject, lastValueFrom } from "rxjs";
 
 @Injectable()
@@ -13,10 +13,27 @@ export class ApiService {
         return lastValueFrom(this.http.get<PfResponse>('/api/shelter'));
     }
 
-    loadMorePf(i: number) {
+    loadMorePf(loaded: number[]) {
         const params = new HttpParams()
-            .append("count", i)
+            .append("loaded", loaded.join())
         return lastValueFrom(this.http.get<PfResponse>('/api/shelter/load', { params }));
+    }
+
+    loadMorePfFiltered(load: Load) {
+        let params = new HttpParams();
+        for (const key of Object.keys(load) as (keyof Load)[]) {
+            console.log(`${key}:`, load[key]); // Accessing value dynamically
+            let value = load[key];
+            // Value not empty
+            if(value) {
+                if(Array.isArray(value)) {
+                    params = params.append(key, value.join());
+                } else {
+                    params.append(key, value);
+                }
+            }
+        }
+        return lastValueFrom(this.http.get<PfResponse>('/api/shelter/load-filtered', { params }))
     }
 
     getFilteredPf(form: any) {

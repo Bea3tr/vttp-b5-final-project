@@ -8,10 +8,12 @@
             <button mat-icon-button (click)="setActiveTab('shelter')">
                 <mat-icon svgIcon="shelter"></mat-icon>
             </button>
+            <div class="circular-container">
+                <img [src]="user.picture">
+            </div>
             <button [ngStyle]="{'margin-left': '5px', 'margin-right': '10px'}" mat-icon-button (click)="openPopup()">
                 <mat-icon svgIcon="plus"></mat-icon>
             </button>
-            <img [src]="user.picture">
             <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
             <mat-menu #account="matMenu">
                 <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>

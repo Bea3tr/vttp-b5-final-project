@@ -1,10 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { PfResult } from '../models/models';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Load, PfResult } from '../models/models';
 import { ApiService } from '../services/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ApiStore } from '../api.store';
+import { Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-shelter',
@@ -12,19 +14,24 @@ import { DomSanitizer } from '@angular/platform-browser';
   templateUrl: './shelter.component.html',
   styleUrl: './shelter.component.css'
 })
+
 export class ShelterComponent implements OnInit {
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
-    private apiSvc: ApiService, private actRoute: ActivatedRoute, private fb: FormBuilder
+    private apiSvc: ApiService, private actRoute: ActivatedRoute, private fb: FormBuilder,
+    private apiStore: ApiStore
   ) {
     this.matIconRegistry.addSvgIcon(
       "refresh",
       this.domSanitizer.bypassSecurityTrustResourceUrl("icons/refresh-icon.svg")
     )
   }
+
   protected ageList = ['Baby', 'Young', 'Adult', 'Senior'];
   protected sizeList = ['Small', 'Medium', 'Large', 'Extra Large'];
   protected genderList = ['Male', 'Female', 'Unknown'];
+
+  protected load$!: Observable<Load>
 
   protected pfData: PfResult[] = [];
   protected pfTypes: string[] = [];
@@ -35,9 +42,11 @@ export class ShelterComponent implements OnInit {
   protected breeds: string[] = [];
   protected form!: FormGroup;
   protected isAtBottom = false;
-  protected counter = 0;
+  protected isFiltered = false;
+  protected pf_ids: number[] = []
+  protected isNoData = false;
 
-  @ViewChild('scrollContainer', { static: false }) 
+  @ViewChild('scrollContainer', { static: false })
   scrollContainer!: ElementRef;
 
   onScroll(event: Event): void {
@@ -50,6 +59,7 @@ export class ShelterComponent implements OnInit {
 
   ngOnInit(): void {
     // Load default data
+    console.info('Filtered:', this.isFiltered);
     this.getAnimals();
     this.getTypes();
     this.form = this.createForm();
@@ -67,7 +77,6 @@ export class ShelterComponent implements OnInit {
         this.apiSvc.reloadSavedPfs(false);
       }
     });
-    this.counter = 0;
   }
 
   onTypeChange(event: any) {
@@ -77,12 +86,16 @@ export class ShelterComponent implements OnInit {
     this.getBreeds(type);
   }
 
-  processForm() {
+  async processForm() {
+    this.isNoData = false;
+    this.pf_ids = [];
     console.info('Form:', this.form.value);
-    this.apiSvc.getFilteredPf(this.form)
+    console.info('Ids:', this.pf_ids);
+    await this.apiSvc.getFilteredPf(this.form)
       .then((resp) => {
         resp.results.forEach((pf) => {
           pf.currentPhotoIndex = 0;
+          this.pf_ids = [...this.pf_ids, pf.id];
         });
         this.pfData = resp.results;
       })
@@ -90,22 +103,60 @@ export class ShelterComponent implements OnInit {
         console.info(err.message);
         this.pfData = [];
       })
+    this.isFiltered = true;
+    this.apiStore.loadForm(this.formToLoad(this.form));
+    console.info('Loaded ids:', this.pf_ids);
+    this.apiStore.loadFormIds(this.pf_ids);
     this.form.reset();
   }
 
-  loadMore(count: number) {
-    this.counter += count;
-    this.apiSvc.loadMorePf(this.counter)
-      .then((resp) => {
-        resp.results.forEach((pf) => {
-          pf.currentPhotoIndex = 0;
-        });
-        this.pfData.push(...resp.results);
-      })
-      .catch((err) => {
-        console.info(err.message);
-        this.pfData = [];
-      })
+  loadMore() {
+    if (this.isFiltered) {
+      console.info('Loading more filtered');
+      this.apiStore.getLoaded
+        .pipe(
+          tap(async (load) => {
+            console.info('Loaded: ', load);
+            await this.apiSvc.loadMorePfFiltered(load)
+              .then((resp) => {
+                if(resp.results.length > 0) {
+                  resp.results.forEach((pf) => {
+                    pf.currentPhotoIndex = 0;
+                    this.pf_ids.push(pf.id);
+                  });
+                  this.pfData.push(...resp.results);
+                } else {
+                  this.isNoData = true;
+                }
+              })
+              .catch((err) => {
+                console.info(err.message);
+                this.pfData = [];
+              });
+          })
+        ).subscribe()
+        console.info('[Filter] After load:', this.pf_ids, this.isNoData);
+        this.apiStore.loadFormIds(this.pf_ids);
+    } else {
+      console.info('[ALL] Loaded:', this.pf_ids);
+      this.apiSvc.loadMorePf(this.pf_ids)
+        .then((resp) => {
+          if(resp.results.length > 0) {
+            resp.results.forEach((pf) => {
+              pf.currentPhotoIndex = 0;
+              this.pf_ids = [...this.pf_ids, pf.id];
+            });
+            this.pfData.push(...resp.results);
+          } else {
+            this.isNoData = true;
+          }
+          
+        })
+        .catch((err) => {
+          console.info(err.message);
+          this.pfData = [];
+        })
+    }
   }
 
   showPicture(result: PfResult): string {
@@ -148,11 +199,15 @@ export class ShelterComponent implements OnInit {
     return this.form.get('age') as FormArray;
   }
 
-  private getAnimals() {
+  getAnimals() {
+    console.info('Getting all animals');
+    this.pf_ids = [];
+    this.isNoData = false;
     this.apiSvc.defaultLoadPf()
       .then((resp) => {
         resp.results.forEach((pf) => {
           pf.currentPhotoIndex = 0;
+          this.pf_ids = [...this.pf_ids, pf.id]
         });
         this.pfData = resp.results;
       })
@@ -160,6 +215,21 @@ export class ShelterComponent implements OnInit {
         console.info(err.message)
         this.pfData = [];
       })
+    this.getTypes();
+    this.isFiltered = false;
+  }
+
+  private formToLoad(form: any): Load {
+    return {
+      type: form.value['type'] ? form.value['type'] : '',
+      breed: form.value['breed'] ? form.value['breed'] : '',
+      size: form.value['size'] ? form.value['size'] : '',
+      gender: form.value['gender'] ? form.value['gender'] : '',
+      age: form.value['age'] ? form.value['age'] : '',
+      name: form.value['name'] ? form.value['name'] : '',
+      location: form.value['location'] ? form.value['location'] : '',
+      pf_ids: [...this.pf_ids]
+    } as Load;
   }
 
   private getTypes() {
@@ -174,6 +244,7 @@ export class ShelterComponent implements OnInit {
   }
 
   private getBreeds(type: string) {
+    console.info('Retrieving breeds');
     this.apiSvc.getBreeds(type)
       .then((resp) => {
         this.pfBreeds = resp.results;
@@ -199,7 +270,7 @@ export class ShelterComponent implements OnInit {
   private atLeastOneInput = (ctrl: AbstractControl) => {
     const values = Object.values(ctrl.value);
     const allEmpty = values.every(val => !val)
-    if (!allEmpty){
+    if (!allEmpty) {
       return null
     }
     return { atLeastOneInput: true } as ValidationErrors

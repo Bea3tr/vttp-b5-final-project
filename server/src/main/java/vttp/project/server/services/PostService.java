@@ -5,6 +5,7 @@ import static vttp.project.server.models.Utils.F_SAVED_POSTS;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import vttp.project.server.repositories.PostRepository;
 
 @Service
 public class PostService {
+
+    private static final Logger logger = Logger.getLogger(PostService.class.getName());
 
     @Autowired
     private PostRepository postRepo;
@@ -62,6 +65,13 @@ public class PostService {
                 pfArr.add(id);
         }
         return pfArr.build();
+    }
+
+    public Optional<List<Post>> getSavedPostsData(String userId) {
+        Document result = postRepo.getSavedPosts(userId);
+        List<String> postIds = result.getList(F_SAVED_POSTS, String.class);
+        logger.info("Saved post ids: " + postIds);
+        return postRepo.getPostsSaved(postIds);
     }
 
 }

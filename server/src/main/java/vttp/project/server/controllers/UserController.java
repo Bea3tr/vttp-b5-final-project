@@ -1,5 +1,7 @@
 package vttp.project.server.controllers;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -8,12 +10,16 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
@@ -132,17 +138,96 @@ public class UserController {
                 .build().toString());
     }
 
-    @GetMapping(path="/get-user/{id}")
+    @GetMapping(path = "/get-user/{id}")
     public ResponseEntity<String> getUserInfo(@PathVariable String id) {
         Optional<UserInfo> result = userSvc.getUserInfo(id);
         UserInfo ui = result.get();
         String encodingString = Base64.getEncoder().encodeToString(ui.getPicture());
         JsonObject payload = Json.createObjectBuilder()
-            .add("name", ui.getName())
-            .add("email", ui.getEmail())
-            .add("picture", BASE64_PREFIX + encodingString)
-            .build();
+                .add("name", ui.getName())
+                .add("email", ui.getEmail())
+                .add("picture", BASE64_PREFIX + encodingString)
+                .build();
 
         return ResponseEntity.ok(payload.toString());
+    }
+
+    @PutMapping(path = "/user/edit-pic/{id}")
+    public ResponseEntity<String> editProfilePic(
+            @PathVariable String id,
+            @RequestPart("file") MultipartFile file) {
+
+        try {
+            userSvc.updatePic(file, id);
+            return ResponseEntity.ok(Json.createObjectBuilder()
+                    .add("message", "Profile picture updated successfully")
+                    .build().toString());
+
+        } catch (RuntimeException | IOException ex) {
+            return ResponseEntity.status(400)
+                    .body((Json.createObjectBuilder()
+                            .add("message", "Error updating profile picture")
+                            .build().toString()));
+        }
+    }
+
+    @PutMapping(path = "/user/edit-name/{id}")
+    public ResponseEntity<String> editUsername(
+            @PathVariable String id,
+            @RequestBody String payload) {
+        logger.info("[User Ctrl] Payload: " + payload);
+        JsonObject inObj = Json.createReader(new StringReader(payload))
+                .readObject().getJsonObject("body");
+        try {
+            userSvc.updateName(inObj.getString("name"), id);
+            return ResponseEntity.ok(Json.createObjectBuilder()
+                    .add("message", "Username updated successfully")
+                    .build().toString());
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(400)
+                    .body(Json.createObjectBuilder()
+                            .add("message", "Error updating username")
+                            .build().toString());
+        }
+    }
+
+    @PutMapping(path = "/user/edit-password/{id}")
+    public ResponseEntity<String> editUserPassword(
+            @PathVariable String id,
+            @RequestBody String payload) {
+
+        logger.info("[User Ctrl] Payload: " + payload);
+        JsonObject inObj = Json.createReader(new StringReader(payload))
+                .readObject().getJsonObject("body");
+
+        String oldPassword = inObj.getString("oldPassword");
+        String newPassword = inObj.getString("newPassword");
+        logger.info("Old: %s, New: %s".formatted(oldPassword, newPassword));
+        String oldPw = userSvc.getUserPasswordById(id);
+        try {
+            if (oldPw == null && oldPassword.equals("")) {
+                userSvc.updatePassword(newPassword, id);
+                return ResponseEntity.ok(Json.createObjectBuilder()
+                        .add("message", "Password updated successfully")
+                        .build().toString());
+            }
+            if (oldPassword.equals(oldPw)) {
+                userSvc.updatePassword(newPassword, id);
+                return ResponseEntity.ok(Json.createObjectBuilder()
+                        .add("message", "Password updated successfully")
+                        .build().toString());
+            }
+            return ResponseEntity.status(400)
+                    .body(Json.createObjectBuilder()
+                            .add("message", "Error updating password")
+                            .build().toString());
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(400)
+                    .body(Json.createObjectBuilder()
+                            .add("message", "Error updating password")
+                            .build().toString());
+        }
     }
 }

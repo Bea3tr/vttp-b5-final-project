@@ -65,3 +65,19 @@ export interface PfResponse {
     message: string,
     results: PfResult[]
 }
+
+export interface LoadSlice {
+    load : Load,
+    loaded_ids: number[]
+}
+
+export interface Load {
+    type: string,
+    breed: string,
+    size: string,
+    gender: string,
+    age: string,
+    name: string,
+    location: string,
+    pf_ids: number[]
+}
