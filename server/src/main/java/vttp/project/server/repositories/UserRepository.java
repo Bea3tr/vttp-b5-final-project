@@ -120,4 +120,9 @@ public class UserRepository {
         template.update(SQL_UPDATE_PASSWORD, password, userId);
         return userId;
     }
+
+    public boolean resetPassword(String email, String newPassword)
+        throws RuntimeException {
+        return template.update(SQL_RESET_PASSWORD, newPassword, email) > 0;
+    }
 }

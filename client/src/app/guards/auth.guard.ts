@@ -9,9 +9,9 @@ export const authGuard: CanActivateFn =
     
     // Allow navigation if logged in
     if (authSvc.isLoggedIn()) {
-      return true; 
+      return true 
     } 
     // Redirect to login if not authenticated
     alert('Please login')
-    return router.navigate(['/']); 
+    return router.navigate(['/']) 
 }

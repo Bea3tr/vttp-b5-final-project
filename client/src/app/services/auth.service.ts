@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { UserInfo } from '../models/models';
 
-declare const google: any;
+declare const google: any
 
 @Injectable()
 export class AuthService {
@@ -17,8 +17,8 @@ export class AuthService {
 
     googleLogin() {
         if (typeof google === 'undefined') {
-            console.error('Google SDK not loaded!');
-            return;
+            console.error('Google SDK not loaded!')
+            return
         }
         google.accounts.oauth2
             .initTokenClient({
@@ -31,7 +31,7 @@ export class AuthService {
                     }
                 }
             })
-            .requestAccessToken();
+            .requestAccessToken()
     }
 
     userLogin(userInfo: any) { 
@@ -46,16 +46,39 @@ export class AuthService {
     isLoggedIn(): boolean {
         // Get token from storage
         const token = sessionStorage.getItem('authenticated')
-        return token == 'true';
+        return token == 'true'
     }
 
     logout() {
-        sessionStorage.removeItem('authenticated');
-        this.authSubject.next(null);
+        sessionStorage.removeItem('authenticated')
+        this.authSubject.next(null)
     }
 
     getUserInfo(id: string) {
         return lastValueFrom(this.http.get<UserInfo>(`/api/get-user/${id}`))
+    }
+
+    sendVerificationCode(email: string) {
+        const body = {
+            email: email
+        }
+        return lastValueFrom(this.http.post<any>('/api/mail/send-reset-code', { body }))
+    }
+
+    verifyCode(email: string, code: string) {
+        const body = {
+            email: email,
+            code: code
+        }
+        return lastValueFrom(this.http.post<any>('/api/mail/verify-code', { body }))
+    }
+
+    resetPassword(email: string, newPassword: string) {
+        const body = {
+            email: email,
+            newPassword: newPassword
+        }
+        return lastValueFrom(this.http.put<any>('/api/auth/reset-password', { body }))
     }
 
     // Fetch Google user data from Google API with access token
@@ -75,13 +98,16 @@ export class AuthService {
     // Store authentication in session storage - true if user is authenticated
     private sendUserInfoToSB(userInfo: any, endpoint: string) {
         this.http.post(endpoint, userInfo)
-            .subscribe((resp: any) => {
-                console.info('User info sent to SB:', resp)
-                this.authSubject.next(resp)
-                if(resp.message == 'authenticated') {
-                    this.router.navigate(['/home', resp.id])
-                    sessionStorage.setItem('authenticated', 'true');
-                }
+            .subscribe({
+                next: (resp: any) => {
+                    console.info('User info sent to SB:', resp)
+                    this.authSubject.next(resp)
+                    if(resp.message == 'authenticated') {
+                        this.router.navigate(['/home', resp.id])
+                        sessionStorage.setItem('authenticated', 'true')
+                    }
+                },
+                error: (err: HttpErrorResponse) => {alert(err.error.message)}
             })
     }
 }

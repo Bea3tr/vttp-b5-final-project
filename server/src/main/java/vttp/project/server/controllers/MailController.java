@@ -34,9 +34,10 @@ public class MailController {
                 .add("message","Verification code sent successfully")
                 .build().toString());
         } catch (Exception ex) {
+            ex.printStackTrace();
             return ResponseEntity.status(400)
                 .body(Json.createObjectBuilder()
-                    .add("message","Error sending verification code")
+                    .add("message","Error sending verification code. Please ensure your email is valid and resend the code.")
                     .build().toString());
         }
     }
@@ -55,7 +56,7 @@ public class MailController {
         }
         return ResponseEntity.status(401)
             .body(Json.createObjectBuilder()
-                .add("Verified", verified)
+                .add("message", "Invalid verification code")
                 .build().toString());
     }
 }

@@ -1,44 +1,50 @@
 .login-container mat-form-field {
-    width: 80%;
-    margin-bottom: 10px;
+  width: 80%;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .login-card {
-    width: 100%;
-    max-width: 40vw;
-    margin: auto;
-    text-align: center;
+  width: 100%;
+  max-width: 40vw;
+  margin: auto;
+  text-align: center;
+  padding: 10px 0;
 }
 
 mat-card-title {
-    padding: 10px;
-}
-
-mat-card-actions {
-    display: flex;
-    flex-direction: column;
-}
-
-mat-card-actions button {
-    width: 80%;
+  padding: 10px;
 }
 
 hr {
-    border: solid lightgray 0.5px;
-    width: 80%;
-    margin-bottom:15px;
+  border: solid lightgray 0.5px;
+  width: 80%;
+  margin-bottom: 15px;
 }
 
 button {
-    margin: 5px;
+  width: 45%;
+  margin: 5px;
+  font-size: 12px;
+}
+
+.btns {
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  margin: auto;
 }
 
 span {
-    font-size: small;
-    margin: 10px;
+  font-size: small;
+  margin: 10px;
 }
 
 a {
-    text-decoration: none;
+  text-decoration: none;
 }
-

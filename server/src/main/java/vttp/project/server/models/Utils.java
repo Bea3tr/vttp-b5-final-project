@@ -115,6 +115,11 @@ public class Utils {
                         WHERE id = ?
                         """;
 
+        public static final String SQL_RESET_PASSWORD = """
+                        UPDATE users SET password = ?
+                        WHERE email = ?
+                        """;
+
         public static final String SQL_GET_PASSWORD_BY_ID = """
                         SELECT password FROM users WHERE id = ?
                         """;

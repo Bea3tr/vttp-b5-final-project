@@ -1,33 +1,95 @@
-<!-- <br>
-<form [formGroup]="form">
+<div class="container">
   <mat-card class="login-card" appearance="outlined">
-    <mat-card-title>Register</mat-card-title>
+    <mat-card-title>Reset Password</mat-card-title>
     <mat-card-content>
-        <div class="login-container">
-            <mat-form-field>
-              <mat-label>Enter your username</mat-label>
-              <input matInput formControlName="name">
-              @if (isCtrlInvalid("name")) {
-                <mat-error>Username should be between 3 - 32 characters</mat-error>
-              }
-            </mat-form-field>
-        </div>
-        <div class="login-container">
-            <mat-form-field>
-              <mat-label>Enter your email</mat-label>
-              <input matInput formControlName="email">
-              @if (isCtrlInvalid("email")) {
-                <mat-error>Please enter a valid email address</mat-error>
-              }
-            </mat-form-field>
-        </div>
+      <!-- Step 1: Enter Email -->
+      <div *ngIf="step === 1" class="login-container">
+        <form [formGroup]="emailForm" (submit)="sendVerificationCode()">
+          <mat-form-field>
+            <mat-label>Enter your email</mat-label>
+            <input matInput formControlName="email" required />
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="emailForm.invalid">
+            SEND CODE
+          </button>
+        </form>
+      </div>
+
+      <!-- Step 2: Enter Verification Code -->
+      <div *ngIf="step === 2" class="login-container">
+        <p>
+          A verification code has been sent to <strong>{{ userEmail }}</strong
+          >.
+        </p>
+        <form [formGroup]="codeForm" (submit)="verifyCode()">
+          <mat-form-field>
+            <mat-label>Enter Code</mat-label>
+            <input matInput formControlName="code" required />
+          </mat-form-field>
+          <div class="btns">
+            <button
+              mat-flat-button
+              type="click"
+              (click)="sendVerificationCode()"
+              [disabled]="codeTimeout"
+            >
+              Resend Code {{ codeTimeout ? "(" + countdown + "s)" : "" }}
+            </button>
+            <button mat-flat-button type="submit" [disabled]="codeForm.invalid">
+              Verify Code
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 3: Reset Password -->
+      <div *ngIf="step === 3" class="login-container">
+        <form [formGroup]="passwordForm" (submit)="resetPassword()">
+          <mat-form-field>
+            <mat-label>New Password</mat-label>
+            <input
+              matInput
+              [type]="hide1() ? 'password' : 'text'"
+              formControlName="newPassword"
+            />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="clickEvent1($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide1()"
+            >
+              <mat-icon>{{
+                hide1() ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </mat-form-field>
+          <mat-form-field>
+            <mat-label>Confirm Password</mat-label>
+            <input
+              matInput
+              [type]="hide2() ? 'password' : 'text'"
+              formControlName="confirmPassword"
+            />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="clickEvent2($event)"
+              [attr.aria-label]="'Hide password'"
+              [attr.aria-pressed]="hide2()"
+            >
+              <mat-icon>{{
+                hide2() ? "visibility_off" : "visibility"
+              }}</mat-icon>
+            </button>
+          </mat-form-field>
+          <button mat-flat-button type="submit" [disabled]="passwordForm.invalid">
+            Reset Password
+          </button>
+        </form>
+      </div>
     </mat-card-content>
-    <mat-card-actions>
-        <button mat-flat-button type="submit" [disabled]="form.invalid">REGISTER</button>
-        <hr>
-        <button mat-stroked-button (click)="googleLogin()">
-            <mat-icon svgIcon="google"></mat-icon>Sign in with Google
-        </button>
-    </mat-card-actions>
   </mat-card>
-</form> -->
+</div>
