@@ -14,13 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vttp.project.server.models.UserInfo;
 import static vttp.project.server.models.Utils.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,8 +33,6 @@ public class UserRepository {
     public boolean insertNewUser(UserInfo user) {
         try {
 
-            // Path name for local development - change to "user.png" during build
-            // byte[] defaultImg = Files.readAllBytes(Paths.get("user.png"));
             byte[] defaultImg = getDefaultPic();
             logger.info("[User Repo] Inserting user into MySQL");
             return template.update(SQL_INSERT_USER, user.getId(), user.getName(),

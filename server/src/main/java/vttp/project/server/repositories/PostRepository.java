@@ -78,15 +78,13 @@ public class PostRepository {
                 (ResultSet rs) -> {
                     List<Post> posts = new LinkedList<>();
                     while (rs.next()) {
-                        List<MediaFile> mediaFiles = new LinkedList<>();
                         Post post = Post.populate(rs);
-                        template.query(
+                        List<MediaFile> mediaFiles = template.query(
                                 SQL_GET_MEDIA_FILES_BY_POSTID,
-                                (ResultSet rs_mf) -> {
-                                    while (rs_mf.next()) {
-                                        mediaFiles.add(MediaFile.populate(rs_mf));
-                                    }
+                                (ResultSet rs_mf, int rowNum) -> {
+                                    return MediaFile.populate(rs_mf);
                                 }, post.getId());
+
                         post.setFiles(mediaFiles);
                         posts.add(post);
                     }
