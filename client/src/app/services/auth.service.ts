@@ -58,6 +58,10 @@ export class AuthService {
         return lastValueFrom(this.http.get<UserInfo>(`/api/get-user/${id}`))
     }
 
+    getAllUsers(id: string) {
+        return lastValueFrom(this.http.get<UserInfo[]>(`/api/users/${id}`))
+    }
+
     sendVerificationCode(email: string) {
         const body = {
             email: email

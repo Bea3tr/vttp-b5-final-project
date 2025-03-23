@@ -1,69 +1,142 @@
 <div class="main">
-    <ul class="navbar">
-        <li><a [routerLink]="['/home', id]" (click)="setActiveTab('post')"><img src="pawprint.png"></a></li>
-        <li class="right-btns">
-            <button mat-icon-button [routerLink]="['/marketplace']">
-                <mat-icon svgIcon="shop"></mat-icon>
-            </button>
-            <button mat-icon-button (click)="setActiveTab('shelter')">
-                <mat-icon svgIcon="shelter"></mat-icon>
-            </button>
-            <div class="circular-container">
-                <img [src]="user.picture">
-            </div>
-            <button [ngStyle]="{'margin-left': '5px', 'margin-right': '10px'}" mat-icon-button (click)="openPopup()">
-                <mat-icon svgIcon="plus"></mat-icon>
-            </button>
-            <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
-            <mat-menu #account="matMenu">
-                <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
-                <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
-                <button class="logout" mat-menu-item (click)="logout()">Logout</button>
-            </mat-menu>
-        </li>
-    </ul>
+  <ul class="navbar">
+    <li>
+      <a [routerLink]="['/home', id]" (click)="setActiveTab('post')"
+        ><img src="pawprint.png"
+      /></a>
+    </li>
+    <li class="right-btns">
+      <button mat-icon-button (click)="openChat()">
+        <mat-icon>search</mat-icon>
+      </button>
+      <button mat-icon-button [routerLink]="['/marketplace']">
+        <mat-icon svgIcon="shop"></mat-icon>
+      </button>
+      <button mat-icon-button (click)="setActiveTab('shelter')">
+        <mat-icon svgIcon="shelter"></mat-icon>
+      </button>
+      <button
+        [ngStyle]="{ 'margin-left': '5px', 'margin-right': '10px' }"
+        mat-icon-button
+        (click)="openPopup()"
+      >
+        <mat-icon svgIcon="plus"></mat-icon>
+      </button>
+      <div class="circular-container">
+        <img [src]="user.picture" />
+      </div>
+      <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
+      <mat-menu #account="matMenu">
+        <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
+        <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
+        <button class="logout" mat-menu-item (click)="logout()">Logout</button>
+      </mat-menu>
+    </li>
+  </ul>
 
-    <div class="sidenav">
-        <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
-        <a [routerLink]="['/shelter', id]"><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a>
-    </div>
+  <div class="sidenav">
+    <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
+    <a [routerLink]="['/shelter', id]"
+      ><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a
+    >
+  </div>
 
-    <br>
+  <br />
 
-    <!-- <app-post></app-post> -->
+  <!-- <app-post></app-post> -->
 
-    <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
-    <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
+  <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
+  <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
 
-    <div class="popup-container" *ngIf="isPopupOpen">
-        <mat-card class="popup" appearance="outlined">
-            <div class="post-header">
-                <span>Create post</span>
-                <button mat-icon-button (click)="closePopup()">
-                    <mat-icon svgIcon="cross"></mat-icon>
-                </button>
-            </div>
-            <hr>
-            <mat-card-content>
-                <form id="upload" class="post-form" [formGroup]="form" (submit)="post()">
-                    <mat-radio-group formControlName="status">
-                        <mat-radio-button value="private">Private (Friends only)</mat-radio-button>
-                        <mat-radio-button value="public">Public (Everyone)</mat-radio-button>
-                    </mat-radio-group>
+  <div class="popup-container" *ngIf="isPopupOpen">
+    <mat-card class="popup" appearance="outlined">
+      <div class="post-header">
+        <span>Create post</span>
+        <button mat-icon-button (click)="closePopup()">
+          <mat-icon svgIcon="cross"></mat-icon>
+        </button>
+      </div>
+      <hr />
+      <mat-card-content>
+        <form
+          id="upload"
+          class="post-form"
+          [formGroup]="form"
+          (submit)="post()"
+        >
+          <mat-radio-group formControlName="status">
+            <mat-radio-button value="private"
+              >Private (Friends only)</mat-radio-button
+            >
+            <mat-radio-button value="public"
+              >Public (Everyone)</mat-radio-button
+            >
+          </mat-radio-group>
 
-                    <mat-form-field class="desc">
-                        <mat-label>Leave a comment</mat-label>
-                        <textarea matInput formControlName="post" placeholder="Description"></textarea>
-                    </mat-form-field>
-                    <div class="file-input" onclick="document.getElementById('fileInput').click()">
-                        <!-- <input id="fileInput" type="file" accept="image/*" #file> -->
-                        <input id="fileInput" type="file" multiple (change)="onFileChange($event)">
-                    </div>
-                </form>
-            </mat-card-content>
-            <mat-card-actions>
-                <button type="submit" form="upload" class="post-btn">POST</button>
-            </mat-card-actions>
-        </mat-card>
-    </div>
+          <mat-form-field class="desc">
+            <mat-label>Leave a comment</mat-label>
+            <textarea
+              matInput
+              formControlName="post"
+              placeholder="Description"
+            ></textarea>
+          </mat-form-field>
+          <div
+            class="file-input"
+            onclick="document.getElementById('fileInput').click()"
+          >
+            <!-- <input id="fileInput" type="file" accept="image/*" #file> -->
+            <input
+              id="fileInput"
+              type="file"
+              multiple
+              (change)="onFileChange($event)"
+            />
+          </div>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <button type="submit" form="upload" class="post-btn">POST</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <div class="popup-container" *ngIf="isChatOpen">
+    <mat-card class="popup" appearance="outlined">
+      <div class="post-header">
+        <span>Search Users</span>
+        <button mat-icon-button (click)="closeChat()">
+          <mat-icon svgIcon="cross"></mat-icon>
+        </button>
+      </div>
+      <hr />
+      <mat-card-content>
+        <form class="post-form">
+          <mat-form-field class="desc">
+            <mat-label>Search</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="chatControl"
+              [matAutocomplete]="auto"
+            />
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              @for (option of filteredOptions | async; track option.id) {
+              <mat-option [value]="option" (onSelectionChange)="searchUser(option)">
+                <div class="col">
+                    <div class="circular-container">
+                        <img [src]="option.picture">
+                      </div>
+                      <div>
+                        {{ option.name }}
+                      </div>
+                </div>
+              </mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>

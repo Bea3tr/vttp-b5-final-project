@@ -2,7 +2,7 @@ package vttp.project.server.controllers;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.json.Json;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import vttp.project.server.models.UserInfo;
 import vttp.project.server.services.UserService;
@@ -29,7 +30,6 @@ import vttp.project.server.services.UserService;
 @RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
   private static final Logger logger = Logger.getLogger(UserController.class.getName());
-  private static final String BASE64_PREFIX = "data:image/png;base64,";
 
   @Autowired
   private UserService userSvc;
@@ -140,14 +140,21 @@ public class UserController {
   public ResponseEntity<String> getUserInfo(@PathVariable String id) {
     Optional<UserInfo> result = userSvc.getUserInfo(id);
     UserInfo ui = result.get();
-    String encodingString = Base64.getEncoder().encodeToString(ui.getPicture());
-    JsonObject payload = Json.createObjectBuilder()
-        .add("name", ui.getName())
-        .add("email", ui.getEmail())
-        .add("picture", BASE64_PREFIX + encodingString)
-        .build();
+    JsonObject payload = UserInfo.toJson(ui);
 
     return ResponseEntity.ok(payload.toString());
+  }
+
+  @GetMapping(path = "/users/{id}")
+  public ResponseEntity<String> getAllUsers(@PathVariable String id) {
+    Optional<List<UserInfo>> result = userSvc.getAllUsers(id);
+    JsonArrayBuilder builder = Json.createArrayBuilder();
+    if(result.isPresent()) {
+      for(UserInfo ui : result.get()) {
+        builder.add(UserInfo.toJson(ui));
+      }
+    }
+    return ResponseEntity.ok(builder.build().toString());
   }
 
   @PutMapping(path = "/user/edit-pic/{id}")

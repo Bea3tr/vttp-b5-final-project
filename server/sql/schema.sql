@@ -1,5 +1,5 @@
-CREATE DATABASE myapp;
-USE myapp;
+CREATE DATABASE pawdiaries;
+USE pawdiaries;
 
 CREATE TABLE users (
     id VARCHAR(8) NOT NULL,

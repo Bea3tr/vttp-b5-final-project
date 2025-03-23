@@ -58,11 +58,15 @@ public class PostService {
 
     public JsonArray getSavedPosts(String userId) {
         Document result = postRepo.getSavedPosts(userId);
-        List<String> postIds = result.getList(F_SAVED_POSTS, String.class);
         JsonArrayBuilder pfArr = Json.createArrayBuilder();
-        if (!postIds.isEmpty()) {
-            for (String id : postIds)
-                pfArr.add(id);
+        try {
+            List<String> postIds = result.getList(F_SAVED_POSTS, String.class);
+            if (!postIds.isEmpty()) {
+                for (String id : postIds)
+                    pfArr.add(id);
+            }
+        } catch (Exception ex) {
+            // ignore null return
         }
         return pfArr.build();
     }

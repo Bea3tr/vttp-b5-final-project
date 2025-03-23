@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -101,6 +103,21 @@ public class UserRepository {
                         return Optional.empty();
                     }
                 }, id);
+    }
+
+    public Optional<List<UserInfo>> getAllUsers(String id) {
+        return template.query(
+                SQL_GET_ALL_USER,
+                (ResultSet rs) -> {
+                    List<UserInfo> users = new LinkedList<>();
+                    while (rs.next()) {
+                        if(!rs.getString(ID).equals(id))
+                            users.add(UserInfo.populate(rs));   
+                    }
+                    if(users.isEmpty())
+                        return Optional.empty();
+                    return Optional.of(users);
+                });
     }
 
     public String updatePic(MultipartFile file, String userId)

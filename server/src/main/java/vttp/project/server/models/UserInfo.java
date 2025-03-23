@@ -4,11 +4,14 @@ import static vttp.project.server.models.Utils.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Base64;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
 public class UserInfo {
+
+    private static final String BASE64_PREFIX = "data:image/png;base64,";
 
     private String id;
     private String email;
@@ -36,13 +39,12 @@ public class UserInfo {
     public void setGoogleLogin(boolean googleLogin) {this.googleLogin = googleLogin;}
     
     public static JsonObject toJson(UserInfo ui) {
+        String encodingString = Base64.getEncoder().encodeToString(ui.getPicture());
         return Json.createObjectBuilder()
             .add(ID, ui.getId())
             .add(NAME, ui.getName())
             .add(EMAIL, ui.getEmail())
-            .add(PICTURE, ui.getPicture().toString())
-            .add(PASSWORD, ui.getPassword())
-            .add("googleLogin", ui.isGoogleLogin())
+            .add(PICTURE, BASE64_PREFIX + encodingString)
             .build();
     }
 

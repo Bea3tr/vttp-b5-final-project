@@ -68,6 +68,10 @@ public class Utils {
                         SELECT * FROM users WHERE id = ?
                         """;
 
+        public static final String SQL_GET_ALL_USER = """
+                        SELECT * FROM users
+                        """;
+
         public static final String SQL_INSERT_POST = """
                         INSERT INTO posts (id, user_id, name, user_img, post, timestamp, status)
                         VALUES (?, ?, ?, ?, ?, SYSDATE(), ?)

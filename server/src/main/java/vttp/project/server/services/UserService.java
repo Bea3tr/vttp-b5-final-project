@@ -2,6 +2,7 @@ package vttp.project.server.services;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,10 @@ public class UserService {
 
     public Optional<UserInfo> getUserInfo(String id) {
         return userRepo.getUserInfo(id);
+    }
+
+    public Optional<List<UserInfo>> getAllUsers(String id) {
+        return userRepo.getAllUsers(id);
     }
     
     public String updatePic(MultipartFile file, String userId) 
