@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, lastValueFrom, Subject } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 import { UserInfo } from '../models/models';
 
@@ -22,7 +21,7 @@ export class AuthService {
         }
         google.accounts.oauth2
             .initTokenClient({
-                client_id: environment.googleClientId,
+                client_id: '973905009117-tte2356kfck0f89dm680a54as09iipg8.apps.googleusercontent.com',
                 scope: 'profile email',
                 callback: (resp: any) => {
                     console.info('Response: ', resp)

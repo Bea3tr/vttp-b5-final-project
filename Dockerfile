@@ -1,5 +1,5 @@
 # Build Angular
-FROM node:22 AS ng-build
+FROM node:23 AS ng-build
 
 WORKDIR /src
 

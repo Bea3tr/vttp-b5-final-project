@@ -2,15 +2,23 @@ package vttp.project.server.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import vttp.project.server.models.UserInfo;
 import static vttp.project.server.models.Utils.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -23,21 +31,21 @@ import java.util.logging.Logger;
 public class UserRepository {
 
     private static final Logger logger = Logger.getLogger(UserRepository.class.getName());
+    private static final String IMG_URL = "https://pawdiaries-production.up.railway.app/user.png";
 
     @Autowired
     private JdbcTemplate template;
 
     public boolean insertNewUser(UserInfo user) {
         try {
+
             // Path name for local development - change to "user.png" during build
-            byte[] defaultImg = Files.readAllBytes(Paths.get("src/main/resources/static/user.png"));
+            // byte[] defaultImg = Files.readAllBytes(Paths.get("user.png"));
+            byte[] defaultImg = getDefaultPic();
             logger.info("[User Repo] Inserting user into MySQL");
             return template.update(SQL_INSERT_USER, user.getId(), user.getName(),
                     user.getEmail(), defaultImg, user.getPassword(), user.isGoogleLogin()) > 0;
         } catch (DataAccessException ex) {
-            logger.warning(ex.getMessage());
-            return false;
-        } catch (IOException ex) {
             logger.warning(ex.getMessage());
             return false;
         }
@@ -111,10 +119,10 @@ public class UserRepository {
                 (ResultSet rs) -> {
                     List<UserInfo> users = new LinkedList<>();
                     while (rs.next()) {
-                        if(!rs.getString(ID).equals(id))
-                            users.add(UserInfo.populate(rs));   
+                        if (!rs.getString(ID).equals(id))
+                            users.add(UserInfo.populate(rs));
                     }
-                    if(users.isEmpty())
+                    if (users.isEmpty())
                         return Optional.empty();
                     return Optional.of(users);
                 });
@@ -139,7 +147,17 @@ public class UserRepository {
     }
 
     public boolean resetPassword(String email, String newPassword)
-        throws RuntimeException {
+            throws RuntimeException {
         return template.update(SQL_RESET_PASSWORD, newPassword, email) > 0;
+    }
+
+    private byte[] getDefaultPic() {
+        RequestEntity<Void> req = RequestEntity.get(IMG_URL)
+                .accept(MediaType.IMAGE_PNG)
+                .build();
+        RestTemplate template = new RestTemplate();
+        ResponseEntity<byte[]> resp = template.exchange(req, byte[].class);
+        byte[] img_file = resp.getBody();
+        return img_file;
     }
 }
