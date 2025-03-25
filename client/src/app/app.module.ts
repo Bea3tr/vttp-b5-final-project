@@ -7,7 +7,7 @@ import { LoginComponent } from './components/login.component';
 import { HomeComponent } from './components/home.component';
 import { provideHttpClient } from '@angular/common/http';
 import { MaterialModule } from './material.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RegisterComponent } from './components/register.component';
 import { PostComponent } from './components/post.component';
 import { ShelterComponent } from './components/shelter.component';
@@ -15,17 +15,20 @@ import { ApiService } from './services/api.service';
 import { AuthService } from './services/auth.service';
 import { PostService } from './services/post.service';
 import { ApiStore } from './api.store';
-import { Subscription } from 'rxjs';
 import { ProfileComponent } from './components/profile.component';
 import { ProfileService } from './services/profile.service';
 import { ResetComponent } from './components/reset.component';
+import { ProfileOthersComponent } from './components/profile-others.component';
+import { ChatService } from './services/chat.service';
+import { ChatComponent } from './components/chat.component';
 
 @NgModule({
   declarations: 
     [ AppComponent, LoginComponent, HomeComponent, RegisterComponent, PostComponent, 
-      ShelterComponent, ProfileComponent, ResetComponent ],
-  imports: [ BrowserModule, AppRoutingModule, MaterialModule, ReactiveFormsModule ],
-  providers: [ provideHttpClient(), ApiService, AuthService, PostService, ProfileService, ApiStore ],
+      ShelterComponent, ProfileComponent, ResetComponent, ProfileOthersComponent, ChatComponent ],
+  imports: [ BrowserModule, AppRoutingModule, MaterialModule, ReactiveFormsModule, FormsModule ],
+  providers: [ provideHttpClient(), ApiService, AuthService, PostService, ProfileService, ApiStore,
+    ChatService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

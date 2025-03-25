@@ -7,7 +7,7 @@
         <form [formGroup]="emailForm" (submit)="sendVerificationCode()">
           <mat-form-field>
             <mat-label>Enter your email</mat-label>
-            <input matInput formControlName="email" required />
+            <input matInput formControlName="email">
           </mat-form-field>
           <button mat-flat-button type="submit" [disabled]="emailForm.invalid">
             SEND CODE
@@ -18,8 +18,9 @@
       <!-- Step 2: Enter Verification Code -->
       <div *ngIf="step === 2" class="login-container">
         <p>
-          A verification code has been sent to <strong>{{ userEmail }}</strong
-          >.
+          A verification code has been sent to <strong>{{ userEmail }}</strong>.
+          <br>
+          <code>(Please check your junk / spam folders)</code>
         </p>
         <form [formGroup]="codeForm" (submit)="verifyCode()">
           <mat-form-field>

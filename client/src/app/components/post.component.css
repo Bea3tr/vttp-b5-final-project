@@ -1,21 +1,21 @@
+.main-content {
+    position: absolute;
+    top: 60px;
+    left: 160px; 
+    width: calc(100% - 200px);
+    height: calc(100% - 100px); 
+    overflow: auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+
 .post-card {
     max-width: 40vw;
-    margin: auto 10vw auto 20vw;
+    margin: auto 10vw 2vh 20vw;
 }
 
 .post-image {
     background-size: cover;
-}
-
-.main-content {
-    position: absolute;
-    top: 60px;
-    left: 160px;
-    width: calc(100% - 200px);
-    height: calc(100% - 100px);
-    overflow: auto;
-    padding: 20px;
-    background-color: #f9f9f9;
 }
 
 .media-container {

@@ -50,6 +50,7 @@ export class AuthService {
 
     logout() {
         sessionStorage.removeItem('authenticated')
+        sessionStorage.removeItem('user')
         this.authSubject.next(null)
     }
 
@@ -108,6 +109,7 @@ export class AuthService {
                     if(resp.message == 'authenticated') {
                         this.router.navigate(['/home', resp.id])
                         sessionStorage.setItem('authenticated', 'true')
+                        sessionStorage.setItem('user', resp.id)
                     }
                 },
                 error: (err: HttpErrorResponse) => {alert(err.error.message)}

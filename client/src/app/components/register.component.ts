@@ -1,8 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { timer } from 'rxjs';
 
@@ -18,13 +16,6 @@ export class RegisterComponent implements OnInit {
       this.hide.set(!this.hide())
       event.stopPropagation()
     }
-  
-    constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer){
-      this.matIconRegistry.addSvgIcon(
-        "google",
-        this.domSanitizer.bypassSecurityTrustResourceUrl("icons/google-icon.svg")
-      )
-    }
 
   private authSvc = inject(AuthService)
   private fb = inject(FormBuilder)
@@ -36,7 +27,6 @@ export class RegisterComponent implements OnInit {
   protected codeTimeout = true
   protected userEmail = ''
   protected countdown = 45
-
 
   ngOnInit(): void {
       this.form = this.createForm()

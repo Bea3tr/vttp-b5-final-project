@@ -1,5 +1,7 @@
-CREATE DATABASE pawdiaries;
-USE pawdiaries;
+DROP DATABASE IF EXISTS myapp;
+
+CREATE DATABASE myapp;
+USE myapp;
 
 CREATE TABLE users (
     id VARCHAR(8) NOT NULL,
@@ -22,6 +24,8 @@ CREATE TABLE posts (
 	PRIMARY KEY (id),
     FOREIGN KEY (user_id)
 		REFERENCES users(id)
+			ON DELETE CASCADE
+            ON UPDATE CASCADE
 );
 
 CREATE TABLE media_files (

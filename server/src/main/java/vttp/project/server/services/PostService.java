@@ -40,8 +40,13 @@ public class PostService {
     public boolean editPost(String postId, String edited) {
         return postRepo.editPost(postId, edited);
     }
+
     public Optional<List<Post>> getPostsByUserId(String userId) throws DataAccessException {
         return postRepo.getPostsByUserId(userId);
+    }
+
+    public Optional<List<Post>> getPostsByUserIdPublic(String userId) throws DataAccessException {
+        return postRepo.getPostsByUserIdPublic(userId);
     }
 
     public Optional<List<Post>> getPublicPosts() {

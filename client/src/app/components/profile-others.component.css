@@ -1,0 +1,287 @@
+.logout {
+  color: darkred;
+}
+
+.main {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.below-nav {
+  position: absolute;
+  top: 60px;
+  width: calc(100% - 40px);
+  height: calc(100% - 100px);
+  overflow: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.navbar {
+  list-style-type: none;
+  margin: 0;
+  padding: 0 15px 0 0;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: rgba(103, 101, 101, 0.2) 5px 2px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+}
+
+.right-btns {
+  display: flex;
+  justify-content: flex-end;
+  /* Align items to the right */
+  align-items: center;
+  margin-right: 10px;
+}
+
+.right-btns button {
+  background-color: #ac8c993c;
+  margin: 5px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+}
+
+li a,
+li button {
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+li a {
+  display: block;
+  padding: 14px 16px;
+}
+
+li:last-child {
+  margin-left: auto;
+}
+
+/* Adjusting logo & images */
+li a img {
+  height: 7vh;
+}
+
+.circular-container {
+  /* Same length */
+  width: 7vh;
+  height: 7vh;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Ensures the image stays inside */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circular-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.large-circular-container {
+  /* Same length */
+  width: 25vh;
+  height: 25vh;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Ensures the image stays inside */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.large-circular-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-box {
+  display: flex;
+  align-items: center;
+}
+
+.detail-box div {
+  margin-right: 10px;
+}
+
+/* Post */
+.post-card {
+  max-width: 50vw;
+  margin: 3vh auto;
+}
+
+.post-image {
+  background-size: cover;
+}
+
+.media-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.media-file {
+  width: 100%;
+  object-fit: fill;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.top-right {
+  margin-left: auto;
+}
+
+.nav-button.left {
+  left: 10px;
+}
+
+.nav-button.right {
+  right: 10px;
+}
+
+.nav-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.active {
+  background-color: rgba(255, 0, 21, 0.416);
+}
+
+.popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.popup {
+  background: white;
+  padding: 20px;
+  width: 50vw;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.popup mat-card-content {
+  overflow-y: auto;
+  max-height: 60vh;
+  padding-bottom: 10px;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+}
+
+hr {
+  border: solid lightgray 0.5px;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.post-header span {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.post-form, .post-form .desc {
+  width: 100%;
+}
+
+.comments {
+  margin: 0;
+  overflow-y: auto;
+  height: 85%;
+  z-index: 9999;
+}
+
+.comment-card {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.comment-btn {
+  margin-right: 5px;
+}
+
+.edit-popup {
+  background: white;
+  padding: 20px;
+  width: 50vw;
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+div {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+@media screen and (max-width: 768px) {
+  .main-content {
+      width: calc(100% - 40px);
+      left: 0;
+  }
+
+  .post-card {
+      max-width: 75vw;
+      margin: auto;
+  }
+
+  .popup {
+      width: 90%;
+      /* Take up more space on small screens */
+      max-width: none;
+  }
+}

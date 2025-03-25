@@ -15,9 +15,16 @@ public class Utils {
         public static final String C_PF = "pf_results";
         public static final String C_USER = "user_details";
         public static final String C_COMMENT = "post_comments";
+        public static final String C_CHAT = "chats";
 
         public static final String F_SAVED_PF = "saved_pf";
         public static final String F_SAVED_POSTS = "saved_posts";
+        public static final String F_CHATS = "chats";
+        public static final String F_SENDER_ID = "sender_id";
+        public static final String F_RECEIVER_ID = "receiver_id";
+        public static final String F_CONTENT = "content";
+        public static final String F_TYPE = "type";
+        public static final String F_READ = "read";
 
         public static final String R_PF_TYPES = "pf_types";
         public static final String R_PF_BREEDS = "pf_breeds";
@@ -73,8 +80,8 @@ public class Utils {
                         """;
 
         public static final String SQL_INSERT_POST = """
-                        INSERT INTO posts (id, user_id, name, user_img, post, timestamp, status)
-                        VALUES (?, ?, ?, ?, ?, SYSDATE(), ?)
+                        INSERT INTO posts (id, user_id, post, timestamp, status)
+                        VALUES (?, ?, ?, SYSDATE(), ?)
                         """;
 
         public static final String SQL_GET_PUBLIC_POSTS = """
@@ -84,6 +91,11 @@ public class Utils {
 
         public static final String SQL_GET_POST_BY_USERID = """
                         SELECT * FROM posts WHERE user_id = ?
+                        """;
+
+        public static final String SQL_GET_POST_BY_USERID_PUBLIC = """
+                        SELECT * FROM posts WHERE user_id = ?
+                        AND status = 'public'
                         """;
 
         public static final String SQL_INSERT_MEDIA_FILE = """

@@ -76,13 +76,11 @@ public class PostController {
         try {
             logger.info("[Post Controller] Retrieving posts...");
             Optional<List<Post>> result = postSvc.getPublicPosts();
+            JsonArrayBuilder postArr = Json.createArrayBuilder();
             if (result.isEmpty()) {
-                return ResponseEntity.ok(Json.createObjectBuilder()
-                        .add("message", "No data")
-                        .build().toString());
+                return ResponseEntity.ok(postArr.build().toString());
             }
             List<Post> posts = result.get();
-            JsonArrayBuilder postArr = Json.createArrayBuilder();
             for (Post p : posts) {
                 postArr.add(Post.toJson(p));
             }
@@ -100,13 +98,33 @@ public class PostController {
         try {
             logger.info("[Post Controller] Retrieving posts...");
             Optional<List<Post>> result = postSvc.getPostsByUserId(userId);
+            JsonArrayBuilder postArr = Json.createArrayBuilder();
             if (result.isEmpty()) {
-                return ResponseEntity.ok(Json.createObjectBuilder()
-                        .add("message", "No data")
-                        .build().toString());
+                return ResponseEntity.ok(postArr.build().toString());
             }
             List<Post> posts = result.get();
+            for (Post p : posts) {
+                postArr.add(Post.toJson(p));
+            }
+            return ResponseEntity.ok(postArr.build().toString());
+        } catch (DataAccessException ex) {
+            return ResponseEntity.status(400)
+                    .body(Json.createObjectBuilder()
+                            .add("message", ex.getMessage())
+                            .build().toString());
+        }
+    }
+
+    @GetMapping(path = "/get-others")
+    public ResponseEntity<String> getPostsOther(@RequestParam String userId) {
+        try {
+            logger.info("[Post Controller] Retrieving posts...");
+            Optional<List<Post>> result = postSvc.getPostsByUserIdPublic(userId);
             JsonArrayBuilder postArr = Json.createArrayBuilder();
+            if (result.isEmpty()) {
+                return ResponseEntity.ok(postArr.build().toString());
+            }
+            List<Post> posts = result.get();
             for (Post p : posts) {
                 postArr.add(Post.toJson(p));
             }

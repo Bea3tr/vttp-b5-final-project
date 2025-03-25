@@ -13,10 +13,20 @@ export class ProfileService {
         this.activeTab.next(tab)
     }
 
+    isUser(id: string) {
+        return id == sessionStorage.getItem('user')
+    }
+
      getSelfPosts(userId: string) {
         const params = new HttpParams()
             .append("userId", userId)
         return lastValueFrom(this.http.get<Post[]>('/api/post/get', { params }))
+    }
+
+    getUserPosts(userId: string) {
+        const params = new HttpParams()
+            .append("userId", userId)
+        return lastValueFrom(this.http.get<Post[]>('/api/post/get-others', { params }))
     }
 
     getSavedPosts(userId: string) {

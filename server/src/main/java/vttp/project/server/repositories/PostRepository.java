@@ -46,7 +46,7 @@ public class PostRepository {
             throws IOException, RuntimeException {
         String postId = UUID.randomUUID().toString().substring(0, 8);
 
-        template.update(SQL_INSERT_POST, postId, ui.getId(), ui.getName(), ui.getPicture(), post, status);
+        template.update(SQL_INSERT_POST, postId, ui.getId(), post, status);
         if (files != null) {
             files.forEach(file -> {
                 try {
@@ -73,27 +73,11 @@ public class PostRepository {
     }
 
     public Optional<List<Post>> getPostsByUserId(String userId) throws DataAccessException {
-        return template.query(
-                SQL_GET_POST_BY_USERID,
-                (ResultSet rs) -> {
-                    List<Post> posts = new LinkedList<>();
-                    while (rs.next()) {
-                        Post post = Post.populate(rs);
-                        List<MediaFile> mediaFiles = template.query(
-                                SQL_GET_MEDIA_FILES_BY_POSTID,
-                                (ResultSet rs_mf, int rowNum) -> {
-                                    return MediaFile.populate(rs_mf);
-                                }, post.getId());
+        return getPosts(SQL_GET_POST_BY_USERID, userId);
+    }
 
-                        post.setFiles(mediaFiles);
-                        posts.add(post);
-                    }
-                    if (posts.isEmpty()) {
-                        return Optional.empty();
-                    } else {
-                        return Optional.of(posts);
-                    }
-                }, userId);
+    public Optional<List<Post>> getPostsByUserIdPublic(String userId) throws DataAccessException {
+        return getPosts(SQL_GET_POST_BY_USERID_PUBLIC, userId);
     }
 
     @SuppressWarnings("unused")
@@ -113,6 +97,21 @@ public class PostRepository {
                                     // logger.info("[Post Repo] Media files for: " + post.getId());
                                     return MediaFile.populate(rs_mf);
                                 }, post.getId());
+
+                        Optional<UserInfo> opt_ui = template.query(
+                                SQL_GET_USER,
+                                (ResultSet rs_ui) -> {
+                                    if (rs_ui.next()) {
+                                        return Optional.of(UserInfo.populate(rs_ui));
+                                    } else {
+                                        return Optional.empty();
+                                    }
+                                }, post.getUserId());
+                        if (!opt_ui.isEmpty()) {
+                            UserInfo ui = opt_ui.get();
+                            post.setUserImg(ui.getPicture());
+                            post.setUsername(ui.getName());
+                        }
 
                         post.setFiles(mediaFiles);
                         posts.add(post);
@@ -158,15 +157,26 @@ public class PostRepository {
                 (ResultSet rs) -> {
                     List<Post> posts = new LinkedList<>();
                     while (rs.next()) {
-                        List<MediaFile> mediaFiles = new LinkedList<>();
                         Post post = Post.populate(rs);
-                        template.query(
+                        List<MediaFile> mediaFiles = template.query(
                                 SQL_GET_MEDIA_FILES_BY_POSTID,
-                                (ResultSet rs_mf) -> {
-                                    while (rs_mf.next()) {
-                                        mediaFiles.add(MediaFile.populate(rs_mf));
-                                    }
+                                (ResultSet rs_mf, int rowNum) -> {
+                                    return MediaFile.populate(rs_mf);
                                 }, post.getId());
+                        Optional<UserInfo> opt_ui = template.query(
+                                SQL_GET_USER,
+                                (ResultSet rs_ui) -> {
+                                    if (rs_ui.next()) {
+                                        return Optional.of(UserInfo.populate(rs_ui));
+                                    } else {
+                                        return Optional.empty();
+                                    }
+                                }, post.getUserId());
+                        if (!opt_ui.isEmpty()) {
+                            UserInfo ui = opt_ui.get();
+                            post.setUserImg(ui.getPicture());
+                            post.setUsername(ui.getName());
+                        }
                         post.setFiles(mediaFiles);
                         posts.add(post);
                         logger.info("[Post Repo] Posts: " + posts);
@@ -177,6 +187,42 @@ public class PostRepository {
                         return Optional.of(posts);
                     }
                 }, postIds.toArray());
+    }
+
+    private Optional<List<Post>> getPosts(String query, String userId) {
+        return template.query(query,
+                (ResultSet rs) -> {
+                    List<Post> posts = new LinkedList<>();
+                    while (rs.next()) {
+                        Post post = Post.populate(rs);
+                        List<MediaFile> mediaFiles = template.query(
+                                SQL_GET_MEDIA_FILES_BY_POSTID,
+                                (ResultSet rs_mf, int rowNum) -> {
+                                    return MediaFile.populate(rs_mf);
+                                }, post.getId());
+                        Optional<UserInfo> opt_ui = template.query(
+                                SQL_GET_USER,
+                                (ResultSet rs_ui) -> {
+                                    if (rs_ui.next()) {
+                                        return Optional.of(UserInfo.populate(rs_ui));
+                                    } else {
+                                        return Optional.empty();
+                                    }
+                                }, userId);
+                        if (!opt_ui.isEmpty()) {
+                            UserInfo ui = opt_ui.get();
+                            post.setUserImg(ui.getPicture());
+                            post.setUsername(ui.getName());
+                        }
+                        post.setFiles(mediaFiles);
+                        posts.add(post);
+                    }
+                    if (posts.isEmpty()) {
+                        return Optional.empty();
+                    } else {
+                        return Optional.of(posts);
+                    }
+                }, userId);
     }
 
 }

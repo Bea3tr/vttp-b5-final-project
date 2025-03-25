@@ -94,8 +94,6 @@ public class Post {
         Post post = new Post();
         post.setId(rs.getString(ID));
         post.setUserId(rs.getString(USERID));
-        post.setUsername(rs.getString(NAME));
-        post.setUserImg(rs.getBytes(USERIMG));
         post.setPost(rs.getString(POST));
         post.setTimestamp(rs.getDate(TIMESTAMP));
         post.setStatus(rs.getString(STATUS));

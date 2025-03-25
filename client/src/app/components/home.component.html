@@ -6,7 +6,7 @@
       /></a>
     </li>
     <li class="right-btns">
-      <button mat-icon-button (click)="openChat()">
+      <button mat-icon-button (click)="openSearch()">
         <mat-icon>search</mat-icon>
       </button>
       <button mat-icon-button [routerLink]="['/marketplace']">
@@ -15,13 +15,27 @@
       <button mat-icon-button (click)="setActiveTab('shelter')">
         <mat-icon svgIcon="shelter"></mat-icon>
       </button>
-      <button
-        [ngStyle]="{ 'margin-left': '5px', 'margin-right': '10px' }"
-        mat-icon-button
-        (click)="openPopup()"
-      >
+      <button mat-icon-button (click)="openPopup()">
         <mat-icon svgIcon="plus"></mat-icon>
       </button>
+      <button mat-icon-button [matMenuTriggerFor]="chat" 
+      [ngStyle]="{ 'margin-left': '5px', 'margin-right': '10px' }">
+        <mat-icon svgIcon="comment"></mat-icon>
+      </button>
+      <mat-menu #chat="matMenu">
+      @for(chatUser of chatUsers; track $index) {
+        <button mat-menu-item>
+          <div class="col">
+            <div class="circular-container">
+                <img [src]="chatUser.picture">
+            </div>
+            <div>
+              {{ chatUser.name }}
+            </div>
+        </div>
+        </button>
+      }
+      </mat-menu>
       <div class="circular-container">
         <img [src]="user.picture" />
       </div>
@@ -36,14 +50,12 @@
 
   <div class="sidenav">
     <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
-    <a [routerLink]="['/shelter', id]"
-      ><mat-icon svgIcon="color-shelter"></mat-icon>Shelter</a
-    >
+    <a [routerLink]="['/shelter', id]">
+      <mat-icon svgIcon="color-shelter"></mat-icon>Shelter
+    </a>
   </div>
 
-  <br />
-
-  <!-- <app-post></app-post> -->
+  <br>
 
   <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
   <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
@@ -65,12 +77,8 @@
           (submit)="post()"
         >
           <mat-radio-group formControlName="status">
-            <mat-radio-button value="private"
-              >Private (Friends only)</mat-radio-button
-            >
-            <mat-radio-button value="public"
-              >Public (Everyone)</mat-radio-button
-            >
+            <mat-radio-button value="private">Private</mat-radio-button>
+            <mat-radio-button value="public">Public</mat-radio-button>
           </mat-radio-group>
 
           <mat-form-field class="desc">
@@ -81,17 +89,8 @@
               placeholder="Description"
             ></textarea>
           </mat-form-field>
-          <div
-            class="file-input"
-            onclick="document.getElementById('fileInput').click()"
-          >
-            <!-- <input id="fileInput" type="file" accept="image/*" #file> -->
-            <input
-              id="fileInput"
-              type="file"
-              multiple
-              (change)="onFileChange($event)"
-            />
+          <div class="file-input" onclick="document.getElementById('fileInput').click()">
+            <input id="fileInput" type="file" multiple (change)="onFileChange($event)">
           </div>
         </form>
       </mat-card-content>
@@ -101,11 +100,11 @@
     </mat-card>
   </div>
 
-  <div class="popup-container" *ngIf="isChatOpen">
+  <div class="popup-container" *ngIf="isSearchOpen">
     <mat-card class="popup" appearance="outlined">
       <div class="post-header">
         <span>Search Users</span>
-        <button mat-icon-button (click)="closeChat()">
+        <button mat-icon-button (click)="closeSearch()">
           <mat-icon svgIcon="cross"></mat-icon>
         </button>
       </div>
@@ -117,7 +116,7 @@
             <input
               type="text"
               matInput
-              [formControl]="chatControl"
+              [formControl]="searchControl"
               [matAutocomplete]="auto"
             />
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">

@@ -8,6 +8,8 @@ import { PostService } from '../services/post.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../services/profile.service';
 import { map, Observable, startWith, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChatService } from '../services/chat.service';
 
 @Component({
   selector: 'app-home',
@@ -20,7 +22,8 @@ export class HomeComponent implements OnInit {
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
     private authSvc: AuthService, private router: Router, private actRoute: ActivatedRoute,
-    private postSvc: PostService, private fb: FormBuilder, private profileSvc: ProfileService) {
+    private postSvc: PostService, private fb: FormBuilder, private profileSvc: ProfileService,
+    private chatSvc: ChatService) {
     const icons = ["plus", "cross", "shelter", "shop", "color-shelter", "color-shop", "comment"]
     icons.forEach((icon) => {
       this.matIconRegistry.addSvgIcon(
@@ -30,26 +33,24 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  form !: FormGroup
-
+  protected form !: FormGroup
   protected id: string = ''
   protected user !: UserInfo
   protected isPopupOpen = false
-  protected isChatOpen = false
+  protected isSearchOpen = false
   protected activeTab = ''
   protected selectedFiles !: FileList
+  protected chatUsers : UserInfo[] = []
 
   // For autocomplete field
   protected users: UserInfo[] = []
-  protected chatControl = new FormControl<string | UserInfo>('')
+  protected searchControl = new FormControl<string | UserInfo>('')
   protected filteredOptions!: Observable<UserInfo[]>
 
   onFileChange(event: any) {
     console.info('onFileChange:', event.target.files)
     this.selectedFiles = event.target.files
   }
-
-
 
   setActiveTab(tab: string) {
     this.activeTab = tab
@@ -63,6 +64,7 @@ export class HomeComponent implements OnInit {
         let r = await this.authSvc.getUserInfo(this.id)
         this.user = r
       })
+    this.loadChatUsers()
     this.profileSvc.activeTab.subscribe(async (tab) => {
       console.info('Current:', tab)
       this.activeTab = tab
@@ -72,7 +74,7 @@ export class HomeComponent implements OnInit {
         this.users = resp
         console.info('>>> Users:', this.users)
     })
-    this.filteredOptions = this.chatControl.valueChanges.pipe(
+    this.filteredOptions = this.searchControl.valueChanges.pipe(
       startWith(''),
       map(value => {
         const name = typeof value === 'string' ? value : value?.name;
@@ -91,19 +93,19 @@ export class HomeComponent implements OnInit {
   post() {
     this.postSvc.uploadPost(this.form, this.selectedFiles, this.id)
       .then((resp) => {
-        if(resp.success == true) {
-          alert('Upload successful')
-        } else {
-          alert('Error uploading post')
-        }
-    })
+        alert(resp.message)
+      })
+      .catch((err:HttpErrorResponse) => {
+        alert(err.error.message)
+      }) 
     this.form.reset()
     this.isPopupOpen = false
     this.postSvc.reloadPosts(true)
   }
 
   searchUser(user: UserInfo) {
-    console.info('>>> Selected:', user);
+    console.info('>>> Selected:', user)
+    this.router.navigate(['/user', this.id, user.id])
   }
 
   private createForm() {
@@ -133,15 +135,23 @@ export class HomeComponent implements OnInit {
     this.isPopupOpen = false
   }
 
-  openChat() {
-    this.isChatOpen = true
+  openSearch() {
+    this.isSearchOpen = true
   }
 
-  closeChat() {
-    this.isChatOpen = false
+  closeSearch() {
+    this.isSearchOpen = false
   }
-}
-function then(arg0: (resp: any) => void) {
-  throw new Error('Function not implemented.')
+
+  private async loadChatUsers() {
+    console.info('Loading chat users')
+    let chats = await this.chatSvc.getChats(this.id)
+    if(chats && chats.length > 0) {
+      chats.forEach(async (chat) => {
+        let chatUser = await this.authSvc.getUserInfo(chat)
+        this.chatUsers = [ ...this.chatUsers, chatUser ]
+      })
+    }
+  }
 }
 

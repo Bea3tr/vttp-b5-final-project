@@ -15,6 +15,8 @@ import vttp.project.server.models.UserInfo;
 import static vttp.project.server.models.Utils.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +35,7 @@ public class UserRepository {
     public boolean insertNewUser(UserInfo user) {
         try {
 
+            // byte[] defaultImg = Files.readAllBytes(Paths.get("src/main/resources/static/user.png"));
             byte[] defaultImg = getDefaultPic();
             logger.info("[User Repo] Inserting user into MySQL");
             return template.update(SQL_INSERT_USER, user.getId(), user.getName(),
@@ -40,7 +43,11 @@ public class UserRepository {
         } catch (DataAccessException ex) {
             logger.warning(ex.getMessage());
             return false;
-        }
+        } 
+        // catch (IOException ex) {
+        //     logger.warning(ex.getMessage());
+        //     return false;
+        // }
     }
 
     public String getUserId(String email) {
