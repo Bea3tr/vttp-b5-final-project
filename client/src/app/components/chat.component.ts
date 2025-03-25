@@ -48,7 +48,7 @@ export class ChatComponent {
   }
 
   sendMessage() {
-    console.info('Sending message...')
+    console.info('Sending message:', this.messageContent.trim())
     if (this.messageContent.trim()) {
       this.chatSvc.sendMessage(this.senderId, this.receiverId, this.messageContent, this.type);
       this.messageContent = '';

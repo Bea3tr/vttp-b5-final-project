@@ -26,6 +26,7 @@ export class ChatService {
 
   sendMessage(senderId: string, receiverId: string, content: string, type: string) {
     const message = { senderId, receiverId, content , type }
+    console.info('Send message:', message)
     this.webSocket.send(JSON.stringify(message))
   }
 
