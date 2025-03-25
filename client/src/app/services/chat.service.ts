@@ -11,7 +11,7 @@ export class ChatService {
   private http = inject(HttpClient)
 
   connect(userId: string) {
-    this.webSocket = new WebSocket(`ws://pawdiaries-production.up.railway.app/chat?${userId}`)
+    this.webSocket = new WebSocket(`wss://pawdiaries-production.up.railway.app/chat?${userId}`)
 
     this.webSocket.onmessage = (event) => {
       console.info('Message:',event.data)
