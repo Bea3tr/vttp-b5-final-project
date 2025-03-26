@@ -63,7 +63,7 @@ public class ShopRepository {
   public Optional<List<Item>> getItems(String userId) {
     logger.info("[Shop Repo] Retrieving items");
     Query query = Query.query(Criteria.where(F_PURCHASED).is(false)
-      .andOperator(Criteria.where(USERID)).nin(userId));
+      .andOperator(Criteria.where(USERID)).ne(userId));
     // Find all items
     List<Document> itemDocs = mgTemplate.find(query, Document.class, C_ITEM);
     return getItemsFromDocs(itemDocs);
@@ -73,7 +73,7 @@ public class ShopRepository {
     logger.info("[Shop Repo] Retrieving items: " + filter);
     Criteria criteria = Criteria.where(ITEM).regex(filter, "i")
         .andOperator(Criteria.where(F_PURCHASED).is(false),
-                    Criteria.where(USERID).nin(userId));
+                    Criteria.where(USERID).ne(userId));
     List<Document> docs = mgTemplate.find(Query.query(criteria), Document.class, C_ITEM);
     return getItemsFromDocs(docs);
   }

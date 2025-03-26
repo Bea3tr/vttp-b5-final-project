@@ -154,7 +154,7 @@ export class MarketplaceComponent implements OnInit {
   }
 
   private async loadListedItems() {
-    console.info('Loading shop items');
+    console.info('Loading shop items:', this.id);
     const items = await this.shopSvc.getItems(this.id);
     items.forEach(item => {
       item.currentFileIndex = 0
