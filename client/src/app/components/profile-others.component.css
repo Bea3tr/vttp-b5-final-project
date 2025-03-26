@@ -268,6 +268,10 @@ div {
   overflow-wrap: break-word;
 }
 
+mat-card-content div {
+  margin: 10px 2px;
+}
+
 @media screen and (max-width: 768px) {
   .main-content {
       width: calc(100% - 40px);
@@ -283,9 +287,5 @@ div {
       width: 90%;
       /* Take up more space on small screens */
       max-width: none;
-  }
-
-  mat-card-content div {
-    margin: 10px 2px;
   }
 }

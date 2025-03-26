@@ -250,7 +250,10 @@
     }
     <mat-card-content class="item-desc">
       <div><strong>Description: </strong>{{ chatItem.description }}</div>
-      <p><strong>Price: </strong>${{ chatItem.price | number: '1.2-2' }}</p>
+      <div><strong>Price: </strong>${{ chatItem.price | number: '1.2-2' }}</div>
+      @if(chatItem.purchased == true) {
+        <div><strong [ngStyle]="{'color': 'darkred'}">SOLD</strong></div>
+      }
     </mat-card-content>
   </mat-card>
 </div>
