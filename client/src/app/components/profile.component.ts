@@ -107,7 +107,7 @@ export class ProfileComponent implements OnInit {
     this.getSavedPosts(this.id);
     this.getListedItems(this.id);
     this.apiSvc.reload.subscribe(async (val) => {
-      if (val == true && this.toReload == 'shelter') {
+      if (val == true) {
         this.apiSvc.reloadSavedPfs(false);
         setTimeout(async () => {
           await this.loadSavedPfs();
@@ -119,22 +119,22 @@ export class ProfileComponent implements OnInit {
         if (this.toReload == 'post') {
           console.info('Reloading saved posts');
           await this.loadSavedPosts();
-          this.postSvc.reloadSavedPosts(false);
-        } else if (this.toReload == 'post-self') {
-          console.info('Reloading posts');
-          await this.loadMyPosts();
-          await this.getSavedPosts(this.id);
-          await this.loadSavedPosts();
-          this.postSvc.reloadSavedPosts(false);
+          this.postSvc.reloadPosts(false)
         } else if (this.toReload == 'user') {
           console.info('Reloading user');
           setTimeout(async () => {
             this.user = await this.profileSvc.getUserInfo(this.id);
           }, 500);
-          this.postSvc.reloadSavedPosts(false);
+          this.postSvc.reloadPosts(false);
         }
       }
     });
+    this.postSvc.reloadLikes.subscribe(async (val) => {
+      if( val == true) {
+        await this.getSavedPosts(this.id);
+        this.postSvc.reloadSavedPosts(false)
+      }
+    })
     this.shopSvc.reload.subscribe(async (val) => {
       if (val == true) {
         await this.getListedItems(this.id);
@@ -170,7 +170,6 @@ export class ProfileComponent implements OnInit {
 
   removeSavedPf(pfId: number) {
     this.apiSvc.removeSavedPf(this.id, pfId);
-    this.toReload = 'shelter';
     this.apiSvc.reloadSavedPfs(true);
   }
 
@@ -235,23 +234,22 @@ export class ProfileComponent implements OnInit {
   savePostToUser(postId: string) {
     if (this.savedPostIds.includes(postId)) {
       this.removeSavedPost(postId);
-      this.likeSvc.unlikePost(postId).subscribe((resp) => {
-        console.info(resp.message)
-      })
     } else {
       this.postSvc.savePostToUser(this.id, postId);
       this.likeSvc.likePost(postId).subscribe((resp) => {
         console.info(resp.message)
       })
+      this.postSvc.reloadSavedPosts(true);
     }
-    this.toReload = 'post-self';
-    this.postSvc.reloadSavedPosts(true);
   }
 
   removeSavedPost(postId: string) {
     this.postSvc.removeSavedPost(this.id, postId);
-    this.toReload = 'post';
-    this.postSvc.reloadSavedPosts(true);
+    this.likeSvc.unlikePost(postId).subscribe((resp) => {
+      console.info(resp.message)
+      this.savedPosts = this.savedPosts.filter((post) => post.id !== postId)
+    })
+    this.postSvc.reloadSavedPosts(true)
   }
 
   /////////////// Shop controls ////////////////
@@ -357,7 +355,7 @@ export class ProfileComponent implements OnInit {
       .then((resp) => {
         alert(resp.message);
         this.toReload = 'user';
-        this.postSvc.reloadSavedPosts(true);
+        this.postSvc.reloadPosts(true);
       })
       .catch((err: HttpErrorResponse) => {
         alert(err.error.message);
@@ -376,7 +374,7 @@ export class ProfileComponent implements OnInit {
         alert('Error updating username');
       });
     this.toReload = 'user';
-    this.postSvc.reloadSavedPosts(true);
+    this.postSvc.reloadPosts(true);
     this.isEditProfileOpen = false;
   }
 

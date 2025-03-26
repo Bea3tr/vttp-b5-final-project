@@ -132,12 +132,14 @@ export class PostComponent implements OnInit {
       })
     }
     // Reload # of likes
-    this.posts.forEach((post) => {
+    let posts = this.posts
+    posts.forEach((post) => {
       this.likeSvc.getLikeCount(post.id).then((resp) => {
         console.info('Getting likes:', resp)
         post.likes = resp.likes
       })
     })
+    this.posts = posts
     this.postSvc.reloadSavedPosts(true)
   }
 
