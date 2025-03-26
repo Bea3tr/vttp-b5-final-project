@@ -52,11 +52,15 @@ export class PostComponent implements OnInit {
     this.loadPublicPosts()
     this.getSavedPosts(this.id)
     this.postSvc.reload.subscribe(async (val) => {
-      console.info('Post val:', val)
       if (val == true) {
         await this.loadPublicPosts()
-        this.getSavedPosts(this.id)
         this.postSvc.reloadPosts(false)
+      }
+    })
+    this.postSvc.reloadLikes.subscribe(async (val) => {
+      if (val == true) {
+        this.getSavedPosts(this.id)
+        this.postSvc.reloadSavedPosts(false)
       }
     })
   }
@@ -64,12 +68,11 @@ export class PostComponent implements OnInit {
   postComment() {
     const comment = this.form.value['comment']
     this.postSvc.postComment(this.id, this.activePostId, comment)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message)
-        this.postSvc.reloadPosts(true)
+        this.displayedComments = await this.getComments(this.activePostId)
       })
     this.form.reset()
-    this.isPopupOpen = false
   }
 
   editPost() {
@@ -89,15 +92,14 @@ export class PostComponent implements OnInit {
   editComment() {
     const edited = this.editForm.value['edited']
     this.postSvc.editComment(this.editCommentId, edited)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message)
-        this.postSvc.reloadPosts(true)
+        this.displayedComments = await this.getComments(this.activePostId)
       })
       .catch((err) => {
         console.info(err.message)
       })
     this.editForm.reset()
-    this.isEditCommentOpen = false
   }
 
   deletePost(postId: string) {
@@ -129,6 +131,13 @@ export class PostComponent implements OnInit {
         console.info(resp.message)
       })
     }
+    // Reload # of likes
+    this.posts.forEach((post) => {
+      this.likeSvc.getLikeCount(post.id).then((resp) => {
+        console.info('Getting likes:', resp)
+        post.likes = resp.likes
+      })
+    })
     this.postSvc.reloadSavedPosts(true)
   }
 
@@ -208,8 +217,6 @@ export class PostComponent implements OnInit {
             })
         })
       }
-      this.displayedComments = await this.getComments(this.activePostId)
-      // Now assign posts after all comments are fetched
       this.posts = posts
       console.info('Posts:', this.posts)
 

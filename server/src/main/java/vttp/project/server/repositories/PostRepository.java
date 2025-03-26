@@ -148,7 +148,7 @@ public class PostRepository {
             return Optional.empty();
         }
         String placeholders = String.join(",", postIds.stream().map(id -> "?").toList());
-        String SQL_GET_SAVED_POSTS = "SELECT * FROM myapp.posts WHERE id IN (" + placeholders + ")";
+        String SQL_GET_SAVED_POSTS = "SELECT * FROM posts WHERE id IN (" + placeholders + ")";
 
         logger.info("[Post Repo] ids: " + placeholders);
 

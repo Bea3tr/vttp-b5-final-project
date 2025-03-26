@@ -73,10 +73,8 @@ export class ProfileOthersComponent implements OnInit {
     this.loadPosts();
     this.getSavedPosts(this.id);
     this.getListedItems(this.userId);
-    this.postSvc.reload.subscribe(async (val) => {
+    this.postSvc.reloadLikes.subscribe(async (val) => {
       if (val == true) {
-        console.info('Reloading posts');
-        await this.loadPosts();
         this.getSavedPosts(this.id);
         this.postSvc.reloadSavedPosts(false);
       }
@@ -93,27 +91,25 @@ export class ProfileOthersComponent implements OnInit {
     const comment = this.form.value['comment'];
     this.postSvc
       .postComment(this.id, this.activePostId, comment)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message);
-        this.postSvc.reloadPosts(true);
+        this.displayedComments = await this.getComments(this.activePostId)
       });
     this.form.reset();
-    this.isPopupOpen = false;
   }
 
   editComment() {
     const edited = this.editForm.value['edited'];
     this.postSvc
       .editComment(this.editCommentId, edited)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message);
-        this.postSvc.reloadPosts(true);
+        this.displayedComments = await this.getComments(this.activePostId)
       })
       .catch((err) => {
         console.info(err.message);
       });
     this.editForm.reset();
-    this.isEditCommentOpen = false;
   }
 
   deleteComment(cId: string) {
@@ -135,12 +131,18 @@ export class ProfileOthersComponent implements OnInit {
         console.info(resp.message)
       })
     }
+    // Reload # of likes
+    this.posts.forEach((post) => {
+      this.likeSvc.getLikeCount(post.id).then((resp) => {
+        console.info('Getting likes:', resp)
+        post.likes = resp.likes
+      })
+    })
     this.postSvc.reloadSavedPosts(true)
   }
 
   removeSavedPost(postId: string) {
     this.postSvc.removeSavedPost(this.id, postId);
-    this.postSvc.reloadSavedPosts(true);
   }
 
   /////////////// Page controls ////////////////

@@ -179,13 +179,11 @@ export class ProfileComponent implements OnInit {
     const comment = this.form.value['comment'];
     this.postSvc
       .postComment(this.id, this.activePostId, comment)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message);
-        this.toReload = 'post';
-        this.postSvc.reloadPosts(true);
+        this.displayedComments = await this.getComments(this.activePostId)
       });
     this.form.reset();
-    this.isPopupOpen = false;
   }
 
   editPost() {
@@ -208,16 +206,14 @@ export class ProfileComponent implements OnInit {
     const edited = this.editForm.value['edited'];
     this.postSvc
       .editComment(this.editCommentId, edited)
-      .then((resp) => {
+      .then(async (resp) => {
         console.info(resp.message);
-        this.toReload = 'post';
-        this.postSvc.reloadPosts(true);
+        this.displayedComments = await this.getComments(this.activePostId)
       })
       .catch((err) => {
         console.info(err.message);
       });
     this.editForm.reset();
-    this.isEditCommentOpen = false;
   }
 
   deletePost(postId: string) {

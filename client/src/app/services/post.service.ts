@@ -8,6 +8,7 @@ export class PostService {
     
     private http = inject(HttpClient)
     reload = new BehaviorSubject<boolean>(false)
+    reloadLikes = new BehaviorSubject<boolean>(false)
 
     uploadPost(form: any, files: FileList, userId: string) {
         const formData = new FormData()
@@ -95,7 +96,7 @@ export class PostService {
 
 
     reloadSavedPosts(boolean: boolean) {
-        this.reload.next(boolean)
+        this.reloadLikes.next(boolean)
     }
     
     reloadPosts(boolean: boolean) {
