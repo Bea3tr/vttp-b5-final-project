@@ -36,16 +36,7 @@ export class HomeComponent implements OnInit {
     private chatSvc: ChatService,
     private shopSvc: ShopService
   ) {
-    const icons = [
-      'plus',
-      'cross',
-      'shelter',
-      'shop',
-      'color-shelter',
-      'color-shop',
-      'comment',
-      'img',
-    ];
+    const icons = ['plus','cross','shelter','shop','color-shelter','color-shop','comment','img'];
     icons.forEach((icon) => {
       this.matIconRegistry.addSvgIcon(
         icon,

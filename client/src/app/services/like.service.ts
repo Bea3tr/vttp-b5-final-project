@@ -8,11 +8,11 @@ export class LikeService {
   private http = inject(HttpClient)
 
   likePost(postId: string) {
-    return this.http.post(`/api/likes/${postId}`, {});
+    return this.http.post<any>(`/api/likes/${postId}`, {});
   }
 
   unlikePost(postId: string) {
-    return this.http.delete(`/api/likes/${postId}`);
+    return this.http.delete<any>(`/api/likes/${postId}`);
   }
 
   getLikeCount(postId: string): Promise<any> {

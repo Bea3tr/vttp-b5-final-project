@@ -239,10 +239,14 @@ export class ProfileComponent implements OnInit {
   savePostToUser(postId: string) {
     if (this.savedPostIds.includes(postId)) {
       this.removeSavedPost(postId);
-      this.likeSvc.unlikePost(postId).subscribe(() => {});
+      this.likeSvc.unlikePost(postId).subscribe((resp) => {
+        console.info(resp.message)
+      })
     } else {
       this.postSvc.savePostToUser(this.id, postId);
-      this.likeSvc.likePost(postId).subscribe(() => {});
+      this.likeSvc.likePost(postId).subscribe((resp) => {
+        console.info(resp.message)
+      })
     }
     this.toReload = 'post-self';
     this.postSvc.reloadSavedPosts(true);

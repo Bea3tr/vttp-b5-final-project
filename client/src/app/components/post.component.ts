@@ -120,10 +120,14 @@ export class PostComponent implements OnInit {
   savePostToUser(postId: string) {
     if (this.savedPosts.includes(postId)) {
       this.removeSavedPost(postId)
-      this.likeSvc.unlikePost(postId).subscribe(() => {})
+      this.likeSvc.unlikePost(postId).subscribe((resp) => {
+        console.info(resp.message)
+      })
     } else {
       this.postSvc.savePostToUser(this.id, postId)
-      this.likeSvc.likePost(postId).subscribe(() => {})
+      this.likeSvc.likePost(postId).subscribe((resp) => {
+        console.info(resp.message)
+      })
     }
     this.postSvc.reloadSavedPosts(true)
   }
@@ -199,6 +203,7 @@ export class PostComponent implements OnInit {
           post.currentFileIndex = 0
           this.likeSvc.getLikeCount(post.id)
             .then((resp) => {
+              console.info('Getting likes:', resp)
               post.likes = resp.likes
             })
         })
