@@ -12,10 +12,9 @@ export class ChatService {
 
   connect(userId: string) {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    // const domain = window.location.host;
-    // const socketUrl = `${protocol}://${domain}/chat?userId=${userId}`;
+    const domain = window.location.host;
+    const socketUrl = `${protocol}://${domain}/chat?${userId}`;
 
-    const socketUrl = `${protocol}://localhost:8080/chat?${userId}`
     console.log(`WebSocket connecting to: ${socketUrl}`); 
     this.webSocket = new WebSocket(socketUrl);
 
