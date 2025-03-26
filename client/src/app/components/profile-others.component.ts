@@ -124,22 +124,15 @@ export class ProfileOthersComponent implements OnInit {
       this.removeSavedPost(postId)
       this.likeSvc.unlikePost(postId).subscribe((resp) => {
         console.info(resp.message)
+        this.reloadLikes()
       })
     } else {
       this.postSvc.savePostToUser(this.id, postId)
       this.likeSvc.likePost(postId).subscribe((resp) => {
         console.info(resp.message)
+        this.reloadLikes()
       })
     }
-    // Reload # of likes
-    let posts = this.posts
-    posts.forEach((post) => {
-      this.likeSvc.getLikeCount(post.id).then((resp) => {
-        console.info('Getting likes:', resp)
-        post.likes = resp.likes
-      })
-    })
-    this.posts = posts
     this.postSvc.reloadSavedPosts(true)
   }
 
@@ -262,5 +255,18 @@ export class ProfileOthersComponent implements OnInit {
       .catch((err: HttpErrorResponse) => {
         console.info(err.error.message);
       });
+  }
+
+  private reloadLikes() {
+    // Reload # of likes
+    console.info('Reloading likes...');
+    let posts = this.posts;
+    posts.forEach(async (post) => {
+      await this.likeSvc.getLikeCount(post.id).then((resp) => {
+        console.info('Getting likes:', resp);
+        post.likes = resp.likes;
+      });
+    });
+    this.posts = posts;
   }
 }

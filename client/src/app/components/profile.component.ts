@@ -238,6 +238,7 @@ export class ProfileComponent implements OnInit {
       this.postSvc.savePostToUser(this.id, postId);
       this.likeSvc.likePost(postId).subscribe((resp) => {
         console.info(resp.message)
+        this.reloadLikes()
       })
       this.postSvc.reloadSavedPosts(true);
     }
@@ -248,6 +249,7 @@ export class ProfileComponent implements OnInit {
     this.likeSvc.unlikePost(postId).subscribe((resp) => {
       console.info(resp.message)
       this.savedPosts = this.savedPosts.filter((post) => post.id !== postId)
+      this.reloadLikes()
     })
     this.postSvc.reloadSavedPosts(true)
   }
@@ -511,5 +513,18 @@ export class ProfileComponent implements OnInit {
         Validators.minLength(8),
       ]),
     });
+  }
+
+  private reloadLikes() {
+    // Reload # of likes
+    console.info('Reloading likes...');
+    let posts = this.posts;
+    posts.forEach(async (post) => {
+      await this.likeSvc.getLikeCount(post.id).then((resp) => {
+        console.info('Getting likes:', resp);
+        post.likes = resp.likes;
+      });
+    });
+    this.posts = posts;
   }
 }
