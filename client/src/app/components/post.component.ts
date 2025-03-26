@@ -49,16 +49,16 @@ export class PostComponent implements OnInit {
   protected displayedComments: Comment[] = [];
 
   ngOnInit(): void {
+    this.loadPublicPosts();
     this.form = this.fb.group({
       comment: this.fb.control<string>('', [
         Validators.required,
         Validators.minLength(3),
       ]),
     });
-    this.actRoute.params.subscribe(async (params) => {
+    this.actRoute.params.subscribe((params) => {
       this.id = params['userId'];
     });
-    this.loadPublicPosts();
     this.getSavedPosts(this.id);
     this.postSvc.reload.subscribe(async (val) => {
       if (val == true) {
@@ -66,7 +66,7 @@ export class PostComponent implements OnInit {
         this.postSvc.reloadPosts(false);
       }
     });
-    this.postSvc.reloadLikes.subscribe(async (val) => {
+    this.postSvc.reloadLikes.subscribe((val) => {
       if (val == true) {
         this.getSavedPosts(this.id);
         this.postSvc.reloadSavedPosts(false);

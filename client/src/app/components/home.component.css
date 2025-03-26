@@ -60,6 +60,11 @@ mat-radio-button {
   padding: 0 15px;
 }
 
+.post-card {
+  max-width: 40vw;
+  margin: auto 10vw 2vh 20vw;
+}
+
 hr {
   border: solid lightgray 0.5px;
   width: 100%;
