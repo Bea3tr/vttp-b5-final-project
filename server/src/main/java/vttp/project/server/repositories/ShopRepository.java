@@ -62,7 +62,7 @@ public class ShopRepository {
 
   public Optional<List<Item>> getItems(String userId) {
     Query query = Query.query(Criteria.where(F_PURCHASED).is(false)
-      .andOperator(Criteria.where(USERID)).ne(userId));
+      .andOperator(Criteria.where(USERID).ne(userId)));
     // Find all items
     List<Document> itemDocs = mgTemplate.find(query, Document.class, C_ITEM);
     logger.info("[Shop Repo] Retrieving items: " + itemDocs);
