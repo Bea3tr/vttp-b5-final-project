@@ -275,22 +275,26 @@ public class APIService {
 
     public JsonArray getSavedPf(String userId) {
         Document result = apiRepo.getSavedPf(userId);
-        List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
         JsonArrayBuilder pfArr = Json.createArrayBuilder();
-        if (pfIds != null) {
-            for (int id : pfIds)
-                pfArr.add(id);
+        if(result != null) {
+            List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
+            if (pfIds != null) {
+                for (int id : pfIds)
+                    pfArr.add(id);
+            }
         }
         return pfArr.build();
     }
 
     public JsonObject getDataByUserId(String userId) {
         Document result = apiRepo.getSavedPf(userId);
-        List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
-        logger.info("pfIds: " + pfIds);
         JsonArray results = Json.createArrayBuilder().build();
-        if(pfIds != null) {
-            results = apiRepo.getDataByIds(pfIds);
+        if(result != null) {
+            List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
+            logger.info("pfIds: " + pfIds);
+            if(pfIds != null) {
+                results = apiRepo.getDataByIds(pfIds);
+            }
         }
         return Json.createObjectBuilder()
                 .add("message", "success")

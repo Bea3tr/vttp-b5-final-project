@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS myapp;
+DROP DATABASE IF EXISTS pawdiaries;
 
-CREATE DATABASE myapp;
-USE myapp;
+CREATE DATABASE pawdiaries;
+USE pawdiaries;
 
 CREATE TABLE users (
     id VARCHAR(8) NOT NULL,
@@ -16,8 +16,6 @@ CREATE TABLE users (
 CREATE TABLE posts (
 	id VARCHAR(8) NOT NULL,
     user_id VARCHAR(8) NOT NULL,
-    name VARCHAR(32) NOT NULL,
-    user_img MEDIUMBLOB NULL,
 	post MEDIUMTEXT NULL,
     timestamp DATE NOT NULL,
     status VARCHAR(8) NOT NULL,

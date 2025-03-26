@@ -61,7 +61,7 @@
             <mat-card-actions>
               <button mat-icon-button (click)="savePostToUser(p.id)"
                 [ngClass]="{'active': savedPostIds.includes(p.id)}">
-                <mat-icon matBadge="p.likes">favorite</mat-icon>
+                <mat-icon matBadge="{{p.likes}}">favorite</mat-icon>
               </button>
               <button mat-icon-button (click)="openPopup(p.id)">
                 <mat-icon svgIcon="comment"></mat-icon>

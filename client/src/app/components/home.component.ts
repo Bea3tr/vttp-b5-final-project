@@ -127,13 +127,13 @@ export class HomeComponent implements OnInit {
       .uploadPost(this.form, this.selectedFiles, this.id)
       .then((resp) => {
         alert(resp.message);
+        this.postSvc.reloadPosts(true);
       })
       .catch((err: HttpErrorResponse) => {
         alert(err.error.message);
       });
     this.form.reset();
     this.isPopupOpen = false;
-    this.postSvc.reloadPosts(true);
   }
 
   searchUser(user: UserInfo) {

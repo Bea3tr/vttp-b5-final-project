@@ -364,12 +364,12 @@ export class ProfileComponent implements OnInit {
       .updatePic(this.selectedFile, this.id)
       .then((resp) => {
         alert(resp.message);
+        this.toReload = 'user';
+        this.postSvc.reloadSavedPosts(true);
       })
-      .catch((err) => {
-        alert('Error updating profile picture');
+      .catch((err: HttpErrorResponse) => {
+        alert(err.error.message);
       });
-    this.toReload = 'user';
-    this.postSvc.reloadSavedPosts(true);
     this.isEditProfileOpen = false;
   }
 
