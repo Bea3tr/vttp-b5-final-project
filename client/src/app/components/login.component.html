@@ -1,7 +1,14 @@
 <div class="container">
   <form [formGroup]="form" (submit)="userLogin()">
     <mat-card class="login-card" appearance="outlined">
-      <mat-card-title>Paw Diaries</mat-card-title>
+      <mat-card-title class="col">
+        <div class="circular-container">
+          <img src="pawprint.png">
+        </div>
+        <div>
+          Paw Diaries
+        </div>
+      </mat-card-title>
       <mat-card-content>
           <div class="login-container">
               <mat-form-field>

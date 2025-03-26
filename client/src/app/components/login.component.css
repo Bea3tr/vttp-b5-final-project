@@ -1,59 +1,86 @@
 .container {
-    display: flex;
-    justify-content: center; 
-    align-items: center;      
-    height: 100vh;     
-    width: 100vw;    
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 
 .login-container mat-form-field {
-    width: 80%;
+  width: 80%;
 }
 
 .login-card {
-    width: 40vw;
-    margin: auto;
-    text-align: center;
-    padding: 10px 0;
+  width: 40vw;
+  margin: auto;
+  text-align: center;
+  padding: 10px 0;
 }
 
 mat-card-title {
-    padding: 10px;
+  padding: 10px;
 }
 
 mat-card-actions {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 mat-card-actions button {
-    width: 80%;
+  width: 80%;
 }
 
 hr {
-    border: solid lightgray 0.5px;
-    width: 80%;
-    margin-bottom:15px;
+  border: solid lightgray 0.5px;
+  width: 80%;
+  margin-bottom: 15px;
 }
 
 button {
-    margin: 5px;
+  margin: 5px;
 }
 
 span {
-    font-size: small;
-    margin: 10px;
+  font-size: small;
+  margin: 10px;
 }
 
 a {
-    text-decoration: none;
-    color: rgb(0, 140, 255);
+  text-decoration: none;
+  color: rgb(0, 140, 255);
 }
 
 .forgot {
-    text-align: left;
-    font-size: small;
-    margin: auto;
-    width: 80%;
+  text-align: left;
+  font-size: small;
+  margin: auto;
+  width: 80%;
 }
 
+.circular-container {
+  /* Same length */
+  width: 7vh;
+  height: 7vh;
+  border-radius: 50%;
+  overflow: hidden;
+  /* Ensures the image stays inside */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circular-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.col {
+    display: flex;
+    align-items: center;
+    margin: auto;
+}
+
+.col div {
+    margin-right: 5px;
+}
