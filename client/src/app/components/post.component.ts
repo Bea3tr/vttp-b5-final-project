@@ -19,7 +19,7 @@ export class PostComponent implements OnInit {
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
     private actRoute: ActivatedRoute, private postSvc: PostService, private authSvc: AuthService,
     private fb: FormBuilder, private likeSvc: LikeService) {
-    const icons = ["comment", "thumbsup", "thumbsdown", "send"]
+    const icons = ["comment", "send", "cross"]
     icons.forEach((icon) => {
       this.matIconRegistry.addSvgIcon(
         icon,
@@ -120,10 +120,10 @@ export class PostComponent implements OnInit {
   savePostToUser(postId: string) {
     if (this.savedPosts.includes(postId)) {
       this.removeSavedPost(postId)
-      this.likeSvc.unlikePost(postId)
+      this.likeSvc.unlikePost(postId).subscribe(() => {})
     } else {
       this.postSvc.savePostToUser(this.id, postId)
-      this.likeSvc.likePost(postId)
+      this.likeSvc.likePost(postId).subscribe(() => {})
     }
     this.postSvc.reloadSavedPosts(true)
   }

@@ -39,15 +39,7 @@ export class ProfileComponent implements OnInit {
     private shopSvc: ShopService,
     private likeSvc: LikeService
   ) {
-    const icons = [
-      'shelter',
-      'shop',
-      'comment',
-      'cross',
-      'thumbsup',
-      'thumbsdown',
-      'send',
-    ];
+    const icons = ['comment','cross','send'];
     icons.forEach((icon) => {
       this.matIconRegistry.addSvgIcon(
         icon,
@@ -247,10 +239,10 @@ export class ProfileComponent implements OnInit {
   savePostToUser(postId: string) {
     if (this.savedPostIds.includes(postId)) {
       this.removeSavedPost(postId);
-      this.likeSvc.unlikePost(postId);
+      this.likeSvc.unlikePost(postId).subscribe(() => {});
     } else {
       this.postSvc.savePostToUser(this.id, postId);
-      this.likeSvc.likePost(postId);
+      this.likeSvc.likePost(postId).subscribe(() => {});
     }
     this.toReload = 'post-self';
     this.postSvc.reloadSavedPosts(true);
