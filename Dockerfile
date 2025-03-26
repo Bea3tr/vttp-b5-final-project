@@ -33,6 +33,9 @@ WORKDIR /app
 
 COPY --from=j-build /src/target/server-0.0.1-SNAPSHOT.jar app.jar
 
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar /app/jmx_exporter.jar
+COPY server/prometheus-config.yaml /app/prometheus-config.yaml
+
 ENV PORT=8080
 ENV SPRING_DATA_REDIS_HOST=localhost SPRING_DATA_REDIS_PORT=6379
 ENV SPRING_DATA_REDIS_PASSWORD="" SPRING_DATA_REDIS_USERNAME=""
@@ -46,7 +49,9 @@ ENV PETFINDER_ID="" PETFINDER_SECRET=""
 ENV SPRING_MAIL_HOST=smtp.gmail.com SPRING_MAIL_PORT=587
 ENV SPRING_MAIL_USERNAME="" SPRING_MAIL_PASSWORD=""
 
-EXPOSE ${PORT}
+ENV DOMAIN_NAME=""
+
+EXPOSE ${PORT} 9404
 
 SHELL ["/bin/sh", "-c"]
-ENTRYPOINT SERVER_PORT=${PORT} java -jar app.jar
+ENTRYPOINT SERVER_PORT=${PORT} java -javaagent:/app/jmx_exporter.jar=9404:/app/prometheus-config.yaml -jar app.jar

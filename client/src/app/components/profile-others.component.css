@@ -284,4 +284,8 @@ div {
       /* Take up more space on small screens */
       max-width: none;
   }
+
+  mat-card-content div {
+    margin: 10px 2px;
+  }
 }

@@ -21,14 +21,17 @@ import { ResetComponent } from './components/reset.component';
 import { ProfileOthersComponent } from './components/profile-others.component';
 import { ChatService } from './services/chat.service';
 import { ChatComponent } from './components/chat.component';
+import { MarketplaceComponent } from './components/marketplace.component';
+import { ShopService } from './services/shop.service';
+import { LikeService } from './services/like.service';
 
 @NgModule({
   declarations: 
     [ AppComponent, LoginComponent, HomeComponent, RegisterComponent, PostComponent, 
-      ShelterComponent, ProfileComponent, ResetComponent, ProfileOthersComponent, ChatComponent ],
+      ShelterComponent, ProfileComponent, ResetComponent, ProfileOthersComponent, ChatComponent, MarketplaceComponent ],
   imports: [ BrowserModule, AppRoutingModule, MaterialModule, ReactiveFormsModule, FormsModule ],
   providers: [ provideHttpClient(), ApiService, AuthService, PostService, ProfileService, ApiStore,
-    ChatService ],
+    ChatService, ShopService, LikeService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

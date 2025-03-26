@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -86,7 +87,7 @@ public class PostController {
             }
             return ResponseEntity.ok(postArr.build().toString());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Json.createObjectBuilder()
                             .add("message", ex.getMessage())
                             .build().toString());
@@ -108,7 +109,7 @@ public class PostController {
             }
             return ResponseEntity.ok(postArr.build().toString());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Json.createObjectBuilder()
                             .add("message", ex.getMessage())
                             .build().toString());
@@ -130,7 +131,7 @@ public class PostController {
             }
             return ResponseEntity.ok(postArr.build().toString());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Json.createObjectBuilder()
                             .add("message", ex.getMessage())
                             .build().toString());
@@ -146,7 +147,7 @@ public class PostController {
                     .add("message", "Deleted " + postId + ": " + deleted)
                     .build().toString());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Json.createObjectBuilder()
                             .add("message", ex.getMessage())
                             .build().toString());
@@ -164,7 +165,7 @@ public class PostController {
                     .add("message", "Edited post")
                     .build().toString());
         }
-        return ResponseEntity.status(400)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Json.createObjectBuilder()
                         .add("message", "Error editing post")
                         .build().toString());
@@ -181,7 +182,7 @@ public class PostController {
                     .add("message", "Saved data to user")
                     .build().toString());
         }
-        return ResponseEntity.status(400)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Json.createObjectBuilder()
                         .add("message", "Error saving data to user")
                         .build().toString());
@@ -199,7 +200,7 @@ public class PostController {
                     .add("message", "Removed data from user")
                     .build().toString());
         }
-        return ResponseEntity.status(400)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Json.createObjectBuilder()
                         .add("message", "Error removing data from user")
                         .build().toString());
@@ -224,20 +225,18 @@ public class PostController {
     public ResponseEntity<String> getPostsSaved(@PathVariable String userId) {
         try {
             logger.info("[Post Controller] Retrieving posts...");
+            JsonArrayBuilder postArr = Json.createArrayBuilder();
             Optional<List<Post>> result = postSvc.getSavedPostsData(userId);
             if (result.isEmpty()) {
-                return ResponseEntity.ok(Json.createObjectBuilder()
-                        .add("message", "No saved data")
-                        .build().toString());
+                return ResponseEntity.ok(postArr.build().toString());
             }
             List<Post> posts = result.get();
-            JsonArrayBuilder postArr = Json.createArrayBuilder();
             for (Post p : posts) {
                 postArr.add(Post.toJson(p));
             }
             return ResponseEntity.ok(postArr.build().toString());
         } catch (DataAccessException ex) {
-            return ResponseEntity.status(400)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Json.createObjectBuilder()
                             .add("message", ex.getMessage())
                             .build().toString());

@@ -218,10 +218,6 @@ li a img {
   height: 7vh;
 }
 
-img {
-  height: 7vh;
-}
-
 /* Side Navigation Bar */
 .sidenav {
   height: 100vh;
@@ -266,6 +262,74 @@ img {
 
 .col div {
     margin-right: 5px;
+}
+
+.detail-box {
+  display: flex;
+  align-items: center;
+}
+
+.detail-box div {
+  margin-right: 10px;
+}
+
+.edit-popup {
+  background: white;
+  padding: 20px;
+  width: 50vw;
+  border-radius: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.media-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.media-file {
+  width: 100%;
+  height: auto;
+  object-fit: fill;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.top-right {
+  margin-left: auto;
+}
+
+.nav-button.left {
+  left: 10px;
+}
+
+.nav-button.right {
+  right: 10px;
+}
+
+.nav-button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.item-desc {
+  text-align: left;
 }
 
 @media screen and (max-width: 768px) {

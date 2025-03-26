@@ -176,9 +176,10 @@ export class ShelterComponent implements OnInit {
   }
 
   savePfToUser(pfId: number) {
-    this.apiSvc.savePfToUser(this.id, pfId)
     if (this.savedPfs.includes(pfId)) {
       this.removeSavedPf(pfId)
+    } else {
+      this.apiSvc.savePfToUser(this.id, pfId)
     }
     this.apiSvc.reloadSavedPfs(true)
   }

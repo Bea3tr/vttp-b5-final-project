@@ -6,32 +6,33 @@
       /></a>
     </li>
     <li class="right-btns">
-      <button mat-icon-button (click)="openSearch()">
+      <button title="Search users" mat-icon-button (click)="openSearch()">
         <mat-icon>search</mat-icon>
       </button>
-      <button mat-icon-button [routerLink]="['/marketplace']">
+      <button title="Marketplace" mat-icon-button (click)="setActiveTab('marketplace')">
         <mat-icon svgIcon="shop"></mat-icon>
       </button>
-      <button mat-icon-button (click)="setActiveTab('shelter')">
+      <button title="Shelter" mat-icon-button (click)="setActiveTab('shelter')">
         <mat-icon svgIcon="shelter"></mat-icon>
       </button>
-      <button mat-icon-button (click)="openPopup()">
+      <button title="Add post" mat-icon-button (click)="openPopup()">
         <mat-icon svgIcon="plus"></mat-icon>
       </button>
-      <button mat-icon-button [matMenuTriggerFor]="chat" 
+      <button title="Chats" mat-icon-button [matMenuTriggerFor]="chat" 
       [ngStyle]="{ 'margin-left': '5px', 'margin-right': '10px' }">
         <mat-icon svgIcon="comment"></mat-icon>
       </button>
       <mat-menu #chat="matMenu">
       @for(chatUser of chatUsers; track $index) {
-        <button mat-menu-item>
+        <button mat-menu-item (click)="openChat(chatUser)">
           <div class="col">
             <div class="circular-container">
-                <img [src]="chatUser.picture">
+                <img [src]="chatUser.user.picture">
             </div>
             <div>
-              {{ chatUser.name }}
+              {{ chatUser.user.name }}
             </div>
+            <div>({{ chatUser.type }})</div>
         </div>
         </button>
       }
@@ -42,15 +43,16 @@
       <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
       <mat-menu #account="matMenu">
         <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
-        <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
         <button class="logout" mat-menu-item (click)="logout()">Logout</button>
       </mat-menu>
     </li>
   </ul>
 
   <div class="sidenav">
-    <a href="#about"><mat-icon svgIcon="color-shop"></mat-icon>Marketplace</a>
-    <a [routerLink]="['/shelter', id]">
+    <a (click)="openList()">
+      <mat-icon svgIcon="color-shop"></mat-icon>List Item
+    </a>
+    <a (click)="setActiveTab('shelter')">
       <mat-icon svgIcon="color-shelter"></mat-icon>Shelter
     </a>
   </div>
@@ -59,6 +61,9 @@
 
   <div *ngIf="activeTab === 'post'"><app-post></app-post></div>
   <div *ngIf="activeTab === 'shelter'"><app-shelter></app-shelter></div>
+  <div *ngIf="activeTab === 'marketplace'">
+    <app-marketplace [id]="id" [user]="user"></app-marketplace>
+  </div>
 
   <div class="popup-container" *ngIf="isPopupOpen">
     <mat-card class="popup" appearance="outlined">
@@ -138,4 +143,152 @@
       </mat-card-content>
     </mat-card>
   </div>
+</div>
+
+<div class="popup-container" *ngIf="isChatOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <div class="detail-box">
+        <div class="circular-container">
+          <img [src]="currentChat.user.picture">
+        </div>
+        <span>{{ currentChat.user.name }} |</span>
+        @if(currentChat.type !== 'private') {
+          <button mat-icon-button (click)="viewItem()">
+            <mat-icon svgIcon="img"></mat-icon>
+          </button>
+          }
+      </div>
+      <div>
+        <button mat-icon-button (click)="deleteChat()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button (click)="closeChat()">
+          <mat-icon svgIcon="cross"></mat-icon>
+        </button>
+      </div>
+    </div>
+    <hr>
+    <mat-card-content>
+      <app-chat [senderId]="id" [receiverId]="currentChat.user.id" [type]="currentChat.type"></app-chat>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isListOpen">
+  <mat-card class="popup" appearance="outlined">
+    <div class="post-header">
+      <span>List Item</span>
+      <button mat-icon-button (click)="closeList()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr />
+    <mat-card-content>
+      <code
+        >Please ensure that all details are entered correctly.<br />
+        Further amendments will not be available after listing.</code
+      >
+      <form
+        id="upload"
+        class="post-form"
+        [formGroup]="listForm"
+        (submit)="listItem()"
+      >
+        <mat-form-field class="desc">
+          <mat-label>Item</mat-label>
+          <input matInput formControlName="item" />
+        </mat-form-field>
+        <mat-form-field class="desc">
+          <mat-label>Item Description</mat-label>
+          <textarea matInput formControlName="description"></textarea>
+        </mat-form-field>
+        <mat-form-field class="desc">
+          <mat-label>Price</mat-label>
+          <input type="number" matInput formControlName="price" />
+        </mat-form-field>
+        <div class="file-input" onclick="document.getElementById('fileInput').click()">
+          <input id="fileInput" type="file" multiple (change)="onFileChange($event)" accept="image/*"/>
+        </div>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <button
+        type="submit"
+        [disabled]="listForm.invalid"
+        form="upload"
+        class="post-btn"
+      >
+        LIST ITEM
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div class="popup-container" *ngIf="isViewOpen">
+  <mat-card class="popup" appearance="outlined">
+    <div class="post-header">
+      <span>{{ chatItem.item }}</span>
+      <button class="top-right" mat-icon-button (click)="closeView()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr />
+    @if (chatItem.files.length > 0) {
+    <div class="media-container">
+      <!-- Display Image -->
+      <img class="media-file" mat-card-image [src]="showFile(chatItem).file" />
+      @if (chatItem.files.length > 1) {
+      <!-- Left Arrow Button -->
+      <button class="nav-button left" (click)="prevFile(chatItem)">&#10094;</button>
+      <!-- Right Arrow Button -->
+      <button class="nav-button right" (click)="nextFile(chatItem)">
+        &#10095;
+      </button>
+      }
+    </div>
+    }
+    <mat-card-content class="item-desc">
+      <div><strong>Description: </strong>{{ chatItem.description }}</div>
+      <p><strong>Price: </strong>${{ chatItem.price | number: '1.2-2' }}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div class="popup-container" *ngIf="isSearchOpen">
+  <mat-card class="popup" appearance="outlined">
+    <div class="post-header">
+      <span>Search Users</span>
+      <button mat-icon-button (click)="closeSearch()">
+        <mat-icon svgIcon="cross"></mat-icon>
+      </button>
+    </div>
+    <hr />
+    <mat-card-content>
+      <form class="post-form">
+        <mat-form-field class="desc">
+          <mat-label>Search</mat-label>
+          <input
+            type="text"
+            matInput
+            [formControl]="searchControl"
+            [matAutocomplete]="auto"
+          />
+          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+            @for (option of filteredOptions | async; track option.id) {
+            <mat-option [value]="option" (onSelectionChange)="searchUser(option)">
+              <div class="col">
+                  <div class="circular-container">
+                      <img [src]="option.picture">
+                    </div>
+                    <div>
+                      {{ option.name }}
+                    </div>
+              </div>
+            </mat-option>
+            }
+          </mat-autocomplete>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

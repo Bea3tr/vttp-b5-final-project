@@ -1,6 +1,7 @@
 package vttp.project.server.repositories;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static vttp.project.server.models.Utils.*;
 @Repository
 public class ChatRepository {
 
+    private static final Logger logger = Logger.getLogger(ChatRepository.class.getName());
     @Autowired
     private MongoTemplate mgTemplate;
 
@@ -45,18 +47,23 @@ public class ChatRepository {
         return mgTemplate.find(query, Document.class, C_CHAT);
     }
 
-    public boolean saveChat(String userId, String partyId) {
+    public boolean saveChat(String userId, String partyId, String type) {
+        Document toSave = new Document("partyId", partyId)
+            .append("type", type);
         Update updateOps = new Update()
-                .addToSet(F_CHATS, partyId);
+                .addToSet(F_CHATS, toSave);
         Query query = Query.query(Criteria.where(USERID).is(userId));
         UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
         return result.getModifiedCount() > 0;
     }
 
-    public boolean removeChat(String userId, String partyId) {
+    public boolean removeChat(String userId, String partyId, String type) {
+        logger.info("[Chat Repo] Removing chat");
         Query query = new Query(Criteria.where(USERID).is(userId));
+        Document toRemove = new Document("partyId", partyId)
+            .append("type", type);
         Update updateOps = new Update()
-                .pull(F_CHATS, partyId);
+                .pull(F_CHATS, toRemove);
 
         UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
         return result.getModifiedCount() > 0;

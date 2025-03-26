@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AuthService } from '../services/auth.service';
+import { LikeService } from '../services/like.service';
 
 @Component({
   selector: 'app-post',
@@ -17,7 +18,7 @@ export class PostComponent implements OnInit {
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer,
     private actRoute: ActivatedRoute, private postSvc: PostService, private authSvc: AuthService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder, private likeSvc: LikeService) {
     const icons = ["comment", "thumbsup", "thumbsdown", "send"]
     icons.forEach((icon) => {
       this.matIconRegistry.addSvgIcon(
@@ -117,9 +118,12 @@ export class PostComponent implements OnInit {
   }
 
   savePostToUser(postId: string) {
-    this.postSvc.savePostToUser(this.id, postId)
     if (this.savedPosts.includes(postId)) {
       this.removeSavedPost(postId)
+      this.likeSvc.unlikePost(postId)
+    } else {
+      this.postSvc.savePostToUser(this.id, postId)
+      this.likeSvc.likePost(postId)
     }
     this.postSvc.reloadSavedPosts(true)
   }
@@ -127,7 +131,6 @@ export class PostComponent implements OnInit {
   removeSavedPost(postId: string) {
     this.postSvc.removeSavedPost(this.id, postId)
   }
-
 
   /////////////// Page controls ////////////////
 
@@ -190,14 +193,17 @@ export class PostComponent implements OnInit {
   private async loadPublicPosts() {
     try {
       const posts = await this.postSvc.getPublicPosts()
-
       // Assign default index for file navigation
-      posts.forEach(post => {
-        post.currentFileIndex = 0
-      })
-
+      if(posts) {
+        posts.forEach(post => {
+          post.currentFileIndex = 0
+          this.likeSvc.getLikeCount(post.id)
+            .then((resp) => {
+              post.likes = resp.likes
+            })
+        })
+      }
       this.displayedComments = await this.getComments(this.activePostId)
-
       // Now assign posts after all comments are fetched
       this.posts = posts
       console.info('Posts:', this.posts)

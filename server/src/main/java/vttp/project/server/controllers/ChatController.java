@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
 import vttp.project.server.services.ChatService;
 
 @RestController
@@ -39,35 +41,43 @@ public class ChatController {
     @PutMapping("/save/{userId}")
     public ResponseEntity<String> saveChat(@PathVariable String userId, @RequestBody String payload) {
       logger.info("[Chat Ctrl] Saving chat to " + userId);
-      String partyId = Json.createReader(new StringReader(payload))
-        .readObject().getJsonObject("body").getString("partyId");
-      boolean saved = chatSvc.saveChat(userId, partyId);
-      if(saved) {
+      logger.info("[Chat Ctrl] Payload: " + payload);
+      JsonObject inObj = Json.createReader(new StringReader(payload))
+        .readObject().getJsonObject("body");
+      String partyId = inObj.getString("partyId");
+      String type = inObj.getString("type");
+      try {
+        chatSvc.saveChat(userId, partyId, type);
         return ResponseEntity.ok(Json.createObjectBuilder()
           .add("message", "Chat saved")
           .build().toString());
-      }
-      return ResponseEntity.status(400)
+      } catch (Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(Json.createObjectBuilder()
           .add("message", "Error saving chat")
           .build().toString());
+      }
     }
 
     @DeleteMapping("/remove/{userId}")
     public ResponseEntity<String> removeChat(@PathVariable String userId, @RequestBody String payload) {
       logger.info("[Chat Ctrl] Removing chat from " + userId);
-      String partyId = Json.createReader(new StringReader(payload))
-        .readObject().getJsonObject("body").getString("partyId");
-      boolean removed = chatSvc.removeChat(userId, partyId);
-      if(removed) {
+      logger.info("[Chat Ctrl] Payload: " + payload);
+      JsonObject inObj = Json.createReader(new StringReader(payload))
+        .readObject();
+      String partyId = inObj.getString("partyId");
+      String type = inObj.getString("type");
+      try {
+        chatSvc.removeChat(userId, partyId, type);
         return ResponseEntity.ok(Json.createObjectBuilder()
           .add("message", "Chat removed")
           .build().toString());
-      }
-      return ResponseEntity.status(400)
+      } catch (Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(Json.createObjectBuilder()
           .add("message", "Error removing chat")
           .build().toString());
+      }
     }
 
     @GetMapping("/get/{userId}")

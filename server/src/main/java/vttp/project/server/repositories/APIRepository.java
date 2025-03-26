@@ -169,7 +169,7 @@ public class APIRepository {
 
     public boolean savePfToUser(String userId, int pfId) {
         Update updateOps = new Update()
-            .push(F_SAVED_PF, pfId);
+            .addToSet(F_SAVED_PF, pfId);
         Query query = Query.query(Criteria.where(USERID).is(userId));
         UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
         return result.getModifiedCount() > 0;

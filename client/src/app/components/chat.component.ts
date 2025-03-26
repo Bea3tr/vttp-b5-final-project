@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, inject, Input, OnInit, ViewChild } from '@angular/core';
 import { ChatService } from '../services/chat.service';
 import { ChatMessage } from '../models/models';
 
@@ -8,7 +8,10 @@ import { ChatMessage } from '../models/models';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit, AfterViewInit{
+
+  @ViewChild('scrollContainer') 
+  private scrollContainer!: ElementRef;
 
   messages: ChatMessage[] = [];
   messageContent = '';
@@ -24,20 +27,26 @@ export class ChatComponent {
 
   ngOnInit() {
     this.chatSvc.connect(this.senderId);
-    this.chatSvc.saveChat(this.senderId, this.receiverId)
+    this.chatSvc.saveChat(this.senderId, this.receiverId, this.type)
       .then((resp) => {
         console.info(resp.message)
       })
-    this.chatSvc.saveChat(this.receiverId, this.senderId)
+    this.chatSvc.saveChat(this.receiverId, this.senderId, this.type)
       .then((resp) => {
         console.info(resp.message)
       })
 
     this.chatSvc.getMessages().subscribe((message) => {
+      console.info('Real time message:', message)
       this.messages.push(message);
     });
 
     this.loadChatHistory();
+  }
+
+  ngAfterViewInit(): void {
+    console.info('View initialized')
+    this.scrollToBottom();
   }
 
   loadChatHistory() {
@@ -48,6 +57,7 @@ export class ChatComponent {
   }
 
   sendMessage() {
+    this.scrollToBottom()
     console.info('Sending message:', this.messageContent.trim())
     if (this.messageContent.trim()) {
       this.chatSvc.sendMessage(this.senderId, this.receiverId, this.messageContent, this.type);
@@ -55,4 +65,14 @@ export class ChatComponent {
     }
   }
 
+  private scrollToBottom(): void {
+    try {
+      setTimeout(() => { 
+        this.scrollContainer.nativeElement.scrollTop =
+          this.scrollContainer.nativeElement.scrollHeight;
+      }, 100);
+    } catch (err) {
+      console.error('Scroll error:', err);
+    }
+  }
 }

@@ -1,10 +1,10 @@
 <div class="chat-container">
-  <div class="messages">
+  <div #scrollContainer class="messages">
     <div *ngFor="let msg of messages" 
     [ngClass]="{'user-msg right': msg.senderId === senderId, 'other-msg left': msg.senderId === receiverId}">
       <div class="message-content">
         <span class="text">{{ msg.content }}</span>
-        <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+        <span class="timestamp">{{ msg.timestamp | date:'short' }}</span>
       </div>
     </div>
   </div>
@@ -16,5 +16,4 @@
       <mat-icon svgIcon="send"></mat-icon>
     </button>
   </mat-form-field>
-
 </div>

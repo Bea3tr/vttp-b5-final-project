@@ -1,0 +1,4 @@
+rules:
+  - pattern: ".*"
+    name: "jvm_${0}"
+    type: GAUGE

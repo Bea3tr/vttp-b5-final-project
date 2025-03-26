@@ -1,7 +1,8 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateFn, CanDeactivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ProfileService } from '../services/profile.service';
+import { MarketplaceComponent } from '../components/marketplace.component';
 
 export const authGuard: CanActivateFn = 
   (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {

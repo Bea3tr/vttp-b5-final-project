@@ -1,20 +1,13 @@
 <div class="main">
   <ul class="navbar">
-    <li><a [routerLink]="['/home', id]" (click)="switchTab('post')"><img src="pawprint.png"></a></li>
+    <li><a [routerLink]="['/home', id]"><img src="pawprint.png"></a></li>
     <li class="right-btns">
-      <button mat-icon-button [routerLink]="['/marketplace']">
-        <mat-icon svgIcon="shop"></mat-icon>
-      </button>
-      <button mat-icon-button [routerLink]="['/home', id]" (click)="switchTab('shelter')">
-        <mat-icon svgIcon="shelter"></mat-icon>
-      </button>
       <div class="circular-container">
         <img [src]="user.picture">
       </div>
       <button mat-button [matMenuTriggerFor]="account">{{ user.name }}</button>
       <mat-menu #account="matMenu">
         <button mat-menu-item [routerLink]="['/profile', id]">Profile</button>
-        <button mat-menu-item [routerLink]="['/settings', id]">Settings</button>
         <button class="logout" mat-menu-item (click)="logout()">Logout</button>
       </mat-menu>
     </li>
@@ -80,13 +73,15 @@
             <mat-card-actions>
               <button mat-icon-button (click)="savePostToUser(p.id)"
                 [ngClass]="{'active': savedPostIds.includes(p.id)}">
-                <mat-icon>favorite</mat-icon>
+                <mat-icon matBadge="p.likes">favorite</mat-icon>
               </button>
               <button mat-icon-button (click)="openPopup(p.id)">
                 <mat-icon svgIcon="comment"></mat-icon>
               </button>
             </mat-card-actions>
           </mat-card>
+          } @empty {
+            <div style="text-align:center; margin-top: 20px;">No posts</div>
           }
         </div>
       </mat-tab>
@@ -134,13 +129,15 @@
           </mat-card-content>
           <mat-card-actions>
             <button mat-icon-button (click)="removeSavedPost(p.id)" class="active">
-              <mat-icon>favorite</mat-icon>
+              <mat-icon matBadge="p.likes">favorite</mat-icon>
             </button>
             <button mat-icon-button (click)="openPopup(p.id)">
               <mat-icon svgIcon="comment"></mat-icon>
             </button>
           </mat-card-actions>
         </mat-card>
+        } @empty {
+          <div style="text-align:center; margin-top: 20px;">No saved data</div>
         }
       </mat-tab>
       <mat-tab label="ANIMALS">
@@ -231,8 +228,62 @@
           </mat-card-actions>
         </mat-card>
         } @empty {
-        <div style="text-align:center;">No results available</div>
+        <div style="text-align:center; margin-top: 20px;">No saved data</div>
         }
+      </mat-tab>
+      <mat-tab label="LISTED ITEMS">
+        <div class="main-content">
+          @for (item of listedItems; track item.id) {
+            <mat-card class="post-card" appearance="outlined">
+              <mat-card-header>
+                <div
+                  mat-card-avatar
+                  class="post-image"
+                  [ngStyle]="{ 'background-image': 'url(' + item.user_img + ')' }"
+                ></div>
+                <mat-card-title>{{ item.name }}</mat-card-title>
+                <mat-card-subtitle>{{ item.timestamp }}</mat-card-subtitle>
+                @if (item.user_id == id) {
+                <button mat-icon-button [matMenuTriggerFor]="menu" class="top-right">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item [style]="{ color: 'darkred' }" (click)="deleteItem(item.id)">
+                    Unlist
+                  </button>
+                  <button mat-menu-item (click)="purchaseItem(item.id)">
+                    Mark as Sold
+                  </button>
+                </mat-menu>
+                }
+              </mat-card-header>
+              @if (item.files.length > 0) {
+              <div class="media-container">
+                <!-- Display Image -->
+                <img class="media-file" mat-card-image [src]="showFile(item).file" />
+                @if (item.files.length > 1) {
+                <!-- Left Arrow Button -->
+                <button class="nav-button left" (click)="prevFile(item)">&#10094;</button>
+                <!-- Right Arrow Button -->
+                <button class="nav-button right" (click)="nextFile(item)">
+                  &#10095;
+                </button>
+                }
+              </div>
+              }
+              <mat-card-content>
+                <div><strong>Name: </strong>{{ item.item }}</div>
+                <div><strong>Description: </strong>{{ item.description }}</div>
+                <div><strong>Price: </strong>${{ item.price | number: '1.2-2' }}</div>
+                @if(item.purchased) {
+                  <div [ngStyle]="{'color': 'darkred'}"><strong>SOLD</strong></div>
+                }
+              </mat-card-content>
+            </mat-card>
+            } @empty {
+              <div style="text-align:center; margin-top: 20px;">No listed items</div>
+            }
+        </div>
       </mat-tab>
     </mat-tab-group>
   </div>

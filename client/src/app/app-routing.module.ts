@@ -7,6 +7,7 @@ import { RegisterComponent } from './components/register.component';
 import { ProfileComponent } from './components/profile.component';
 import { ResetComponent } from './components/reset.component';
 import { ProfileOthersComponent } from './components/profile-others.component';
+import { MarketplaceComponent } from './components/marketplace.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },

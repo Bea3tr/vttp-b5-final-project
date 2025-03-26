@@ -45,22 +45,25 @@ public class ChatService {
     return builder.build();
   }
 
-  public boolean saveChat(String userId, String partyId) {
-    return chatRepo.saveChat(userId, partyId);
+  public boolean saveChat(String userId, String partyId, String type) {
+    return chatRepo.saveChat(userId, partyId, type);
   }
 
-  public boolean removeChat(String userId, String partyId) {
-    return chatRepo.removeChat(userId, partyId);
+  public boolean removeChat(String userId, String partyId, String type) {
+    return chatRepo.removeChat(userId, partyId, type);
   }
 
   public JsonArray getChats(String userId) {
     Document result = chatRepo.getChats(userId);
     JsonArrayBuilder chatArr = Json.createArrayBuilder();
     try {
-        List<String> chats = result.getList(F_CHATS, String.class);
+        List<Document> chats = result.getList(F_CHATS, Document.class);
         if (!chats.isEmpty()) {
-            for (String id : chats)
-                chatArr.add(id);
+            for (Document chat : chats)
+                chatArr.add(Json.createObjectBuilder()
+                  .add("id", chat.getString("partyId"))
+                  .add("type", chat.getString("type"))
+                  .build());
         }
     } catch (Exception ex) {
         // ignore null return

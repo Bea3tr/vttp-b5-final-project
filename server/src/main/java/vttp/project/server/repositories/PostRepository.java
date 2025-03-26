@@ -122,7 +122,7 @@ public class PostRepository {
 
     public boolean savePostToUser(String userId, String postId) {
         Update updateOps = new Update()
-                .push(F_SAVED_POSTS, postId);
+                .addToSet(F_SAVED_POSTS, postId);
         Query query = Query.query(Criteria.where(USERID).is(userId));
         UpdateResult result = mgTemplate.upsert(query, updateOps, C_USER);
         return result.getModifiedCount() > 0;

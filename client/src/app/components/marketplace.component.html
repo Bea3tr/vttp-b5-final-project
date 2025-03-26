@@ -1,0 +1,103 @@
+<div class="main-content">
+  <mat-expansion-panel hideToggle>
+    <mat-expansion-panel-header>
+      <mat-panel-title> 
+        Filter Results
+        <button mat-icon-button form="filterForm" type="submit" [disabled]="listForm.invalid">
+          <mat-icon svgIcon="refresh"></mat-icon>
+        </button>
+      </mat-panel-title>
+      <mat-panel-description>
+          <button mat-button class="top-right" (click)="getAllItems()">All</button>
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <form id="filterForm" [formGroup]="listForm" (submit)="filter()">
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput type="text" formControlName="filter">
+      </mat-form-field>
+    </form>
+    
+  </mat-expansion-panel>
+  @for (item of items; track item.id) {
+  <mat-card class="post-card" appearance="outlined">
+    <mat-card-header>
+      <div
+        mat-card-avatar
+        class="post-image"
+        [ngStyle]="{ 'background-image': 'url(' + item.user_img + ')' }"
+      ></div>
+      <mat-card-title>{{ item.name }}</mat-card-title>
+      <mat-card-subtitle>{{ item.timestamp }}</mat-card-subtitle>
+    </mat-card-header>
+    @if (item.files.length > 0) {
+    <div class="media-container">
+      <!-- Display Image -->
+      <img class="media-file" mat-card-image [src]="showFile(item).file" />
+      @if (item.files.length > 1) {
+      <!-- Left Arrow Button -->
+      <button class="nav-button left" (click)="prevFile(item)">&#10094;</button>
+      <!-- Right Arrow Button -->
+      <button class="nav-button right" (click)="nextFile(item)">
+        &#10095;
+      </button>
+      }
+    </div>
+    }
+    <mat-card-content>
+      <div><strong>Name: </strong>{{ item.item }}</div>
+      <div><strong>Description: </strong>{{ item.description }}</div>
+      <div><strong>Price: </strong>${{ item.price | number: '1.2-2' }}</div>
+    </mat-card-content>
+    <mat-card-actions>
+      <button
+        mat-icon-button
+        (click)="saveItemToUser(item.id)"
+        [ngClass]="{ active: savedItems.includes(item.id) }"
+      >
+        <mat-icon>favorite</mat-icon>
+      </button>
+      @if(item.user_id !== id) {
+      <button
+        mat-flat-button
+        (click)="openChatSeller(item)"
+        [ngStyle]="{ 'background-color': 'green', 'margin-left': '5px' }">
+        Chat
+      </button>
+      }
+    </mat-card-actions>
+  </mat-card>
+  }
+</div>
+
+<div class="popup-container" *ngIf="isChatOpen">
+  <mat-card class="edit-popup" appearance="outlined">
+    <div class="post-header">
+      <div class="detail-box">
+        <div class="circular-container">
+          <img [src]="currentChat.user.picture" />
+        </div>
+        <span>{{ currentChat.user.name }}</span>
+        @if(currentChat.type !== 'private') {
+        <div>[{{ chatItem.item }}]</div>
+        }
+      </div>
+      <div>
+        <button mat-icon-button (click)="deleteChat()">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-icon-button (click)="closeChat()">
+          <mat-icon svgIcon="cross"></mat-icon>
+        </button>
+      </div>
+    </div>
+    <hr />
+    <mat-card-content>
+      <app-chat
+        [senderId]="id"
+        [receiverId]="currentChat.user.id"
+        [type]="currentChat.type"
+      ></app-chat>
+    </mat-card-content>
+  </mat-card>
+</div>

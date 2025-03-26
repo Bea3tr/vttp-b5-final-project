@@ -7,11 +7,6 @@ import { PfResponse, Post, UserInfo } from "../models/models";
 export class ProfileService {
 
     private http = inject(HttpClient)
-    activeTab = new BehaviorSubject<string>('post')
-
-    reloadActiveTab(tab: string) {
-        this.activeTab.next(tab)
-    }
 
     isUser(id: string) {
         return id == sessionStorage.getItem('user')

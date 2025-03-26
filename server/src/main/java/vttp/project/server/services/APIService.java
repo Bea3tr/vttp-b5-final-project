@@ -277,7 +277,7 @@ public class APIService {
         Document result = apiRepo.getSavedPf(userId);
         List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
         JsonArrayBuilder pfArr = Json.createArrayBuilder();
-        if (!pfIds.isEmpty()) {
+        if (pfIds != null) {
             for (int id : pfIds)
                 pfArr.add(id);
         }
@@ -288,7 +288,10 @@ public class APIService {
         Document result = apiRepo.getSavedPf(userId);
         List<Integer> pfIds = result.getList(F_SAVED_PF, Integer.class);
         logger.info("pfIds: " + pfIds);
-        JsonArray results = apiRepo.getDataByIds(pfIds);
+        JsonArray results = Json.createArrayBuilder().build();
+        if(pfIds != null) {
+            results = apiRepo.getDataByIds(pfIds);
+        }
         return Json.createObjectBuilder()
                 .add("message", "success")
                 .add("results", results)

@@ -16,15 +16,19 @@ public class Utils {
         public static final String C_USER = "user_details";
         public static final String C_COMMENT = "post_comments";
         public static final String C_CHAT = "chats";
+        public static final String C_ITEM = "items";
+        public static final String C_LIKES = "post_likes";
 
         public static final String F_SAVED_PF = "saved_pf";
         public static final String F_SAVED_POSTS = "saved_posts";
+        public static final String F_SAVED_ITEMS = "saved_items";
         public static final String F_CHATS = "chats";
         public static final String F_SENDER_ID = "sender_id";
         public static final String F_RECEIVER_ID = "receiver_id";
         public static final String F_CONTENT = "content";
         public static final String F_TYPE = "type";
         public static final String F_READ = "read";
+        public static final String F_PURCHASED = "purchased";
 
         public static final String R_PF_TYPES = "pf_types";
         public static final String R_PF_BREEDS = "pf_breeds";
@@ -49,6 +53,10 @@ public class Utils {
         public static final String COMMENT = "comment";
         public static final String COMMENTS = "comments";
         public static final String EDITED = "edited";
+        public static final String ITEM = "item";
+        public static final String DESCRIPTION = "description";
+        public static final String PRICE = "price";
+        public static final String QUANTITY = "quantity";
 
         public static final String SQL_INSERT_USER = """
                         INSERT INTO users (id, name, email, picture, password, google_login)
@@ -139,5 +147,18 @@ public class Utils {
         public static final String SQL_GET_PASSWORD_BY_ID = """
                         SELECT password FROM users WHERE id = ?
                         """;
+
+        public static final String SQL_INSERT_ITEM_MEDIA_FILE = """
+                INSERT INTO item_media_files (id, item_id, type, file)
+                VALUES (?, ?, ?, ?)
+                """;
+
+        public static final String SQL_GET_MEDIA_FILES_BY_ITEMID = """
+                SELECT * FROM item_media_files WHERE item_id = ?
+                """;
+
+        public static final String SQL_DELETE_ITEM_FILES = """
+                DELETE FROM item_media_files WHERE item_id = ?
+                """;
 }
 

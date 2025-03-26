@@ -20,6 +20,7 @@ export interface Post {
     files: MediaFile[],
     timestamp: string,
     status: string,
+    likes: number,
     currentFileIndex: number
 }
 
@@ -90,4 +91,28 @@ export interface ChatMessage {
     content: string,
     timestamp: number,
     read: boolean
+}
+
+export interface Item {
+    id: string,
+    user_id: string,
+    name: string,
+    user_img: string,
+    item: string,
+    description: string,
+    price: number,
+    files: MediaFile[],
+    timestamp: string,
+    purchased: boolean,
+    currentFileIndex: number
+}
+
+export interface ChatUser {
+    user: UserInfo,
+    type: string
+}
+
+export interface SavedChat {
+    id: string,
+    type: string
 }

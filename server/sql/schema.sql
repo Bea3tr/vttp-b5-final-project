@@ -39,3 +39,11 @@ CREATE TABLE media_files (
 			ON DELETE CASCADE
             ON UPDATE CASCADE
 );
+
+CREATE TABLE item_media_files (
+	id VARCHAR(8) NOT NULL,
+    item_id VARCHAR(8) NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    file MEDIUMBLOB NOT NULL,
+    PRIMARY KEY(id)
+);

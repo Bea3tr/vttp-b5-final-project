@@ -1,6 +1,7 @@
 package vttp.project.server.repositories;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -27,7 +28,9 @@ import java.util.logging.Logger;
 public class UserRepository {
 
     private static final Logger logger = Logger.getLogger(UserRepository.class.getName());
-    private static final String IMG_URL = "https://pawdiaries-production.up.railway.app/user.png";
+
+    @Value("${domain.name}")
+    private String DOMAIN;
 
     @Autowired
     private JdbcTemplate template;
@@ -151,7 +154,7 @@ public class UserRepository {
     }
 
     private byte[] getDefaultPic() {
-        RequestEntity<Void> req = RequestEntity.get(IMG_URL)
+        RequestEntity<Void> req = RequestEntity.get(DOMAIN + "/user.png")
                 .accept(MediaType.IMAGE_PNG)
                 .build();
         RestTemplate template = new RestTemplate();
