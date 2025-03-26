@@ -157,10 +157,9 @@ export class HomeComponent implements OnInit {
   }
 
   // Hidden components
-  openChat(chatUser: ChatUser) {
-    this.isChatOpen = true;
+  async openChat(chatUser: ChatUser) {
     this.currentChat = chatUser;
-    this.shopSvc
+    await this.shopSvc
       .getItemById(chatUser.type)
       .then((resp) => {
         this.chatItem = resp;
@@ -170,6 +169,7 @@ export class HomeComponent implements OnInit {
       .catch((err: HttpErrorResponse) => {
         console.info(err.error.message);
       });
+    this.isChatOpen = true;
   }
 
   closeChat() {

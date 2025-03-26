@@ -112,6 +112,7 @@ export class PostComponent implements OnInit {
         console.info(err.message);
       });
     this.editForm.reset();
+    this.isEditCommentOpen = false
   }
 
   deletePost(postId: string) {

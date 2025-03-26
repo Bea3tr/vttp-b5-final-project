@@ -109,16 +109,16 @@ export class MarketplaceComponent implements OnInit {
   }
 
   async openChatSeller(item: Item) {
-    this.isChatOpen = true;
     let user = await this.authSvc.getUserInfo(item.user_id)
     this.currentChat = { user, type: item.id }
-    this.shopSvc.getItemById(item.id)
+    await this.shopSvc.getItemById(item.id)
       .then((resp) => {
         this.chatItem = resp
       })
       .catch((err: HttpErrorResponse) => {
         console.info(err.error.message)
       })
+    this.isChatOpen = true;
     this.chatSvc.reloadChat(true)
   }
 
