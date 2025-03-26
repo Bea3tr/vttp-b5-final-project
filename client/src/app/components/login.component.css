@@ -84,3 +84,9 @@ a {
 .col div {
     margin-right: 5px;
 }
+
+@media screen and (max-width: 768px) {
+    .login-card {
+        width: 90vw;
+    }
+  }
